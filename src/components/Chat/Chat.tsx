@@ -32,7 +32,7 @@ export const Chat = ({ channelUser }: ChannelUserProps) => {
   const [tipAmount, setTipAmount] = useState<number>(0)
 
   useEffect(() => {
-    const socket = io(`http://localhost:5000/chat`, {
+    const socket = io(`http://44.210.101.10/chat`, {
       auth: {
         token: storeToken,
       },
