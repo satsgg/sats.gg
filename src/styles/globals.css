@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  /* Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+  .max-h-600 {
+    height: 600px;
+  }
+
+  body {
+    overflow: hidden;
+  }
+  mux-player {
+    /* --controls: none; */
+    /* --center-controls: none; */
+    --bottom-play-button: reveal;
+    /* --bottom-controls: none; */
+  }
+}
