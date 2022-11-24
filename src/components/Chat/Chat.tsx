@@ -92,9 +92,7 @@ export const Chat = ({ channelUser }: ChannelUserProps) => {
     let amount = 0
     let match
     while ((match = regex.exec(message)) !== null) {
-      let msg = `Found ${match[0]}. `
-      console.log(msg)
-      amount += parseInt(match[0])
+      amount += parseInt(match[0] ?? '0')
     }
     return amount
   }
