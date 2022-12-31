@@ -32,7 +32,7 @@ export const Chat = ({ channelUser }: ChannelUserProps) => {
   const [tipAmount, setTipAmount] = useState<number>(0)
 
   useEffect(() => {
-    const socket = io(`https://sats.gg/chat`, {
+    const socket = io(process.env.NEXT_PUBLIC_CHAT_HOST as string, {
       auth: {
         token: storeToken,
       },

@@ -15,6 +15,8 @@
         "start": "next start",
         "lint": "eslint src",
         "lint-fix": "yarn lint --fix",
+        "fmt": "npx prettier -c src",
+        "fmt-fix": "npx prettier --write src",
         "test-dev": "start-server-and-test dev 3000 test",
         "test-start": "start-server-and-test start 3000 test",
         "test": "run-s test:*",
@@ -31,7 +33,7 @@
         "printWidth": 120,
         "singleQuote": true,
         "useTabs": false,
-        "tabWidth": 4,
+        "tabWidth": 2,
         "semi": false,
         "bracketSpacing": true,
         "trailingComma": "all"
