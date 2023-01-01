@@ -7,6 +7,9 @@ import { inferProcedureInput, inferProcedureOutput } from '@trpc/server'
 import Resizer from 'react-image-file-resizer'
 import useAuthStore from '~/store/useAuthStore'
 import { Spinner } from '~/components/Spinner'
+import IsLoadingSVG from '~/svgs/is-loading.svg'
+import CheckmarkSVG from '~/svgs/checkmark.svg'
+import ClipboardSVG from '~/svgs/clipboard.svg'
 
 type EditUserInput = inferProcedureInput<AppRouter['user']['edit']>
 type UpdateUserInput = inferProcedureInput<AppRouter['user']['updateProfilePic']>
@@ -214,23 +217,7 @@ const ProfileSettings = ({ user }: GetMeOutput) => {
                 onClick={onProfilePicSubmit}
               >
                 {updateProfilePicMutation.isLoading ? (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    className="h-6 w-6 animate-spin"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M6.64 9.788a.75.75 0 01.53.918 5 5 0 007.33 5.624.75.75 0 11.75 1.3 6.501 6.501 0 01-9.529-7.312.75.75 0 01.919-.53zM8.75 6.37a6.5 6.5 0 019.529 7.312.75.75 0 11-1.45-.388A5.001 5.001 0 009.5 7.67a.75.75 0 11-.75-1.3z"
-                      clipRule="evenodd"
-                    />
-                    <path
-                      fillRule="evenodd"
-                      d="M5.72 9.47a.75.75 0 011.06 0l2.5 2.5a.75.75 0 11-1.06 1.06l-1.97-1.97-1.97 1.97a.75.75 0 01-1.06-1.06l2.5-2.5zM14.72 10.97a.75.75 0 011.06 0l1.97 1.97 1.97-1.97a.75.75 0 111.06 1.06l-2.5 2.5a.75.75 0 01-1.06 0l-2.5-2.5a.75.75 0 010-1.06z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
+                  <IsLoadingSVG width={24} height={24} className="animate-spin" strokeWidth={2} />
                 ) : (
                   'Save Image'
                 )}
@@ -305,23 +292,7 @@ const ProfileSettings = ({ user }: GetMeOutput) => {
                   disabled={errors.bio || errors.userName ? true : false}
                 >
                   {editUserMutation.isLoading ? (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="h-6 w-6 animate-spin"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M6.64 9.788a.75.75 0 01.53.918 5 5 0 007.33 5.624.75.75 0 11.75 1.3 6.501 6.501 0 01-9.529-7.312.75.75 0 01.919-.53zM8.75 6.37a6.5 6.5 0 019.529 7.312.75.75 0 11-1.45-.388A5.001 5.001 0 009.5 7.67a.75.75 0 11-.75-1.3z"
-                        clipRule="evenodd"
-                      />
-                      <path
-                        fillRule="evenodd"
-                        d="M5.72 9.47a.75.75 0 011.06 0l2.5 2.5a.75.75 0 11-1.06 1.06l-1.97-1.97-1.97 1.97a.75.75 0 01-1.06-1.06l2.5-2.5zM14.72 10.97a.75.75 0 011.06 0l1.97 1.97 1.97-1.97a.75.75 0 111.06 1.06l-2.5 2.5a.75.75 0 01-1.06 0l-2.5-2.5a.75.75 0 010-1.06z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
+                    <IsLoadingSVG width={24} height={24} className="animate-spin" strokeWidth={2} />
                   ) : (
                     'Save Changes'
                   )}
@@ -346,33 +317,11 @@ const ProfileSettings = ({ user }: GetMeOutput) => {
                     value={user.streamKey}
                   />
                   <button className="rounded-r bg-primary p-2 text-white" onClick={handleStreamKeyClick}>
-                    {showCopied ? (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={1.5}
-                        stroke="currentColor"
-                        className="h-6 w-6"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                      </svg>
-                    ) : (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={1.5}
-                        stroke="currentColor"
-                        className="h-6 w-6"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184"
-                        />
-                      </svg>
-                    )}
+                  {showCopied ? (
+                    <CheckmarkSVG width={24} height={24} strokeWidth={1.5} />
+                  ) : (
+                    <ClipboardSVG width={24} height={24} strokeWidth={1.5} />
+                  )}
                   </button>
                 </div>
                 <button
@@ -381,23 +330,7 @@ const ProfileSettings = ({ user }: GetMeOutput) => {
                   onClick={onSubmitRefreshStreamKey}
                 >
                   {refreshStreamKeyMutation.isLoading ? (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="h-6 w-6 animate-spin"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M6.64 9.788a.75.75 0 01.53.918 5 5 0 007.33 5.624.75.75 0 11.75 1.3 6.501 6.501 0 01-9.529-7.312.75.75 0 01.919-.53zM8.75 6.37a6.5 6.5 0 019.529 7.312.75.75 0 11-1.45-.388A5.001 5.001 0 009.5 7.67a.75.75 0 11-.75-1.3z"
-                        clipRule="evenodd"
-                      />
-                      <path
-                        fillRule="evenodd"
-                        d="M5.72 9.47a.75.75 0 011.06 0l2.5 2.5a.75.75 0 11-1.06 1.06l-1.97-1.97-1.97 1.97a.75.75 0 01-1.06-1.06l2.5-2.5zM14.72 10.97a.75.75 0 011.06 0l1.97 1.97 1.97-1.97a.75.75 0 111.06 1.06l-2.5 2.5a.75.75 0 01-1.06 0l-2.5-2.5a.75.75 0 010-1.06z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
+                    <IsLoadingSVG width={24} height={24} className="animate-spin" strokeWidth={2} />
                   ) : (
                     'Refresh Key'
                   )}
@@ -417,31 +350,9 @@ const ProfileSettings = ({ user }: GetMeOutput) => {
                 />
                 <button className="rounded-r bg-primary p-2 text-white" onClick={handleURLClick}>
                   {showCopiedURL ? (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth={1.5}
-                      stroke="currentColor"
-                      className="h-6 w-6"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                    </svg>
+                    <CheckmarkSVG width={24} height={24} strokeWidth={1.5} />
                   ) : (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth={1.5}
-                      stroke="currentColor"
-                      className="h-6 w-6"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184"
-                      />
-                    </svg>
+                    <ClipboardSVG width={24} height={24} strokeWidth={1.5} />
                   )}
                 </button>
               </div>

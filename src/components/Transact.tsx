@@ -5,6 +5,7 @@ import { Withdraw } from '~/components/Withdraw'
 import { useZodForm } from '~/utils/useZodForm'
 import { z } from 'zod'
 import { SINGLE_TRANSACTION_CAP } from '~/server/service/constants'
+import TransactSVG from '~/svgs/transact.svg'
 
 export const createInvoiceInput = z.object({
   amount: z.number().min(1).max(SINGLE_TRANSACTION_CAP),
@@ -62,40 +63,14 @@ export const Transact = ({}) => {
                   className="mr-2 mb-2 flex grow flex-col items-center rounded bg-primary px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-primary/80"
                   onClick={() => setTransactMode('deposit')}
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"
-                    />
-                  </svg>
+                  <TransactSVG width={24} height={24} />
                   Deposit
                 </button>
                 <button
                   className="mr-2 mb-2 flex grow flex-col items-center rounded bg-primary px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-primary/80"
                   onClick={() => setTransactMode('withdraw')}
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"
-                    />
-                  </svg>
+                  <TransactSVG width={24} height={24} />
                   Withdraw
                 </button>
               </div>
