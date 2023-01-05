@@ -288,7 +288,6 @@ const ProfileSettings = ({ user }: GetMeOutput) => {
                   className={`${
                     errors.bio || errors.userName ? 'bg-gray-500' : ''
                   } align-right inline-flex h-8 w-32 items-center justify-center rounded bg-primary px-2 py-1 text-sm font-semibold shadow-md transition duration-150 ease-in-out hover:bg-primary hover:shadow-lg focus:bg-primary focus:shadow-lg focus:outline-none focus:ring-0 active:bg-primary active:shadow-lg`}
-                  // className="inline-flex w-32 items-center justify-center rounded bg-primary py-1 px-2 text-sm font-semibold text-white"
                   disabled={errors.bio || errors.userName ? true : false}
                 >
                   {editUserMutation.isLoading ? (

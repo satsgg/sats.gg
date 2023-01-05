@@ -8,24 +8,29 @@ type GetMeOutput = inferProcedureOutput<AppRouter['auth']['getMe']>
 interface AuthedUser {
   user: GetMeOutput | undefined
   status: undefined | 'loading' | 'authenticated' | 'unauthenticated'
+  storeToken: string
+  storeNym: string | undefined
+  showBalance: boolean
+
   setUser: (user: GetMeOutput) => void
   unsetUser: () => void
   setStatus: (status: undefined | 'loading' | 'authenticated' | 'unauthenticated') => void
-  storeToken: string
   setStoreToken: (token: string) => void
   unsetStoreToken: () => void
   storeLogin: (token: string) => void
   logout: () => void
-  storeNym: string | undefined
   setNym: () => void
   unsetNym: () => void
-  showBalance: boolean
   setShowBalance: (shouldShow: boolean) => void
 }
 
 const authedUserStore = create<AuthedUser>((set) => ({
   user: undefined,
   status: undefined,
+  storeToken: '',
+  storeNym: undefined,
+  showBalance: false,
+
   setUser: (user: GetMeOutput) => {
     set({ user })
     set({ status: 'authenticated' })
@@ -36,7 +41,6 @@ const authedUserStore = create<AuthedUser>((set) => ({
   setStatus: (status: undefined | 'loading' | 'authenticated' | 'unauthenticated') => {
     set({ status: status })
   },
-  storeToken: '',
   setStoreToken: (storeToken: string) => {
     set({ storeToken })
   },
@@ -52,7 +56,6 @@ const authedUserStore = create<AuthedUser>((set) => ({
     localStorage.removeItem('token')
     set({ user: undefined, storeToken: '' })
   },
-  storeNym: undefined,
   setNym: () => {
     const newNym: string = uniqueNamesGenerator({
       dictionaries: [adjectives, animals, colors], // colors can be omitted here as not used
@@ -84,7 +87,6 @@ const authedUserStore = create<AuthedUser>((set) => ({
     localStorage.removeItem('nym')
     set({ storeNym: undefined })
   },
-  showBalance: false,
   setShowBalance: (shouldShow: boolean) => {
     localStorage.setItem('showBalance', shouldShow.toString())
     set({ showBalance: shouldShow })

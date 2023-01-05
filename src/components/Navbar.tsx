@@ -23,7 +23,15 @@ export const Navbar = ({ openAuthenticate, openTransact }: HeaderProps) => {
   const { user, status: authStatus, logout, showBalance, setShowBalance } = useAuthStore()
   const [showAccountMenu, setShowAccountMenu] = useState(false)
 
+  const { data: myBalance } = trpc.accounting.myBalance.useQuery(
+    undefined, 
+    {
+      enabled: !!user?.id,
+    }
+  )
+
   const utils = trpc.useContext()
+
   const handleLogout = async () => {
     await utils.invalidate()
     setShowAccountMenu(false)
@@ -44,7 +52,7 @@ export const Navbar = ({ openAuthenticate, openTransact }: HeaderProps) => {
               <div className="inline-flex items-center rounded-lg border px-2 py-1 text-sm">
                 <span className="inline-flex items-center hover:cursor-pointer" onClick={openTransact}>
                   <LightningBoltSVG width={20} height={20} className="mr-1 text-primary" />
-                  <span className="w-11">{showBalance ? user.balance : '*******'}</span>
+                  <span className="w-11">{showBalance ? myBalance : '*******'}</span>
                 </span>
                 <span className="ml-2 hover:cursor-pointer" onClick={() => setShowBalance(!showBalance)}>
                   {showBalance ? (
