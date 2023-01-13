@@ -87,10 +87,10 @@ export const StreamBio = ({ channelUser }: ChannelUserProps) => {
                   }
                   onAnimationEnd={() => setFollowAnimation(false)}
                 >
-                  <FollowHeartSVG 
-                    width={20} 
-                    height={20} 
-                    strokeWidth={followsUser ? 0 : 2.0} 
+                  <FollowHeartSVG
+                    width={20}
+                    height={20}
+                    strokeWidth={followsUser ? 0 : 2.0}
                     fill={followsUser ? '' : 'none'}
                     className={`${followAnimation && 'animate-wiggle'} ${followsUser && 'fill-white'}`}
                   />
@@ -111,7 +111,7 @@ export const StreamBio = ({ channelUser }: ChannelUserProps) => {
           </button>
         </div>
       </div>
-      <div className="grow rounded bg-stone-800">
+      <div className="rounded bg-stone-800">
         <div className="p-12">
           <p className="font-semi text-xl text-white">About {channelUser?.userName}</p>
           <p className="font-semi text-lg text-white">{channelUser?.bio}</p>

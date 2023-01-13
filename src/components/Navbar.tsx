@@ -13,7 +13,6 @@ import EyeVisibleSVG from '~/svgs/eye-visible.svg'
 import EyeHiddenSVG from '~/svgs/eye-hidden.svg'
 import AccountSVG from '~/svgs/account.svg'
 
-
 interface HeaderProps {
   openAuthenticate: () => void
   openTransact: () => void
@@ -23,12 +22,9 @@ export const Navbar = ({ openAuthenticate, openTransact }: HeaderProps) => {
   const { user, status: authStatus, logout, showBalance, setShowBalance } = useAuthStore()
   const [showAccountMenu, setShowAccountMenu] = useState(false)
 
-  const { data: myBalance } = trpc.accounting.myBalance.useQuery(
-    undefined, 
-    {
-      enabled: !!user?.id,
-    }
-  )
+  const { data: myBalance } = trpc.accounting.myBalance.useQuery(undefined, {
+    enabled: !!user?.id,
+  })
 
   const utils = trpc.useContext()
 
@@ -58,7 +54,7 @@ export const Navbar = ({ openAuthenticate, openTransact }: HeaderProps) => {
                   {showBalance ? (
                     <EyeVisibleSVG width={16} height={16} fill="currentColor" />
                   ) : (
-                    <EyeHiddenSVG width={16} height={16} fill="currentColor"/>
+                    <EyeHiddenSVG width={16} height={16} fill="currentColor" />
                   )}
                 </span>
               </div>

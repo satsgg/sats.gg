@@ -10,10 +10,12 @@ interface ChannelUserProps {
 
 export const StreamContainer = ({ channelUser }: ChannelUserProps) => {
   return (
-    <div className="flex grow flex-col">
-      <div className="aspect-video">
+    <div className="flex min-w-0 grow flex-col overflow-y-auto">
+      {/* <div className="min-h-0"> */}
+      <div className="max-h-[calc(100vh-8rem)] border-2 border-red-600 2xl:border-white">
         <Stream channelUser={channelUser} />
       </div>
+      {/* </div> */}
 
       <StreamBio channelUser={channelUser} />
     </div>

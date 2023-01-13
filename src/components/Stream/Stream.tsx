@@ -5,13 +5,13 @@ import { AppRouter } from '~/server/routers/_app'
 
 type UserSingleOutput = inferProcedureOutput<AppRouter['user']['getUser']>
 interface UserSingleProps {
-  user: UserSingleOutput
+  channelUser: UserSingleOutput
 }
 
 export const Stream = ({ channelUser }: UserSingleProps) => {
   const videoEl = useRef(null)
 
-  console.log('playbackid', channelUser.playbackId)
+  console.log('playbackid', channelUser?.playbackId)
   console.log('channelUser', channelUser)
   const attemptPlay = () => {
     // videoEl &&
@@ -45,21 +45,26 @@ export const Stream = ({ channelUser }: UserSingleProps) => {
   //   )
   // }
 
+  // return (
+  // <div className="min-h-full border-2 border-red-600 2xl:border-white"></div>
+  // <div className="max-h-[calc(100vh-32rem)] aspect-video border-2 border-red-600 2xl:border-white"></div>
+  // )
+
   // Player skeleton offline display
-  if (channelUser?.streamStatus === 'IDLE') {
-    return (
-      <div className="flex h-full w-full items-center justify-center bg-black">
-        {/* TODO: Better channel offline display */}
-        <p className="text-3xl text-white">Offline</p>
-      </div>
-    )
-  }
+  // if (channelUser?.streamStatus === 'IDLE') {
+  //   return (
+  //     <div className="flex h-full w-full items-center justify-center bg-black">
+  //       {/* TODO: Better channel offline display */}
+  //       <p className="text-3xl text-white">Offline</p>
+  //     </div>
+  //   )
+  // }
 
   return (
     <MuxPlayer
       streamType="ll-live"
-      playbackId={channelUser?.playbackId}
-      // playbackId="v69RSHhFelSm4701snP22dYz2jICy4E4FUyk02rW4gxRM"
+      // playbackId={channelUser?.playbackId}
+      playbackId="v69RSHhFelSm4701snP22dYz2jICy4E4FUyk02rW4gxRM"
       // title="hi"
       // debug
       envKey="06ap5jkfhpso2kfdumgvn5ml9"
@@ -72,6 +77,9 @@ export const Stream = ({ channelUser }: UserSingleProps) => {
       //   playback: "zkma4FkEBYfNGXf6dcu9t3qcFpeLRpGT0001R5xDOVGkI",
       //   thumbnail: "zkma4FkEBYfNGXf6dcu9t3qcFpeLRpGT0001R5xDOVGkI"
       // }}
+      // className={'aspect-video'}
+      // className={'h-max-[calc(100vh-16rem)]'}
+      className={'h-full'}
       metadata={{
         video_id: 'video-id-54321',
         video_title: 'Test video title',

@@ -27,7 +27,7 @@ export const FollowedChannelSingle = ({ channel }: FollowedChannelSingleProps) =
         {/* TODO: live viewer count */}
         <div className="align-right">
           {channel.streamStatus === 'ACTIVE' ? (
-            <LiveSVG width={20} height={20} className="fill-red-600"/>
+            <LiveSVG width={20} height={20} className="fill-red-600" />
           ) : (
             <p className="text-sm font-light text-white">Offline</p>
           )}

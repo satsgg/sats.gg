@@ -316,11 +316,11 @@ const ProfileSettings = ({ user }: GetMeOutput) => {
                     value={user.streamKey}
                   />
                   <button className="rounded-r bg-primary p-2 text-white" onClick={handleStreamKeyClick}>
-                  {showCopied ? (
-                    <CheckmarkSVG width={24} height={24} strokeWidth={1.5} />
-                  ) : (
-                    <ClipboardSVG width={24} height={24} strokeWidth={1.5} />
-                  )}
+                    {showCopied ? (
+                      <CheckmarkSVG width={24} height={24} strokeWidth={1.5} />
+                    ) : (
+                      <ClipboardSVG width={24} height={24} strokeWidth={1.5} />
+                    )}
                   </button>
                 </div>
                 <button
