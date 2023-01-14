@@ -3,17 +3,8 @@ import { createContext, ReactNode, useCallback, useContext, useEffect, useRef, u
 import {
   relayInit,
   Relay,
-  generatePrivateKey,
-  getPublicKey,
-  getEventHash,
-  signEvent,
   Event as NostrEvent,
 } from 'nostr-tools'
-
-const eventOrder = {
-  created_at: null,
-  content: null,
-}
 
 type NostrContextType = {
   connectedRelays: Relay[]

@@ -6,23 +6,28 @@ import { useNostr } from '~/context/nostr'
 import { Filter, Event as NostrEvent } from 'nostr-tools'
 import { createEvent, uniqBy } from '~/utils/nostr'
 import { MessageInput } from './MessageInput'
+import { ChatUser } from './ChatUser'
 
 const eventOrder = {
   created_at: null,
   content: null,
 }
 
-const useNostrEvents = ({ filter }: { filter: Filter }) => {
+type OnEventFunc = (event: NostrEvent) => void
+
+export const useNostrEvents = ({ filter }: { filter: Filter }) => {
   const { connectedRelays } = useNostr()
   const [events, setEvents] = useState<NostrEvent[]>([])
+  let onEventCallback: null | OnEventFunc = null
 
   useEffect(() => {
     const subs = connectedRelays.map((relay) => {
       const sub = relay.sub([filter])
+      console.log("new subscription! filter: ", filter)
 
       sub.on('event', (event: NostrEvent) => {
-        console.log(`⬇️ nostr (${relay.url}): Received event:`, Object.assign(eventOrder, event))
-
+        // console.log(`⬇️ nostr (${relay.url}): Received event:`, Object.assign(eventOrder, event))
+        onEventCallback?.(event)
         setEvents((_events) => {
           // limits since we are adding all events + duplicates?
           // currently filtering by unique before displaying
@@ -30,11 +35,16 @@ const useNostrEvents = ({ filter }: { filter: Filter }) => {
         })
       })
 
+      sub.on('eose', (eose: any) => {
+        console.log('eose: ', eose)
+      })
+
       return sub
     })
 
     return () => {
       subs.forEach((sub) => {
+        console.log('closing subscription! sub: ', sub)
         sub.unsub()
       })
     }
@@ -45,6 +55,11 @@ const useNostrEvents = ({ filter }: { filter: Filter }) => {
 
   return {
     events: uniqEvents,
+    onEvent: (_onEventCallback: OnEventFunc) => {
+      if (_onEventCallback) {
+        onEventCallback = _onEventCallback
+      }
+    }
   }
 }
 
@@ -96,7 +111,9 @@ export const Chat = ({ channelUser }: ChannelUserProps) => {
         itemContent={(index, event) => {
           return (
             <div className="break-words px-3">
-              <span className="text-sm text-white">{event.pubkey.slice(0, 12)}</span>
+              {/* TODO: get user metadata before displaying pubkey */}
+              {/* <span className="text-sm text-white">{event.pubkey.slice(0, 12)}</span> */}
+              <ChatUser pubkey={event.pubkey} />
               <span className="text-sm text-white">: </span>
               <span className="text-sm text-gray-300">{event.content}</span>
             </div>
