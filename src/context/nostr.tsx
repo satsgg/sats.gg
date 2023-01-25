@@ -1,10 +1,6 @@
 import { createContext, ReactNode, useCallback, useContext, useEffect, useRef, useState } from 'react'
 
-import {
-  relayInit,
-  Relay,
-  Event as NostrEvent,
-} from 'nostr-tools'
+import { relayInit, Relay, Event as NostrEvent } from 'nostr-tools'
 
 type NostrContextType = {
   connectedRelays: Relay[]

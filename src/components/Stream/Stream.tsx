@@ -11,24 +11,24 @@ interface UserSingleProps {
 export const Stream = ({ channelUser }: UserSingleProps) => {
   const videoEl = useRef(null)
 
-  console.log('playbackid', channelUser?.playbackId)
-  console.log('channelUser', channelUser)
+  // console.log('playbackid', channelUser?.playbackId)
+  // console.log('channelUser', channelUser)
   const attemptPlay = () => {
     // videoEl &&
     //   videoEl.current &&
     //   videoEl.current.play().catch(error => {
     //     console.error("Error attempting to play", error);
     //   });
-    console.log('attempting play')
+    // console.log('attempting play')
     videoEl.current
       ?.play()
       .then(function () {
         // autoplay was successful!
-        console.log('AUTOPLAY')
+        // console.log('AUTOPLAY')
       })
       .catch(function (error) {
         // do something if you want to handle or track this error
-        console.log('no autoplay', error)
+        // console.log('no autoplay', error)
       })
   }
 

@@ -7,60 +7,11 @@ import { Filter, Event as NostrEvent } from 'nostr-tools'
 import { createEvent, uniqBy } from '~/utils/nostr'
 import { MessageInput } from './MessageInput'
 import { ChatUser } from './ChatUser'
+import { useSubscription } from '~/hooks/useSubscription'
 
 const eventOrder = {
   created_at: null,
   content: null,
-}
-
-type OnEventFunc = (event: NostrEvent) => void
-
-export const useNostrEvents = ({ filter }: { filter: Filter }) => {
-  const { connectedRelays } = useNostr()
-  const [events, setEvents] = useState<NostrEvent[]>([])
-  let onEventCallback: null | OnEventFunc = null
-
-  useEffect(() => {
-    const subs = connectedRelays.map((relay) => {
-      const sub = relay.sub([filter])
-      console.log("new subscription! filter: ", filter)
-
-      sub.on('event', (event: NostrEvent) => {
-        // console.log(`⬇️ nostr (${relay.url}): Received event:`, Object.assign(eventOrder, event))
-        onEventCallback?.(event)
-        setEvents((_events) => {
-          // limits since we are adding all events + duplicates?
-          // currently filtering by unique before displaying
-          return [..._events, event]
-        })
-      })
-
-      sub.on('eose', (eose: any) => {
-        console.log('eose: ', eose)
-      })
-
-      return sub
-    })
-
-    return () => {
-      subs.forEach((sub) => {
-        console.log('closing subscription! sub: ', sub)
-        sub.unsub()
-      })
-    }
-  }, [connectedRelays])
-
-  const uniqEvents = events.length > 0 ? uniqBy(events, 'id') : []
-  // const sortedEvents = uniqEvents.sort((a, b) => b.created_at - a.created_at)
-
-  return {
-    events: uniqEvents,
-    onEvent: (_onEventCallback: OnEventFunc) => {
-      if (_onEventCallback) {
-        onEventCallback = _onEventCallback
-      }
-    }
-  }
 }
 
 type UserSingleOutput = inferProcedureOutput<AppRouter['user']['getUser']>
@@ -68,18 +19,35 @@ interface ChannelUserProps {
   channelUser: UserSingleOutput
 }
 
+interface Metadata {
+  name?: string
+  display_name?: string
+  picture?: string
+  about?: string
+  website?: string
+  lud06?: string
+  lud16?: string
+  nip06?: string
+}
+
 export const Chat = ({ channelUser }: ChannelUserProps) => {
   const { publish } = useNostr()
   const [message, setMessage] = useState<string>('')
   const now = useRef(Math.floor(Date.now() / 1000)) // Make sure current time isn't re-rendered
 
-  const filter: Filter = {
-    // kinds: [42],
-    kinds: [1],
-    since: now.current,
-    // '#e': [channelId],
-  }
-  const { events } = useNostrEvents({ filter })
+  const filters: Filter[] = [
+    {
+      // kinds: [42],
+      kinds: [1],
+      since: now.current,
+      // '#e': [channelId],
+    },
+    {
+      kinds: [42],
+      since: now.current,
+    },
+  ]
+  const notes = useSubscription(channelUser.id, filters)
 
   const handleSubmitMessage = (e: any) => {
     e.preventDefault()
@@ -97,7 +65,7 @@ export const Chat = ({ channelUser }: ChannelUserProps) => {
     return
   }
 
-  const uniqEvents = events.length > 0 ? uniqBy(events, 'id') : []
+  // const uniqEvents = events.length > 0 ? uniqBy(events, 'id') : []
 
   return (
     <div className="w-max-full flex grow flex-col border-l border-solid border-gray-500 bg-stone-800">
@@ -105,17 +73,18 @@ export const Chat = ({ channelUser }: ChannelUserProps) => {
         <p className="py-2 px-4 font-normal text-white">CHAT</p>
       </div>
       <Virtuoso
-        data={uniqEvents}
+        // data={eventsWithProfile}
+        data={notes}
         followOutput={'auto'}
         className={'max-h-[calc(100vh-12rem)]'}
-        itemContent={(index, event) => {
+        itemContent={(index, note) => {
           return (
             <div className="break-words px-3">
               {/* TODO: get user metadata before displaying pubkey */}
-              {/* <span className="text-sm text-white">{event.pubkey.slice(0, 12)}</span> */}
-              <ChatUser pubkey={event.pubkey} />
+              <span className="text-sm text-white">{note.pubkey.slice(0, 12)}</span>
+              {/* <ChatUser pubkey={note.pubkey} /> */}
               <span className="text-sm text-white">: </span>
-              <span className="text-sm text-gray-300">{event.content}</span>
+              <span className="text-sm text-gray-300">{note.content}</span>
             </div>
           )
         }}

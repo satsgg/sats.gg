@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react"
-import { useNostrEvents } from "./Chat"
+import { useEffect, useState } from 'react'
+import { useNostrEvents } from './Chat'
 
 interface Metadata {
   name?: string
@@ -17,8 +17,8 @@ export const ChatUser = ({ pubkey }: { pubkey: string }) => {
   const { onEvent } = useNostrEvents({
     filter: {
       kinds: [0],
-      authors: [pubkey]
-    }
+      authors: [pubkey],
+    },
   })
 
   onEvent((rawMetadata) => {
@@ -31,7 +31,5 @@ export const ChatUser = ({ pubkey }: { pubkey: string }) => {
     return <span className="text-sm">{profile.name}</span>
   }
 
-  return (
-    <span className="text-sm">{pubkey.slice(0,12)}</span>
-  )
+  return <span className="text-sm">{pubkey.slice(0, 12)}</span>
 }

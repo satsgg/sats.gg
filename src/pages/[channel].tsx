@@ -41,11 +41,13 @@ export default function Channel() {
   }
 
   return (
-    <NostrProvider relayUrls={relayUrls} debug={true}>
+    // <NostrProvider relayUrls={relayUrls} debug={true}>
+    <>
       <StreamContainer channelUser={channelUser} />
       <div className="w-max-sm flex h-full w-1/5 min-w-[20%]">
         <Chat channelUser={channelUser} />
       </div>
-    </NostrProvider>
+    </>
+    // {/* </NostrProvider> */}
   )
 }
