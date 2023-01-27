@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react'
-import { useNostrEvents } from './Chat'
+import { useSubscription } from '~/hooks/useSubscription'
+import { useProfile } from '~/hooks/useProfile'
+import { Filter, Event as NostrEvent } from 'nostr-tools'
+// import { useNostrEvents } from './Chat'
 
 interface Metadata {
   name?: string
@@ -13,22 +16,17 @@ interface Metadata {
 }
 
 export const ChatUser = ({ pubkey }: { pubkey: string }) => {
-  const [profile, setProfile] = useState<Metadata>({})
-  const { onEvent } = useNostrEvents({
-    filter: {
+  const filters: Filter[] = [
+    {
       kinds: [0],
-      authors: [pubkey],
+      authors: [pubkey]
     },
-  })
+  ]
 
-  onEvent((rawMetadata) => {
-    const metadata: Metadata = JSON.parse(rawMetadata.content)
-    console.log('metadata: ', metadata)
-    setProfile(metadata)
-  })
+  const profile = useProfile(pubkey, filters)
 
-  if (profile.name) {
-    return <span className="text-sm">{profile.name}</span>
+  if (profile && profile.name) {
+    return <span className="text-sm text-orange-300">{profile.name}</span>
   }
 
   return <span className="text-sm">{pubkey.slice(0, 12)}</span>

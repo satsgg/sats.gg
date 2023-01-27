@@ -15,6 +15,8 @@ type NostrRelay = Relay & {
 // manages the relay connections and ensures minimum/maximums etc
 export default class RelayPool {
   relays: Map<string, NostrRelay> = new Map()
+  // TODO: Extend NostrRelay to have our self managed connected boolean
+  connectedRelays: Set<string> = new Set()
   subscriptions: Map<string, SubInfo> = new Map()
 
   constructor(urls: string[]) {
@@ -37,6 +39,8 @@ export default class RelayPool {
       }
 
       relay.on('connect', () => {
+        console.debug(relay.url, ' connected! status: ', relay.status)
+        this.connectedRelays.add(relay.url)
         for (const si of this.subscriptions.values()) {
           const sub = relay.sub(si.filters)
           sub.on('event', si.callback)
@@ -47,6 +51,7 @@ export default class RelayPool {
       relay.on('disconnect', () => {
         console.warn(`🚪 nostr (${relay.url}): Connection closed.`)
         this.relays.delete(relay.url)
+        this.connectedRelays.delete(relay.url)
       })
 
       relay.on('error', (error: string) => {
@@ -61,13 +66,16 @@ export default class RelayPool {
 
   addSubscription(id: string, filters: Filter[], eventCb: (event: Event) => void) {
     console.debug(`📭 adding subscription with filter:`, filters)
-
-    for (const r of this.connectedRelays()) {
+    console.debug('existing subs: ', Array.from(this.subscriptions.keys()))
+    // console.debug('connected relays: ', this.connectedRelays)
+    for (const cr of this.connectedRelays) {
+      const r = this.relays.get(cr)
       const sub = r.sub(filters)
       sub.on('event', eventCb)
-      //sub.on('eose', () => console.log('SUB EOSE: ', relay.url, ' ', id))
+      sub.on('eose', () => console.log('SUB EOSE: ', r.url, ' ', id))
 
       r.subs.set(id, sub)
+      // console.log(r.subs)
     }
 
     this.subscriptions.set(id, {
@@ -78,6 +86,7 @@ export default class RelayPool {
   }
 
   removeSubscription(id: string) {
+    console.debug('removing sub: ', id)
     if (!this.subscriptions.has(id)) {
       console.warn(id, 'not found in subscriptions')
       return
@@ -94,9 +103,10 @@ export default class RelayPool {
     // NOTE: EOSE must work together with removing subscription and sub.unsub..
   }
 
-  connectedRelays() {
-    return Array.from(this.relays.values()).filter((relay) => relay.status === 1)
-  }
+  // connectedRelays() {
+  //   // for (const r of this.relays.values()) console.log(r.status)
+  //   return Array.from(this.relays.values()).filter((relay) => relay.status === 3)
+  // }
 
   // relayStatus() {
   //   for (const relay of this.relays.values()) {

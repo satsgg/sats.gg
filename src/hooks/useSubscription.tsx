@@ -12,6 +12,9 @@ export const useSubscription = (id: string, filter: Filter[]) => {
         return prev
       }
       console.log(event)
+
+      // before settings the event into the list
+      // check store for event.pubkey kind5 metadata
       return [...prev, event]
     })
   }

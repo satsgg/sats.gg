@@ -19,17 +19,6 @@ interface ChannelUserProps {
   channelUser: UserSingleOutput
 }
 
-interface Metadata {
-  name?: string
-  display_name?: string
-  picture?: string
-  about?: string
-  website?: string
-  lud06?: string
-  lud16?: string
-  nip06?: string
-}
-
 export const Chat = ({ channelUser }: ChannelUserProps) => {
   const { publish } = useNostr()
   const [message, setMessage] = useState<string>('')
@@ -81,8 +70,8 @@ export const Chat = ({ channelUser }: ChannelUserProps) => {
           return (
             <div className="break-words px-3">
               {/* TODO: get user metadata before displaying pubkey */}
-              <span className="text-sm text-white">{note.pubkey.slice(0, 12)}</span>
-              {/* <ChatUser pubkey={note.pubkey} /> */}
+              {/* <span className="text-sm text-white">{note.pubkey.slice(0, 12)}</span> */}
+              <ChatUser pubkey={note.pubkey} />
               <span className="text-sm text-white">: </span>
               <span className="text-sm text-gray-300">{note.content}</span>
             </div>

@@ -35,6 +35,7 @@ class NostrClient {
   }
 
   unsubscribe(id: string) {
+    console.log('unsubscribing')
     this.relayPool.removeSubscription(id)
   }
 

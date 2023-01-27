@@ -47,6 +47,10 @@ export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
     // wouldn't want a singleton in that case
     // unless we instantiate singleton with non default array
     // yeet
+    // const connect = async () => {
+    //   await nostrClient.connect()
+    // }
+    // connect()
     nostrClient.connect()
   }, [])
 
