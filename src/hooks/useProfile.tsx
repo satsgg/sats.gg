@@ -32,7 +32,6 @@ export const useProfile = (pubkey: string) => {
       const ret = await db.users.get(pubkey)
       // logging multiple times b/c each callback is updated the store?
       // would need a quick returning relaypool sub (promise based, exit on first response)
-      console.log('live query res: ', ret)
       if (ret) return ret
       // negatives with this method is that querying is after first db check
       // it will also query for pubkeys w/out nip05s forever

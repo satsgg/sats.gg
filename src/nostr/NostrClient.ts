@@ -110,6 +110,8 @@ class NostrClient {
     }, 500)
   }
 
+  // TODO: Remove relay
+
   publish() {}
 }
 

@@ -1,4 +1,5 @@
 import { Relay, relayInit, Sub, Filter, Event } from 'nostr-tools'
+import useNostrStore from '~/store/useNostrStore2'
 
 type SubInfo = {
   id: string
@@ -26,6 +27,7 @@ export default class RelayPool {
         subs: new Map(),
       }
       this.relays.set(url, relay)
+      useNostrStore.setState({ relays: this.relays.size })
     })
   }
 
@@ -41,6 +43,9 @@ export default class RelayPool {
       relay.on('connect', () => {
         console.debug(relay.url, ' connected! status: ', relay.status)
         this.connectedRelays.add(relay.url)
+        
+        useNostrStore.setState({ connectedRelays: this.connectedRelays.size })
+
         for (const si of this.subscriptions.values()) {
           const sub = relay.sub(si.filters)
           sub.on('event', si.callback)
@@ -52,6 +57,7 @@ export default class RelayPool {
         console.warn(`🚪 nostr (${relay.url}): Connection closed.`)
         this.relays.delete(relay.url)
         this.connectedRelays.delete(relay.url)
+        useNostrStore.setState({ connectedRelays: this.connectedRelays.size })
       })
 
       relay.on('error', (error: string) => {
@@ -103,14 +109,5 @@ export default class RelayPool {
     // NOTE: EOSE must work together with removing subscription and sub.unsub..
   }
 
-  // connectedRelays() {
-  //   // for (const r of this.relays.values()) console.log(r.status)
-  //   return Array.from(this.relays.values()).filter((relay) => relay.status === 3)
-  // }
-
-  // relayStatus() {
-  //   for (const relay of this.relays.values()) {
-  //     console.log(relay.url, ': ', relay.status)
-  //   }
-  // }
+  // TODO: Remove relay
 }
