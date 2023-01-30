@@ -42,16 +42,17 @@ export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
   //   // initialize local storage of user
   // })
 
+  // useEffect(() => {
   useEffect(() => {
     // get relays from settings first?
     // wouldn't want a singleton in that case
     // unless we instantiate singleton with non default array
     // yeet
-    // const connect = async () => {
-    //   await nostrClient.connect()
-    // }
-    // connect()
-    nostrClient.connect()
+    const connect = async () => {
+      await nostrClient.connect()
+    }
+    connect()
+    // nostrClient.connect()
   }, [])
 
   useEffect(() => {

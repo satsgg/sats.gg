@@ -16,18 +16,22 @@ interface Metadata {
 }
 
 export const ChatUser = ({ pubkey }: { pubkey: string }) => {
-  const filters: Filter[] = [
-    {
-      kinds: [0],
-      authors: [pubkey]
-    },
-  ]
+  // const filters: Filter[] = [
+  //   {
+  //     kinds: [0],
+  //     authors: [pubkey]
+  //   },
+  // ]
 
-  const profile = useProfile(pubkey, filters)
+  // const profile = useProfile(pubkey, filters)
+
+  const profile = useProfile(pubkey)
+  // console.log(pubkey, 'profile: ', profile)
 
   if (profile && profile.name) {
     return <span className="text-sm text-orange-300">{profile.name}</span>
   }
+  // console.log(pubkey)
 
   return <span className="text-sm">{pubkey.slice(0, 12)}</span>
 }
