@@ -7,7 +7,7 @@ type State = {
 
 const initialState: State = {
   connectedRelays: 0,
-  relays: 0
+  relays: 0,
 }
 
 type Actions = {
@@ -19,7 +19,7 @@ const nostrStore = create<State & Actions>((set, get) => ({
 
   setConnectedRelays: (num) => {
     set({ connectedRelays: num })
-  }
+  },
 }))
 
 export default nostrStore

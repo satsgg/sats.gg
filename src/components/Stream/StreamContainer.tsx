@@ -12,7 +12,7 @@ export const StreamContainer = ({ channelUser }: ChannelUserProps) => {
   return (
     <div className="flex min-w-0 grow flex-col overflow-y-auto">
       {/* <div className="min-h-0"> */}
-      <div className="max-h-[calc(100vh-8rem)] border-2 border-red-600 2xl:border-white">
+      <div className="max-h-[calc(100vh-8rem)]">
         <Stream channelUser={channelUser} />
       </div>
       {/* </div> */}

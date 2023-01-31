@@ -12,7 +12,7 @@ import LightningBoltSVG from '~/svgs/lightning-bolt.svg'
 import EyeVisibleSVG from '~/svgs/eye-visible.svg'
 import EyeHiddenSVG from '~/svgs/eye-hidden.svg'
 import AccountSVG from '~/svgs/account.svg'
-import useNostrStore from '~/store/useNostrStore2'
+import useNostrStore from '~/store/useNostrStore'
 
 interface HeaderProps {
   openAuthenticate: () => void
@@ -35,7 +35,6 @@ export const Navbar = ({ openAuthenticate, openTransact }: HeaderProps) => {
     setShowAccountMenu(false)
     logout()
   }
-
 
   return (
     <nav className="navbar navbar-expand-lg navbar-light relative flex w-full flex-wrap items-center justify-between bg-stone-900 py-2 text-gray-200 shadow-lg">
@@ -63,7 +62,9 @@ export const Navbar = ({ openAuthenticate, openTransact }: HeaderProps) => {
               </div>
             </div>
 
-            <div>{connectedRelays}/{relays}</div>
+            <div>
+              {connectedRelays}/{relays}
+            </div>
 
             <ClickAwayListener onClickAway={() => setShowAccountMenu(false)}>
               <div className="dropdown relative">

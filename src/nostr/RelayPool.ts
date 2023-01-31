@@ -1,5 +1,5 @@
 import { Relay, relayInit, Sub, Filter, Event } from 'nostr-tools'
-import useNostrStore from '~/store/useNostrStore2'
+import useNostrStore from '~/store/useNostrStore'
 
 type SubInfo = {
   id: string
@@ -43,7 +43,7 @@ export default class RelayPool {
       relay.on('connect', () => {
         console.debug(relay.url, ' connected! status: ', relay.status)
         this.connectedRelays.add(relay.url)
-        
+
         useNostrStore.setState({ connectedRelays: this.connectedRelays.size })
 
         for (const si of this.subscriptions.values()) {
@@ -71,8 +71,8 @@ export default class RelayPool {
   }
 
   addSubscription(id: string, filters: Filter[], eventCb: (event: Event) => void) {
-    console.debug(`📭 adding subscription with filter:`, filters)
-    console.debug('existing subs: ', Array.from(this.subscriptions.keys()))
+    // console.debug(`📭 adding subscription with filter:`, filters)
+    // console.debug('existing subs: ', Array.from(this.subscriptions.keys()))
     // console.debug('connected relays: ', this.connectedRelays)
     for (const cr of this.connectedRelays) {
       const r = this.relays.get(cr)
