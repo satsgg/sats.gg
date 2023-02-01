@@ -1,23 +1,9 @@
-import useAuthStore from '~/store/useAuthStore'
-import { Spinner } from '~/components/Spinner'
-import ProfileSettings from '~/components/Settings/Profile'
-import Settings from '~/components/Settings'
+import Profile from '~/components/Settings/Profile'
+import type { NextPageWithLayout } from '~/pages/_app'
+import getSettingsLayout from '~/components/Settings/Layout'
 
-export default function ProfileSettingsWrapper({}) {
-  const { user, setUser, status: authStatus } = useAuthStore()
+const ProfilePage: NextPageWithLayout = () => <Profile />
 
-  if (authStatus === 'unauthenticated') {
-    return <p>You must be logged in to view this page</p>
-  }
+ProfilePage.getLayout = getSettingsLayout
 
-  if (user) {
-    // return <ProfileSettings user={user} setUser={setUser} />
-    return <Settings />
-  }
-
-  return (
-    <div className={'w-full text-center'}>
-      <Spinner />
-    </div>
-  )
-}
+export default ProfilePage
