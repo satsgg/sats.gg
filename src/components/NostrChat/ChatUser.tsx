@@ -1,37 +1,25 @@
-import { useEffect, useState } from 'react'
-import { useSubscription } from '~/hooks/useSubscription'
 import { useProfile } from '~/hooks/useProfile'
-import { Filter, Event as NostrEvent } from 'nostr-tools'
-// import { useNostrEvents } from './Chat'
 
-interface Metadata {
-  name?: string
-  display_name?: string
-  picture?: string
-  about?: string
-  website?: string
-  lud06?: string
-  lud16?: string
-  nip06?: string
-}
+// TODO: Need to filter out emojis from names
+// Use display names? names?
+// nip05 > display_name > name > pubkey ?
+// ex. 🛠️gourcetools
 
-export const ChatUser = ({ pubkey }: { pubkey: string }) => {
-  // const filters: Filter[] = [
-  //   {
-  //     kinds: [0],
-  //     authors: [pubkey]
-  //   },
-  // ]
+const unicodeNameRegex = /(?![*#0-9]+)[\p{Emoji}\p{Emoji_Modifier}\p{Emoji_Component}\p{Emoji_Modifier_Base}\p{Emoji_Presentation}]/gu
 
-  // const profile = useProfile(pubkey, filters)
-
+const ChatUser = ({ pubkey }: { pubkey: string }) => {
   const profile = useProfile(pubkey)
-  // console.log(pubkey, 'profile: ', profile)
+
+  const fmtName = (name: string) => {
+    const formatted = name.replace(unicodeNameRegex, '')
+    return formatted
+  }
 
   if (profile && profile.name) {
-    return <span className="text-sm text-orange-300">{profile.name}</span>
+    return <span className="text-sm text-orange-300">{fmtName(profile.name)}</span>
   }
-  // console.log(pubkey)
 
   return <span className="text-sm">{pubkey.slice(0, 12)}</span>
 }
+
+export default ChatUser

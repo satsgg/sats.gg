@@ -8,7 +8,7 @@ interface MessageInputProps {
 
 // TODO: use react-hook-form
 
-export const MessageInput = ({ message, setMessage, handleSubmitMessage }: MessageInputProps) => {
+const MessageInput = ({ message, setMessage, handleSubmitMessage }: MessageInputProps) => {
   // TODO: Autogrow textarea...
   // const textAreaRef = useRef<HTMLTextAreaElement | null>(null)
 
@@ -57,3 +57,5 @@ export const MessageInput = ({ message, setMessage, handleSubmitMessage }: Messa
     </form>
   )
 }
+
+export default MessageInput

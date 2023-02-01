@@ -5,8 +5,9 @@ import { AppRouter } from '~/server/routers/_app'
 import { useNostr } from '~/context/nostr'
 import { Filter, Event as NostrEvent } from 'nostr-tools'
 import { createEvent, uniqBy } from '~/utils/nostr'
-import { MessageInput } from './MessageInput'
-import { ChatUser } from './ChatUser'
+import MessageInput from './MessageInput'
+import ChatUser from './ChatUser'
+import Message from './Message'
 import { useSubscription } from '~/hooks/useSubscription'
 
 const eventOrder = {
@@ -62,18 +63,15 @@ export const Chat = ({ channelUser }: ChannelUserProps) => {
         <p className="py-2 px-4 font-normal text-white">CHAT</p>
       </div>
       <Virtuoso
-        // data={eventsWithProfile}
         data={notes}
         followOutput={'auto'}
         className={'max-h-[calc(100vh-12rem)]'}
         itemContent={(index, note) => {
           return (
             <div className="break-words px-3">
-              {/* TODO: get user metadata before displaying pubkey */}
-              {/* <span className="text-sm text-white">{note.pubkey.slice(0, 12)}</span> */}
               <ChatUser pubkey={note.pubkey} />
               <span className="text-sm text-white">: </span>
-              <span className="text-sm text-gray-300">{note.content}</span>
+              <Message content={note.content} />
             </div>
           )
         }}
