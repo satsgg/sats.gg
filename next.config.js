@@ -42,6 +42,16 @@ module.exports = getConfig({
   // reactStrictMode: true,
   reactStrictMode: false,
 
+  async redirects() {
+    return [
+      {
+        source: '/settings',
+        destination: '/settings/profile',
+        permanent: true,
+      },
+    ]
+  },
+
   webpack(config) {
     config.module.rules.push({
       test: /\.svg$/i,
