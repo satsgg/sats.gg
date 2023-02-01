@@ -14,7 +14,6 @@ type EditUserInput = inferProcedureInput<AppRouter['user']['edit']>
 type UpdateUserInput = inferProcedureInput<AppRouter['user']['updateProfilePic']>
 type GetMeOutput = inferProcedureOutput<AppRouter['auth']['getMe']>
 
-
 // TODO: Add these to a neutral location? Used in user api routes
 export const editUserInput = z.object({
   userName: z.string().min(4).max(24).optional(),

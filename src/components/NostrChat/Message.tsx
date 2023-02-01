@@ -1,10 +1,10 @@
 // TODO: Move max message length to config file
-const maxMsgLen = 50
+const maxMsgLen = 200
 
-const Message = ({ content }: { content: string } ) => {
+const Message = ({ content }: { content: string }) => {
   const fmtMsg = (content: string) => {
     if (content.length > maxMsgLen) {
-      return content.slice(0,maxMsgLen).trim() + '...'
+      return content.slice(0, maxMsgLen).trim() + '...'
     }
     return content
   }
