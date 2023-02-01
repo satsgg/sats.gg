@@ -24,7 +24,7 @@ export const updateProfilePicInput = z.object({
   base64EncodedImage: z.string().optional(),
 })
 
-const ProfileSettings = () => {
+const Profile = () => {
   const { user, setUser, storeLogin } = useAuthStore()
   const [base64EncodedImage, setBase64EncodedImage] = useState<string | undefined>(user?.profileImage ?? undefined)
   const [showCopied, setShowCopied] = useState(false)
@@ -151,210 +151,207 @@ const ProfileSettings = () => {
   // lots of styling fixes needed...
 
   return (
-    <div className="w-full bg-stone-900 py-10 px-8 text-white">
-      <h1 className="mb-6 border-b border-gray-500 pb-4 text-4xl font-bold">Settings</h1>
-      <div className="flex w-3/5 flex-col gap-8">
-        <div>
-          <h2 className="font-md mb-2 text-xl">Profile Picture</h2>
-          <div className="flex rounded border border-gray-500 bg-stone-800">
-            <form className="flex p-6" onSubmit={handleProfilePicSubmit(onProfilePicSubmit)}>
-              <div className="mr-6">
-                <img
-                  id={'edit-user-profileImage'}
-                  src={base64EncodedImage}
-                  // src={getValues('base64EncodedImage')}
-                  alt={`Profile image of ${user?.userName}`}
-                  className="h-24 w-24 rounded-[50%]"
-                />
+    <div className="flex w-3/5 flex-col gap-8">
+      <div>
+        <h2 className="font-md mb-2 text-xl">Profile Picture</h2>
+        <div className="flex rounded border border-gray-500 bg-stone-800">
+          <form className="flex p-6" onSubmit={handleProfilePicSubmit(onProfilePicSubmit)}>
+            <div className="mr-6">
+              <img
+                id={'edit-user-profileImage'}
+                src={base64EncodedImage}
+                // src={getValues('base64EncodedImage')}
+                alt={`Profile image of ${user?.userName}`}
+                className="h-24 w-24 rounded-[50%]"
+              />
+            </div>
+            <div className="flex items-center">
+              <input
+                type="file"
+                // {...registerProfilePic('base64EncodedImage', {
+                //   required: true,
+                //   onChange: async (e) => {
+                //     if (e.target.files) {
+                //       const img = await resizeFile(e.target.files[0])
+                //       console.log('setting', img)
+                //       // setBase64EncodedImage(await resizeFile(e.target.files[0]))
+                //       setProfilePic('base64EncodedImage', img)
+                //       // setBase64EncodedImage(img)
+                //       console.log('set', img)
+                //     }
+                //   },
+                //   onBlur: async(e) => {
+                //     console.log('blur', e.target.files[0])
+                //   }
+                // })}
+                onChange={async (e) => {
+                  if (e.target.files) {
+                    setBase64EncodedImage(await resizeFile(e.target.files[0]))
+                    // setProfilePic("base64EncodedImage", await resizeFile(e.target.files[0]))
+                    // console.log('values', getValues())
+                    // console.log('user', user)
+                    // handleSubmit(o)
+                    // await onProfilePicSubmit({base64EncodedImage: await resizeFile(e.target.files[0])})
+                    // handleProfilePicSubmit(onProfilePicSubmit)
+                  }
+                }}
+                className="block align-middle text-sm text-slate-500
+                  file:mr-4 file:rounded file:border-0
+                  file:bg-primary file:py-2
+                  file:px-4 file:text-sm
+                  file:font-semibold file:text-white
+                  hover:file:cursor-pointer hover:file:opacity-90"
+                id="fileupload"
+              />
+            </div>
+          </form>
+          <div className="flex items-center justify-center">
+            <button
+              type="submit"
+              className={`${
+                profilePicErrors.base64EncodedImage ? 'bg-gray-500' : ''
+              } align-right inline-flex h-8 w-32 items-center justify-center rounded bg-primary px-3 py-2 text-sm font-semibold shadow-md transition duration-150 ease-in-out hover:bg-primary hover:shadow-lg focus:bg-primary focus:shadow-lg focus:outline-none focus:ring-0 active:bg-primary active:shadow-lg`}
+              disabled={profilePicErrors.base64EncodedImage ? true : false}
+              onClick={onProfilePicSubmit}
+            >
+              {updateProfilePicMutation.isLoading ? (
+                <IsLoadingSVG width={24} height={24} className="animate-spin" strokeWidth={2} />
+              ) : (
+                'Save Image'
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h2 className="font-md mb-2 text-xl">Profile Settings</h2>
+
+        <div className="rounded border border-gray-500 bg-stone-800 p-6">
+          <form spellCheck={false} className="flex flex-col gap-8" onSubmit={handleSubmit(onSubmit)}>
+            <div className="flex">
+              <div className="w-1/4">
+                <p>Username</p>
               </div>
-              <div className="flex items-center">
+              <div className="w-3/4">
                 <input
-                  type="file"
-                  // {...registerProfilePic('base64EncodedImage', {
-                  //   required: true,
-                  //   onChange: async (e) => {
-                  //     if (e.target.files) {
-                  //       const img = await resizeFile(e.target.files[0])
-                  //       console.log('setting', img)
-                  //       // setBase64EncodedImage(await resizeFile(e.target.files[0]))
-                  //       setProfilePic('base64EncodedImage', img)
-                  //       // setBase64EncodedImage(img)
-                  //       console.log('set', img)
-                  //     }
-                  //   },
-                  //   onBlur: async(e) => {
-                  //     console.log('blur', e.target.files[0])
-                  //   }
-                  // })}
-                  onChange={async (e) => {
-                    if (e.target.files) {
-                      setBase64EncodedImage(await resizeFile(e.target.files[0]))
-                      // setProfilePic("base64EncodedImage", await resizeFile(e.target.files[0]))
-                      // console.log('values', getValues())
-                      // console.log('user', user)
-                      // handleSubmit(o)
-                      // await onProfilePicSubmit({base64EncodedImage: await resizeFile(e.target.files[0])})
-                      // handleProfilePicSubmit(onProfilePicSubmit)
-                    }
-                  }}
-                  className="block align-middle text-sm text-slate-500
-                    file:mr-4 file:rounded file:border-0
-                    file:bg-primary file:py-2
-                    file:px-4 file:text-sm
-                    file:font-semibold file:text-white
-                    hover:file:cursor-pointer hover:file:opacity-90"
-                  id="fileupload"
+                  id={'edit-user-userName'}
+                  {...register('userName', { required: true })}
+                  type="text"
+                  autoComplete="off"
+                  className={`
+                    ${errors.userName ? 'border-red-700 focus:border-red-700' : ''}
+                    form-control
+                    m-0
+                    block
+                    w-full
+                    rounded
+                    border
+                    border-solid
+                    border-gray-500
+                    bg-stone-700
+                    bg-clip-padding
+                    px-2 py-1 text-sm
+                    font-normal
+                    text-white
+                    transition
+                    ease-in-out focus:border-primary focus:bg-slate-900 focus:outline-none
+                  `}
                 />
+                <p className="mt-1 text-sm font-thin">Username must be between 4 and 25 characters</p>
               </div>
-            </form>
-            <div className="flex items-center justify-center">
+            </div>
+            <div className="flex">
+              <div className="w-1/4">
+                <p>Bio</p>
+              </div>
+              <div className="w-3/4">
+                <textarea
+                  className={`${
+                    errors.bio ? 'border-red-700 focus:border-red-700' : ''
+                  } focus:shadow-outline w-full resize-none appearance-none rounded border border-gray-500 bg-stone-700 py-2 px-3 leading-tight text-white shadow focus:border-primary focus:bg-slate-900 focus:outline-none`}
+                  id="userBio"
+                  autoComplete="off"
+                  rows={3}
+                  {...register('bio', { required: true })}
+                />
+                <p className="text-sm font-thin">
+                  Description for the About panel on your channel page with no more than 256 characters
+                </p>
+              </div>
+            </div>
+            <div className="flex justify-end">
               <button
                 type="submit"
                 className={`${
-                  profilePicErrors.base64EncodedImage ? 'bg-gray-500' : ''
-                } align-right inline-flex h-8 w-32 items-center justify-center rounded bg-primary px-3 py-2 text-sm font-semibold shadow-md transition duration-150 ease-in-out hover:bg-primary hover:shadow-lg focus:bg-primary focus:shadow-lg focus:outline-none focus:ring-0 active:bg-primary active:shadow-lg`}
-                disabled={profilePicErrors.base64EncodedImage ? true : false}
-                onClick={onProfilePicSubmit}
+                  errors.bio || errors.userName ? 'bg-gray-500' : ''
+                } align-right inline-flex h-8 w-32 items-center justify-center rounded bg-primary px-2 py-1 text-sm font-semibold shadow-md transition duration-150 ease-in-out hover:bg-primary hover:shadow-lg focus:bg-primary focus:shadow-lg focus:outline-none focus:ring-0 active:bg-primary active:shadow-lg`}
+                disabled={errors.bio || errors.userName ? true : false}
               >
-                {updateProfilePicMutation.isLoading ? (
+                {editUserMutation.isLoading ? (
                   <IsLoadingSVG width={24} height={24} className="animate-spin" strokeWidth={2} />
                 ) : (
-                  'Save Image'
+                  'Save Changes'
                 )}
               </button>
             </div>
-          </div>
+          </form>
         </div>
-
-        <div>
-          <h2 className="font-md mb-2 text-xl">Profile Settings</h2>
-
-          <div className="rounded border border-gray-500 bg-stone-800 p-6">
-            <form spellCheck={false} className="flex flex-col gap-8" onSubmit={handleSubmit(onSubmit)}>
-              <div className="flex">
-                <div className="w-1/4">
-                  <p>Username</p>
-                </div>
-                <div className="w-3/4">
-                  <input
-                    id={'edit-user-userName'}
-                    {...register('userName', { required: true })}
-                    type="text"
-                    autoComplete="off"
-                    className={`
-                      ${errors.userName ? 'border-red-700 focus:border-red-700' : ''}
-                      form-control
-                      m-0
-                      block
-                      w-full
-                      rounded
-                      border
-                      border-solid
-                      border-gray-500
-                      bg-stone-700
-                      bg-clip-padding
-                      px-2 py-1 text-sm
-                      font-normal
-                      text-white
-                      transition
-                      ease-in-out focus:border-primary focus:bg-slate-900 focus:outline-none
-                    `}
-                  />
-                  <p className="mt-1 text-sm font-thin">Username must be between 4 and 25 characters</p>
-                </div>
-              </div>
-              <div className="flex">
-                <div className="w-1/4">
-                  <p>Bio</p>
-                </div>
-                <div className="w-3/4">
-                  <textarea
-                    className={`${
-                      errors.bio ? 'border-red-700 focus:border-red-700' : ''
-                    } focus:shadow-outline w-full resize-none appearance-none rounded border border-gray-500 bg-stone-700 py-2 px-3 leading-tight text-white shadow focus:border-primary focus:bg-slate-900 focus:outline-none`}
-                    id="userBio"
-                    autoComplete="off"
-                    rows={3}
-                    {...register('bio', { required: true })}
-                  />
-                  <p className="text-sm font-thin">
-                    Description for the About panel on your channel page with no more than 256 characters
-                  </p>
-                </div>
-              </div>
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  className={`${
-                    errors.bio || errors.userName ? 'bg-gray-500' : ''
-                  } align-right inline-flex h-8 w-32 items-center justify-center rounded bg-primary px-2 py-1 text-sm font-semibold shadow-md transition duration-150 ease-in-out hover:bg-primary hover:shadow-lg focus:bg-primary focus:shadow-lg focus:outline-none focus:ring-0 active:bg-primary active:shadow-lg`}
-                  disabled={errors.bio || errors.userName ? true : false}
-                >
-                  {editUserMutation.isLoading ? (
-                    <IsLoadingSVG width={24} height={24} className="animate-spin" strokeWidth={2} />
-                  ) : (
-                    'Save Changes'
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-        <div>
-          <h2 className="font-md mb-2 text-xl">Stream Settings</h2>
-          <div className="flex flex-col gap-y-6 rounded border border-gray-500 bg-stone-800 p-6">
-            <div className="flex">
-              <div className="w-1/4">
-                <p>Stream Key</p>
-              </div>
-              <div className="flex w-3/4 gap-x-4">
-                <div className="flex w-full">
-                  <input
-                    type="button"
-                    className="w-full min-w-0 rounded-l border-2 border-r-0 border-gray-500 bg-stone-700 p-1 focus:border-primary focus:bg-slate-900"
-                    onClick={handleStreamKeyClick}
-                    value={user.streamKey}
-                  />
-                  <button className="rounded-r bg-primary p-2 text-white" onClick={handleStreamKeyClick}>
-                    {showCopied ? (
-                      <CheckmarkSVG width={24} height={24} strokeWidth={1.5} />
-                    ) : (
-                      <ClipboardSVG width={24} height={24} strokeWidth={1.5} />
-                    )}
-                  </button>
-                </div>
-                <button
-                  className="inline-flex w-32 items-center justify-center rounded bg-primary py-1 px-2 text-sm font-semibold text-white"
-                  disabled={refreshStreamKeyMutation.isLoading}
-                  onClick={onSubmitRefreshStreamKey}
-                >
-                  {refreshStreamKeyMutation.isLoading ? (
-                    <IsLoadingSVG width={24} height={24} className="animate-spin" strokeWidth={2} />
-                  ) : (
-                    'Refresh Key'
-                  )}
-                </button>
-              </div>
+      </div>
+      <div>
+        <h2 className="font-md mb-2 text-xl">Stream Settings</h2>
+        <div className="flex flex-col gap-y-6 rounded border border-gray-500 bg-stone-800 p-6">
+          <div className="flex">
+            <div className="w-1/4">
+              <p>Stream Key</p>
             </div>
-            <div className="flex">
-              <div className="w-1/4">
-                <p>RTMP URL</p>
-              </div>
-              <div className="flex w-3/4">
+            <div className="flex w-3/4 gap-x-4">
+              <div className="flex w-full">
                 <input
                   type="button"
                   className="w-full min-w-0 rounded-l border-2 border-r-0 border-gray-500 bg-stone-700 p-1 focus:border-primary focus:bg-slate-900"
-                  onClick={handleURLClick}
-                  value={rtmpUrl}
+                  onClick={handleStreamKeyClick}
+                  value={user.streamKey}
                 />
-                <button className="rounded-r bg-primary p-2 text-white" onClick={handleURLClick}>
-                  {showCopiedURL ? (
+                <button className="rounded-r bg-primary p-2 text-white" onClick={handleStreamKeyClick}>
+                  {showCopied ? (
                     <CheckmarkSVG width={24} height={24} strokeWidth={1.5} />
                   ) : (
                     <ClipboardSVG width={24} height={24} strokeWidth={1.5} />
                   )}
                 </button>
               </div>
+              <button
+                className="inline-flex w-32 items-center justify-center rounded bg-primary py-1 px-2 text-sm font-semibold text-white"
+                disabled={refreshStreamKeyMutation.isLoading}
+                onClick={onSubmitRefreshStreamKey}
+              >
+                {refreshStreamKeyMutation.isLoading ? (
+                  <IsLoadingSVG width={24} height={24} className="animate-spin" strokeWidth={2} />
+                ) : (
+                  'Refresh Key'
+                )}
+              </button>
+            </div>
+          </div>
+          <div className="flex">
+            <div className="w-1/4">
+              <p>RTMP URL</p>
+            </div>
+            <div className="flex w-3/4">
+              <input
+                type="button"
+                className="w-full min-w-0 rounded-l border-2 border-r-0 border-gray-500 bg-stone-700 p-1 focus:border-primary focus:bg-slate-900"
+                onClick={handleURLClick}
+                value={rtmpUrl}
+              />
+              <button className="rounded-r bg-primary p-2 text-white" onClick={handleURLClick}>
+                {showCopiedURL ? (
+                  <CheckmarkSVG width={24} height={24} strokeWidth={1.5} />
+                ) : (
+                  <ClipboardSVG width={24} height={24} strokeWidth={1.5} />
+                )}
+              </button>
             </div>
           </div>
         </div>
@@ -363,4 +360,4 @@ const ProfileSettings = () => {
   )
 }
 
-export default ProfileSettings
+export default Profile
