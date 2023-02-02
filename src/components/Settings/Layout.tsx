@@ -48,7 +48,7 @@ const SettingsLayout = ({ children }: { children: ReactNode }) => {
 
         <div className="flex space-x-6 border-b border-gray-500">
           {tabs.map((tab) => {
-            return <TabButton tab={tab} current={router.pathname.includes(tab)} />
+            return <TabButton tab={tab} key={tab} current={router.pathname.includes(tab)} />
           })}
         </div>
 

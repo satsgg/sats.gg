@@ -1,6 +1,6 @@
 import RelayPool from './RelayPool'
 import { Filter, Event, nip19 } from 'nostr-tools'
-import Settings from '~/store/userSettingsStore'
+import Settings from '~/store/settingsStore'
 import { db } from '~/store/db'
 
 // TODO: Move interfaces to nostr/index.ts

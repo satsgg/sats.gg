@@ -28,7 +28,7 @@ const initialState = {
   relays: DEFAULT_RELAYS,
 }
 
-const Settings = create<State & Actions>((set) => ({
+const SettingsStore = create<State & Actions>((set) => ({
   ...initialState,
 
   addRelay: (url: string) => {
@@ -36,4 +36,4 @@ const Settings = create<State & Actions>((set) => ({
   },
 }))
 
-export default Settings
+export default SettingsStore
