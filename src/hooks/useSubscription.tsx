@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import useNostrStore from '~/store/useNostrStore'
+import useNostrStore from '~/hooks/useNostrStore'
 import { Filter, Event } from 'nostr-tools'
 import { nostrClient } from '~/nostr/NostrClient'
 

@@ -1,4 +1,4 @@
-import useSettingsStore from "~/store/useUserSettingsStore"
+import useSettingsStore from "~/hooks/useSettingsStore"
 
 const Relay = ({ relay }: {relay: string}) => {
   return (

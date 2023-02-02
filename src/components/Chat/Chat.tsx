@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import useAuthStore from '~/store/useAuthStore'
+import useAuthStore from '~/hooks/useAuthStore'
 import { io, Socket } from 'socket.io-client'
 import { Virtuoso } from 'react-virtuoso'
 import { ChatMessageInput } from './ChatMessageInput'

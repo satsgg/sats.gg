@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import useAuthStore from '~/store/useAuthStore'
+import useAuthStore from '~/hooks/useAuthStore'
 import { trpc } from '~/utils/trpc'
 import IsLoadingSVG from '~/svgs/is-loading.svg'
 import CheckmarkSVG from '~/svgs/checkmark.svg'

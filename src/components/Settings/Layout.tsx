@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 import { ReactNode, ReactElement } from 'react'
-import useAuthStore from '~/store/useAuthStore'
+import useAuthStore from '~/hooks/useAuthStore'
 import { DefaultLayout } from '../DefaultLayout'
 import { Spinner } from '../Spinner'
 

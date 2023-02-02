@@ -5,7 +5,7 @@ import { trpc } from '~/utils/trpc'
 import { AppRouter } from '~/server/routers/_app'
 import { inferProcedureInput } from '@trpc/server'
 import Resizer from 'react-image-file-resizer'
-import useAuthStore from '~/store/useAuthStore'
+import useAuthStore from '~/hooks/useAuthStore'
 import IsLoadingSVG from '~/svgs/is-loading.svg'
 
 type EditUserInput = inferProcedureInput<AppRouter['user']['edit']>

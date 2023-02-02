@@ -1,4 +1,4 @@
-import useAuthStore from '~/store/useAuthStore'
+import useAuthStore from '~/hooks/useAuthStore'
 import { useState } from 'react'
 import ClickAwayListener from 'react-click-away-listener'
 import Link from 'next/link'
@@ -12,7 +12,7 @@ import LightningBoltSVG from '~/svgs/lightning-bolt.svg'
 import EyeVisibleSVG from '~/svgs/eye-visible.svg'
 import EyeHiddenSVG from '~/svgs/eye-hidden.svg'
 import AccountSVG from '~/svgs/account.svg'
-import useNostrStore from '~/store/useNostrStore'
+import useNostrStore from '~/hooks/useNostrStore'
 
 interface HeaderProps {
   openAuthenticate: () => void

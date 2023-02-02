@@ -1,5 +1,5 @@
 import { Relay, relayInit, Sub, Filter, Event } from 'nostr-tools'
-import useNostrStore from '~/store/useNostrStore'
+import useNostrStore from '~/hooks/useNostrStore'
 
 type SubInfo = {
   id: string

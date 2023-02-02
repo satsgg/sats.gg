@@ -1,5 +1,5 @@
 import { trpc } from '~/utils/trpc'
-import useAuthStore from '~/store/useAuthStore'
+import useAuthStore from '~/hooks/useAuthStore'
 import { FollowedChannelSingle } from './FollowedChannelSingle'
 // TODO: Just pass array of followed channels?
 // Separate query for

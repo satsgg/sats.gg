@@ -3,7 +3,7 @@ import { trpc } from '~/utils/trpc'
 import { z } from 'zod'
 import { inferProcedureOutput, inferProcedureInput } from '@trpc/server'
 import { AppRouter } from '~/server/routers/_app'
-import useAuthStore from '~/store/useAuthStore'
+import useAuthStore from '~/hooks/useAuthStore'
 import { useFollowedChannels } from '~/components/FollowedChannelList'
 import FollowHeartSVG from '~/svgs/follow-heart.svg'
 

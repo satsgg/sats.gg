@@ -1,4 +1,4 @@
-import useAuthStore from '~/store/useAuthStore'
+import useAuthStore from '~/hooks/useAuthStore'
 import { Spinner } from '~/components/Spinner'
 import { trpc } from '~/utils/trpc'
 import { format } from 'date-fns'

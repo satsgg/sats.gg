@@ -1,7 +1,7 @@
 import { inferProcedureOutput } from '@trpc/server'
 import { AppRouter } from '~/server/routers/_app'
 import { trpc } from '~/utils/trpc'
-import useAuthStore from '~/store/useAuthStore'
+import useAuthStore from '~/hooks/useAuthStore'
 import { useEffect, useState } from 'react'
 import { PollingQRCode } from '~/components/PollingQRCode'
 

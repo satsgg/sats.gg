@@ -1,14 +1,14 @@
 import Head from 'next/head'
 import { ReactNode } from 'react'
 import { trpc } from '../utils/trpc'
-import useAuthStore from '~/store/useAuthStore'
+import useAuthStore from '~/hooks/useAuthStore'
 import { useEffect, useState } from 'react'
 import { Navbar } from '~/components/Navbar'
 import { FollowedChannelList } from '~/components/FollowedChannelList'
 import { InteractionModal } from '~/components/InteractionModal'
 import { Authenticate } from '~/components/Authenticate'
 import { Transact } from '~/components/Transact'
-import useNostrStore from '~/store/useNostrStore'
+import useNostrStore from '~/hooks/useNostrStore'
 import { nostrClient } from '~/nostr/NostrClient'
 
 type DefaultLayoutProps = { children: ReactNode }
