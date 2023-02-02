@@ -11,14 +11,14 @@ type Actions = {
 const DEFAULT_RELAYS = [
   'wss://brb.io',
   'wss://relay.damus.io',
-  "wss://nostr.fmt.wiz.biz",
-  "wss://nostr.oxtr.dev",
+  'wss://nostr.fmt.wiz.biz',
+  'wss://nostr.oxtr.dev',
   'wss://arc1.arcadelabs.co',
   'wss://relay.nostr.ch',
   'wss://eden.nostr.land',
-  'wss://nons.lol',
+  'wss://nos.lol',
   'wss://relay.snort.social',
-  'wss://relay.current.fyi'
+  'wss://relay.current.fyi',
 ]
 
 const initialState = {

@@ -35,6 +35,8 @@ export default class RelayPool {
     console.log('relays: ', Array.from(this.relays.keys()))
     for (const relay of this.relays.values()) {
       try {
+        // must await here for relay connection status to work...
+        // but we are managing connection status separately so it doesn't matter
         relay.connect()
       } catch (e: any) {
         console.error(relay.url, ' error connecting')
