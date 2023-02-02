@@ -62,9 +62,9 @@ export const Navbar = ({ openAuthenticate, openTransact }: HeaderProps) => {
               </div>
             </div>
 
-            <div>
+            <Link href={"/settings/relays"} legacyBehavior={false}>
               {connectedRelays}/{relays}
-            </div>
+            </Link>
 
             <ClickAwayListener onClickAway={() => setShowAccountMenu(false)}>
               <div className="dropdown relative">
