@@ -11,7 +11,6 @@ type Actions = {
 const DEFAULT_RELAYS = [
   'wss://brb.io',
   'wss://relay.damus.io',
-  "wss://nostr-relay.wlvs.space",
   "wss://nostr.fmt.wiz.biz",
   "wss://nostr.oxtr.dev",
   'wss://arc1.arcadelabs.co',
