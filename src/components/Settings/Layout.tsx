@@ -5,16 +5,18 @@ import useAuthStore from '~/store/useAuthStore'
 import { DefaultLayout } from '../DefaultLayout'
 import { Spinner } from '../Spinner'
 
+// TODO: Overlap highlighted tab button bottom border with the full tabs bottom border
+// they are currently stacked
 const TabButton = ({ tab, current = false }: { tab: string; current: boolean }) => {
   const selectedStyle = 'text-orange-400 border-b border-orange-400'
   const styling = current ? selectedStyle : ''
   return (
-    <Link href={'/settings/' + tab}>
-      <span
-        className={`${styling} py-1 capitalize hover:cursor-pointer hover:border-b hover:border-orange-400 hover:text-orange-400`}
-      >
-        {tab}
-      </span>
+    <Link
+      href={'/settings/' + tab}
+      legacyBehavior={false}
+      className={`${styling} py-1 capitalize hover:cursor-pointer hover:border-b hover:border-orange-400 hover:text-orange-400`}
+    >
+      {tab}
     </Link>
   )
 }
