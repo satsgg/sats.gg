@@ -39,7 +39,7 @@ export const Navbar = ({ openAuthenticate, openTransact }: HeaderProps) => {
   }
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-light relative flex w-full flex-wrap items-center justify-between bg-stone-900 py-2 text-gray-200 shadow-lg">
+    <nav className="flex w-full flex-wrap items-center justify-between bg-stone-900 py-2 text-gray-200 shadow-lg">
       <div className="container-fluid flex w-full flex-wrap items-center justify-between px-6">
         <div className="container-fluid">
           <Link href="/">

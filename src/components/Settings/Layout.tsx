@@ -29,7 +29,7 @@ const SettingsLayout = ({ children }: { children: ReactNode }) => {
 
   const getContent = () => {
     if (authStatus === 'authenticated') {
-      return <main>{children}</main>
+      return <main className="flex flex-col overflow-y-auto">{children}</main>
     } else if (authStatus === 'unauthenticated') {
       return <p>You must be logged in to view this page</p>
     } else {
@@ -43,8 +43,8 @@ const SettingsLayout = ({ children }: { children: ReactNode }) => {
 
   return (
     <DefaultLayout>
-      <div className="w-full space-y-4 bg-stone-900 py-8 px-8 text-white">
-        <h1 className="text-4xl font-bold ">Settings</h1>
+      <div className="flex flex-col w-full space-y-4 bg-stone-900 py-8 px-8 text-white">
+        <h1 className="text-4xl font-bold">Settings</h1>
 
         <div className="flex space-x-6 border-b border-gray-500">
           {tabs.map((tab) => {

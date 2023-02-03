@@ -25,7 +25,7 @@ export const FollowedChannelList = ({}) => {
   // shouldn't reload every page (same with auth)
 
   return (
-    <div className="grow bg-stone-800">
+    <div className="grow bg-stone-800 overflow-y-auto no-scrollbar">
       <div className="flex flex-col justify-center">
         {authStatus == 'authenticated' && Array.isArray(followedChannels) && followedChannels.length ? (
           <>
@@ -33,6 +33,7 @@ export const FollowedChannelList = ({}) => {
             {followedChannels.map((followedChannel) => {
               return <FollowedChannelSingle key={followedChannel.followingId} channel={followedChannel.following} />
             })}
+          <div className="h-screen w-full bg-slate-500 border-4 border-cyan-500" />
           </>
         ) : (
           <>

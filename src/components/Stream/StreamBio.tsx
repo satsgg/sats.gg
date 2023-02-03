@@ -117,6 +117,7 @@ export const StreamBio = ({ channelUser }: ChannelUserProps) => {
           <p className="font-semi text-lg text-white">{channelUser?.bio}</p>
         </div>
       </div>
+      <div className="h-screen w-full bg-slate-500 border-4 border-cyan-500" />
     </div>
   )
 }

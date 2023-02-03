@@ -77,7 +77,7 @@ export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
         <title>SATS.GG</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className="flex h-screen w-screen flex-col overflow-hidden px-8 lg:px-0">
+      <div id="appContainer" className="h-screen w-screen bg-stone-900">
         <Navbar openAuthenticate={() => setModal('login')} openTransact={() => setModal('wallet')} />
         <div>
           {
@@ -96,14 +96,12 @@ export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
             }[modal]
           }
         </div>
-        <div className="flex grow">
-          <div className="flex w-60 flex-none">
-            {/* <FollowedChannelList userId={user?.id} /> */}
+        <div id="contentContainer" className="flex h-full">
+          <div id="followContainer" className="flex shrink-0 w-60 h-full">
             <FollowedChannelList />
           </div>
-          <div className="flex w-full grow bg-stone-900 text-white">
-            <main className="flex w-full grow bg-stone-900">{children}</main>
-          </div>
+
+          <main className="flex w-full text-white">{children}</main>
         </div>
       </div>
     </>
