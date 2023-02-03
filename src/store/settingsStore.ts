@@ -30,7 +30,6 @@ const initialState = {
   // relays: window.localStorage.getItem('relays') || DEFAULT_RELAYS
   // use persist localstorage middleware?
   relays: DEFAULT_RELAYS,
-  // connectedRelays: []
 }
 
 // NOTE: This will become a logged in users session
