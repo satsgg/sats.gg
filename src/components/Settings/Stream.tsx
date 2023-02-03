@@ -40,7 +40,7 @@ const StreamSettings = () => {
   }
 
   return (
-    <div>
+    <div className="flex flex-col w-3/5">
       <h2 className="font-md mb-2 text-xl">Stream Settings</h2>
       <div className="flex flex-col gap-y-6 rounded border border-gray-500 bg-stone-800 p-6">
         <div className="flex">
