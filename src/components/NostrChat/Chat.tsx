@@ -65,7 +65,7 @@ export const Chat = ({ channelUser }: ChannelUserProps) => {
       <Virtuoso
         data={notes}
         followOutput={'auto'}
-        className={'max-h-[calc(100vh-12rem)]'}
+        className={'max-h-[calc(100vh-13rem)]'}
         itemContent={(index, note) => {
           return (
             <div className="break-words px-3">
