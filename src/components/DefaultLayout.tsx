@@ -8,8 +8,8 @@ import { FollowedChannelList } from '~/components/FollowedChannelList'
 import { InteractionModal } from '~/components/InteractionModal'
 import { Authenticate } from '~/components/Authenticate'
 import { Transact } from '~/components/Transact'
-import useNostrStore from '~/hooks/useNostrStore'
 import { nostrClient } from '~/nostr/NostrClient'
+import useSettingsStore from '~/hooks/useSettingsStore'
 
 type DefaultLayoutProps = { children: ReactNode }
 
@@ -25,34 +25,18 @@ const relays = [
 
 export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
   const { user, setUser, setStatus, storeToken, storeLogin, setNym, unsetNym, setShowBalance } = useAuthStore()
+  const { init: initSettingsStore } = useSettingsStore()
   const [modal, setModal] = useState<'none' | 'login' | 'wallet'>('none')
   const utils = trpc.useContext()
-
-  // const { connectToRelay, disconnectRelay } = useNostrStore()
-  // TODO: Get relays, follows, users initially from localStorage
-
-  // useEffect(() => {
-  //   if (relays) {
-  //     relays.forEach((relay) => connectToRelay(relay))
-  //   }
-  // }, [relays])
 
   // TODO: Initialize local storage of user (pubkey, privkey, relays, users etc)
   // useEffect(() => {
   //   // initialize local storage of user
   // })
 
-  // useEffect(() => {
   useEffect(() => {
-    // get relays from settings first?
-    // wouldn't want a singleton in that case
-    // unless we instantiate singleton with non default array
-    // yeet
-    const connect = async () => {
-      await nostrClient.connect()
-    }
-    connect()
-    // nostrClient.connect()
+      initSettingsStore()
+      nostrClient.connect()
   }, [])
 
   useEffect(() => {

@@ -2,12 +2,13 @@ import create from 'zustand/vanilla'
 
 type State = {
   connectedRelays: number
-  relays: number
+  // relays: number
+  relays: string[]
 }
 
 const initialState: State = {
   connectedRelays: 0,
-  relays: 0,
+  relays: [],
 }
 
 type Actions = {

@@ -12,7 +12,8 @@ import LightningBoltSVG from '~/svgs/lightning-bolt.svg'
 import EyeVisibleSVG from '~/svgs/eye-visible.svg'
 import EyeHiddenSVG from '~/svgs/eye-hidden.svg'
 import AccountSVG from '~/svgs/account.svg'
-import useNostrStore from '~/hooks/useNostrStore'
+import useConnectedRelays from '~/hooks/useConnectedRelays'
+import useSettingsStore from '~/hooks/useSettingsStore'
 
 interface HeaderProps {
   openAuthenticate: () => void
@@ -22,7 +23,8 @@ interface HeaderProps {
 export const Navbar = ({ openAuthenticate, openTransact }: HeaderProps) => {
   const { user, status: authStatus, logout, showBalance, setShowBalance } = useAuthStore()
   const [showAccountMenu, setShowAccountMenu] = useState(false)
-  const { connectedRelays, relays } = useNostrStore()
+  const { relays } = useSettingsStore()
+  const connectedRelays = useConnectedRelays()
 
   const { data: myBalance } = trpc.accounting.myBalance.useQuery(undefined, {
     enabled: !!user?.id,
@@ -63,7 +65,7 @@ export const Navbar = ({ openAuthenticate, openTransact }: HeaderProps) => {
             </div>
 
             <Link href={"/settings/relays"} legacyBehavior={false}>
-              {connectedRelays}/{relays}
+              {connectedRelays.size}/{relays.length}
             </Link>
 
             <ClickAwayListener onClickAway={() => setShowAccountMenu(false)}>

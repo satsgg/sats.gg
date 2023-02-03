@@ -1,5 +1,4 @@
 import { Relay, relayInit, Sub, Filter, Event } from 'nostr-tools'
-import useNostrStore from '~/hooks/useNostrStore'
 
 type SubInfo = {
   id: string
@@ -19,6 +18,7 @@ export default class RelayPool {
   // TODO: Extend NostrRelay to have our self managed connected boolean
   connectedRelays: Set<string> = new Set()
   subscriptions: Map<string, SubInfo> = new Map()
+  listeners: Set<Function> = new Set()
 
   constructor(urls: string[]) {
     urls.forEach((url) => {
@@ -27,12 +27,10 @@ export default class RelayPool {
         subs: new Map(),
       }
       this.relays.set(url, relay)
-      useNostrStore.setState({ relays: this.relays.size })
     })
   }
 
   async connect() {
-    console.log('relays: ', Array.from(this.relays.keys()))
     for (const relay of this.relays.values()) {
       try {
         // must await here for relay connection status to work...
@@ -44,9 +42,10 @@ export default class RelayPool {
 
       relay.on('connect', () => {
         console.debug(relay.url, ' connected! status: ', relay.status)
-        this.connectedRelays.add(relay.url)
+        this.connectedRelays = new Set(this.connectedRelays).add(relay.url)
 
-        useNostrStore.setState({ connectedRelays: this.connectedRelays.size })
+        console.log('listeners: ', this.listeners)
+        this.listeners.forEach((listener) => listener(this.connectedRelays))
 
         for (const si of this.subscriptions.values()) {
           const sub = relay.sub(si.filters)
@@ -58,8 +57,10 @@ export default class RelayPool {
       relay.on('disconnect', () => {
         console.warn(`🚪 nostr (${relay.url}): Connection closed.`)
         this.relays.delete(relay.url)
+
         this.connectedRelays.delete(relay.url)
-        useNostrStore.setState({ connectedRelays: this.connectedRelays.size })
+        this.connectedRelays = new Set(this.connectedRelays)
+        this.listeners.forEach((listener) => listener(this.connectedRelays))
       })
 
       relay.on('error', (error: string) => {
@@ -73,9 +74,6 @@ export default class RelayPool {
   }
 
   addSubscription(id: string, filters: Filter[], eventCb: (event: Event) => void) {
-    // console.debug(`📭 adding subscription with filter:`, filters)
-    // console.debug('existing subs: ', Array.from(this.subscriptions.keys()))
-    // console.debug('connected relays: ', this.connectedRelays)
     for (const cr of this.connectedRelays) {
       const r = this.relays.get(cr)
       const sub = r.sub(filters)
@@ -83,7 +81,6 @@ export default class RelayPool {
       sub.on('eose', () => console.log('SUB EOSE: ', r.url, ' ', id))
 
       r.subs.set(id, sub)
-      // console.log(r.subs)
     }
 
     this.subscriptions.set(id, {
@@ -109,6 +106,12 @@ export default class RelayPool {
 
     this.subscriptions.delete(id)
     // NOTE: EOSE must work together with removing subscription and sub.unsub..
+  }
+
+  // useConnectedRelays sync external store subscribe function
+  subscribe(listener: Function) {
+    this.listeners.add(listener)
+    return () => this.listeners.delete(listener)
   }
 
   // TODO: Remove relay
