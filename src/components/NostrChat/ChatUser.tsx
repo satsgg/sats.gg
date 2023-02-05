@@ -17,7 +17,7 @@ const ChatUser = ({ pubkey }: { pubkey: string }) => {
   }
 
   if (profile && profile.name) {
-    return <span className="text-sm text-orange-300">{fmtName(profile.name)}</span>
+    return <span className="text-sm text-orange-300">{fmtName(profile.name.slice(0, 15))}</span>
   }
 
   return <span className="text-sm">{pubkey.slice(0, 12)}</span>
