@@ -49,7 +49,7 @@ export const Chat = ({ channelUser }: ChannelUserProps) => {
       since: now.current,
     },
   ]
-  const notes = useSubscription(channelUser.id, filters)
+  const notes = useSubscription(channelUser.id, filters, 250)
 
   const handleSubmitMessage = (e: any) => {
     e.preventDefault()
@@ -99,8 +99,13 @@ export const Chat = ({ channelUser }: ChannelUserProps) => {
         followOutput
         // followOutput={'smooth'}
         ref={virtuosoRef}
-        // Would need to debounce displaying scroll to bottom button w/ smooth follow
         className={'max-h-[calc(100vh-13rem)]'}
+        // not sure on these pixel calcs, but 1000px bottom seems to have *improved*
+        // the scrollToBottom issue as recommended by virtuoso guy.
+        increaseViewportBy={{
+          top: 200,
+          bottom: 2000
+        }}
         atBottomStateChange={(bottom) => {
           if (!bottom) console.warn('NOT AT BOTTOM')
           setAtBottom(bottom)

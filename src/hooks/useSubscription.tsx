@@ -3,7 +3,7 @@ import useNostrStore from '~/hooks/useNostrStore'
 import { Filter, Event } from 'nostr-tools'
 import { nostrClient } from '~/nostr/NostrClient'
 
-export const useSubscription = (id: string, filter: Filter[]) => {
+export const useSubscription = (id: string, filter: Filter[], limit: number = 500) => {
   const [notes, setNotes] = useState<Event[]>([])
 
   const onEventCallback = (event: Event) => {
@@ -15,7 +15,8 @@ export const useSubscription = (id: string, filter: Filter[]) => {
 
       // before settings the event into the list
       // check store for event.pubkey kind5 metadata
-      return [...prev, event]
+
+      return [...prev.slice(0, limit), event]
     })
   }
 

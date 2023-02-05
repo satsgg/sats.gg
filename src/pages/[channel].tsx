@@ -3,21 +3,10 @@ import { z } from 'zod'
 import { useRouter } from 'next/router'
 import { Chat } from '~/components/NostrChat/Chat'
 import { StreamContainer } from '~/components/Stream/StreamContainer'
-import { NostrProvider } from '~/context/nostr'
 
 export const getUser = z.object({
   userName: z.string().max(24),
 })
-
-const relayUrls = [
-  'wss://brb.io',
-  'wss://relay.damus.io',
-  // "wss://nostr-relay.wlvs.space",
-  // "wss://nostr.fmt.wiz.biz",
-  // "wss://nostr.oxtr.dev",
-  'wss://arc1.arcadelabs.co',
-  'wss://relay.nostr.ch',
-]
 
 export default function Channel() {
   const router = useRouter()
