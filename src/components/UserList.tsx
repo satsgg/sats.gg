@@ -21,7 +21,7 @@ export const UserList = ({}) => {
         userListData.map((user) => {
           return <UserSingle key={user.id} user={user} />
         })}
-        <div className="h-screen w-full bg-slate-500 border-4 border-cyan-500" />
+      <div className="h-screen w-full border-4 border-cyan-500 bg-slate-500" />
     </div>
   )
 }

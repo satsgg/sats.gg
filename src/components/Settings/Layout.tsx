@@ -43,7 +43,7 @@ const SettingsLayout = ({ children }: { children: ReactNode }) => {
 
   return (
     <DefaultLayout>
-      <div className="flex flex-col w-full space-y-4 bg-stone-900 py-8 px-8 text-white">
+      <div className="flex w-full flex-col space-y-4 bg-stone-900 py-8 px-8 text-white">
         <h1 className="text-4xl font-bold">Settings</h1>
 
         <div className="flex space-x-6 border-b border-gray-500">

@@ -64,7 +64,7 @@ export const Navbar = ({ openAuthenticate, openTransact }: HeaderProps) => {
               </div>
             </div>
 
-            <Link href={"/settings/relays"} legacyBehavior={false}>
+            <Link href={'/settings/relays'} legacyBehavior={false}>
               {connectedRelays.size}/{relays.length}
             </Link>
 

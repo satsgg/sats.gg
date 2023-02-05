@@ -35,8 +35,8 @@ export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
   // })
 
   useEffect(() => {
-      initSettingsStore()
-      nostrClient.connect()
+    initSettingsStore()
+    nostrClient.connect()
   }, [])
 
   useEffect(() => {
@@ -97,7 +97,7 @@ export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
           }
         </div>
         <div id="contentContainer" className="flex h-full">
-          <div id="followContainer" className="flex shrink-0 w-60 h-full">
+          <div id="followContainer" className="flex h-full w-60 shrink-0">
             <FollowedChannelList />
           </div>
 

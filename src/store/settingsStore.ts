@@ -43,9 +43,9 @@ const SettingsStore = create<State & Actions>((set, get) => ({
     // relays if available
     const initRelays = window.localStorage.getItem('relays')
     if (initRelays) {
-      set({ relays: JSON.parse(initRelays)})
+      set({ relays: JSON.parse(initRelays) })
       console.debug('init relays json parse: ', JSON.parse(initRelays))
-    } 
+    }
     // else {
     //   // store default set of relays
     //   // should we even save it? doesn't matter really...
@@ -58,7 +58,7 @@ const SettingsStore = create<State & Actions>((set, get) => ({
     // don't add if it's already there
     // double verify valid relay url
     set((state) => ({
-      relays: [...state.relays, url]
+      relays: [...state.relays, url],
     }))
   },
 
@@ -68,10 +68,9 @@ const SettingsStore = create<State & Actions>((set, get) => ({
     // newRelays.delete(url)
     // set({ relays: new Set(newRelays) })
     set((state) => ({
-      relays: state.relays.filter(r => r === url)
+      relays: state.relays.filter((r) => r === url),
     }))
-  }
-
+  },
 }))
 
 export default SettingsStore
