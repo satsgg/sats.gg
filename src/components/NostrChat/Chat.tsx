@@ -104,7 +104,7 @@ export const Chat = ({ channelUser }: ChannelUserProps) => {
         // the scrollToBottom issue as recommended by virtuoso guy.
         increaseViewportBy={{
           top: 200,
-          bottom: 2000
+          bottom: 2000,
         }}
         atBottomStateChange={(bottom) => {
           if (!bottom) console.warn('NOT AT BOTTOM')

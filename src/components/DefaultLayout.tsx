@@ -13,18 +13,8 @@ import useSettingsStore from '~/hooks/useSettingsStore'
 
 type DefaultLayoutProps = { children: ReactNode }
 
-const relays = [
-  'wss://brb.io',
-  'wss://relay.damus.io',
-  // "wss://nostr-relay.wlvs.space",
-  // "wss://nostr.fmt.wiz.biz",
-  // "wss://nostr.oxtr.dev",
-  'wss://arc1.arcadelabs.co',
-  'wss://relay.nostr.ch',
-]
-
 export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
-  const { user, setUser, setStatus, storeToken, storeLogin, setNym, unsetNym, setShowBalance } = useAuthStore()
+  const { setUser, setStatus, storeToken, storeLogin, setNym, unsetNym, setShowBalance } = useAuthStore()
   const { init: initSettingsStore } = useSettingsStore()
   const [modal, setModal] = useState<'none' | 'login' | 'wallet'>('none')
   const utils = trpc.useContext()

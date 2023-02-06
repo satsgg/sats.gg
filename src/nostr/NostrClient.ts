@@ -24,7 +24,7 @@ export type UserMetadataStore = UserMetadata & {
 }
 
 class NostrClient {
-  relayPool: RelayPool
+  relayPool: RelayPool = new RelayPool()
   profileQueue: Set<string> = new Set() // set of hex public keys to query
   paused: boolean = false
 
@@ -44,13 +44,24 @@ class NostrClient {
   //    * client saved in top level NostrStore
   //    * initiated after user settings slice
 
-  constructor(relays: string[]) {
-    this.relayPool = new RelayPool(relays)
+  async connect() {
+    const relays = Settings.getState().relays
+    console.debug('NostrClient.connect relays: ', relays)
+    relays.forEach((relay) => {
+      this.relayPool.connectToRelay(relay)
+    })
   }
 
-  async connect() {
-    // TODO: parallel with promises
-    await this.relayPool.connect()
+  connectToRelay(url: string) {
+    this.relayPool.connectToRelay(url)
+  }
+
+  addRelay(url: string) {
+    this.relayPool.addRelay(url)
+  }
+
+  removeRelay(url: string) {
+    this.relayPool.removeRelay(url)
   }
 
   subscribe(id: string, filters: Filter[], eventCb: (event: Event) => void) {
@@ -115,8 +126,4 @@ class NostrClient {
   publish() {}
 }
 
-// NOTE: This might stop working once we start reading relays from localStorage (async?)
-// could become a race condition...
-// could just initialize settings store and then initialize nostr client
-// during useEffect in DefaultLayout
-export const nostrClient = new NostrClient(Settings.getState().relays)
+export const nostrClient = new NostrClient()

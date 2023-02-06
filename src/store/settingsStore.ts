@@ -1,4 +1,5 @@
 import create from 'zustand/vanilla'
+import { nostrClient } from '~/nostr/NostrClient'
 
 type State = {
   // TODO: store connection status
@@ -30,6 +31,7 @@ const initialState = {
   // relays: window.localStorage.getItem('relays') || DEFAULT_RELAYS
   // use persist localstorage middleware?
   relays: DEFAULT_RELAYS,
+  // relays: [],
 }
 
 // NOTE: This will become a logged in users session
@@ -42,34 +44,50 @@ const SettingsStore = create<State & Actions>((set, get) => ({
 
     // relays if available
     const initRelays = window.localStorage.getItem('relays')
+    let relaysToConnect: string[] = []
     if (initRelays) {
-      set({ relays: JSON.parse(initRelays) })
+      relaysToConnect = JSON.parse(initRelays)
+      set({ relays: relaysToConnect })
       console.debug('init relays json parse: ', JSON.parse(initRelays))
+    } else {
+      // Start with default list
+      relaysToConnect = get().relays
+      window.localStorage.setItem('relays', JSON.stringify(relaysToConnect))
     }
-    // else {
-    //   // store default set of relays
-    //   // should we even save it? doesn't matter really...
-    //   window.localStorage.setItem('relays', JSON.stringify(get().relays))
-    // }
+    relaysToConnect.forEach((relay) => {
+      nostrClient.addRelay(relay)
+    })
   },
 
   addRelay: (url: string) => {
     console.debug('adding relay: ', url)
     // don't add if it's already there
     // double verify valid relay url
+    const relays = window.localStorage.getItem('relays')
+    if (relays) {
+      window.localStorage.setItem('relays', JSON.stringify([...JSON.parse(relays), url]))
+    }
+
     set((state) => ({
       relays: [...state.relays, url],
     }))
+
+    nostrClient.addRelay(url)
+    nostrClient.connectToRelay(url)
   },
 
   removeRelay: (url: string) => {
-    // console.debug('removing relay: ', url)
-    // let newRelays = new Set(get().relays)
-    // newRelays.delete(url)
-    // set({ relays: new Set(newRelays) })
+    console.debug('removing relay: ', url)
+    const relays = window.localStorage.getItem('relays')
+    if (relays) {
+      window.localStorage.setItem('relays', JSON.stringify(JSON.parse(relays).filter((r: string) => r !== url)))
+    }
+
     set((state) => ({
-      relays: state.relays.filter((r) => r === url),
+      relays: state.relays.filter((r) => r !== url),
     }))
+
+    nostrClient.removeRelay(url)
   },
 }))
 

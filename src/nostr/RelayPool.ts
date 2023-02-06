@@ -20,57 +20,68 @@ export default class RelayPool {
   subscriptions: Map<string, SubInfo> = new Map()
   listeners: Set<Function> = new Set()
 
-  constructor(urls: string[]) {
-    urls.forEach((url) => {
-      const relay: NostrRelay = {
-        ...relayInit(url),
-        subs: new Map(),
-      }
-      this.relays.set(url, relay)
-    })
+  addRelay(url: string) {
+    const relay: NostrRelay = {
+      ...relayInit(url),
+      subs: new Map(),
+    }
+    this.relays.set(url, relay)
   }
 
-  async connect() {
-    for (const relay of this.relays.values()) {
-      try {
-        // must await here for relay connection status to work...
-        // but we are managing connection status separately so it doesn't matter
-        relay.connect()
-      } catch (e: any) {
-        console.error(relay.url, ' error connecting')
-      }
-
-      relay.on('connect', () => {
-        console.debug(relay.url, ' connected! status: ', relay.status)
-        this.connectedRelays = new Set(this.connectedRelays).add(relay.url)
-
-        console.log('listeners: ', this.listeners)
-        this.listeners.forEach((listener) => listener(this.connectedRelays))
-
-        for (const si of this.subscriptions.values()) {
-          const sub = relay.sub(si.filters)
-          sub.on('event', si.callback)
-          relay.subs.set(si.id, sub)
-        }
-      })
-
-      relay.on('disconnect', () => {
-        console.warn(`🚪 nostr (${relay.url}): Connection closed.`)
-        this.relays.delete(relay.url)
-
-        this.connectedRelays.delete(relay.url)
-        this.connectedRelays = new Set(this.connectedRelays)
-        this.listeners.forEach((listener) => listener(this.connectedRelays))
-      })
-
-      relay.on('error', (error: string) => {
-        console.error(relay.url, ' error connecting: ', error)
-      })
-
-      relay.on('notice', () => {
-        console.debug(relay.url, ' notice')
-      })
+  removeRelay(url: string) {
+    const relay = this.relays.get(url)
+    if (!relay) {
+      console.warn("Relay doesn't exist")
+      return
     }
+
+    // what if not connected?
+    relay.close()
+    this.connectedRelays.delete(relay.url)
+    this.connectedRelays = new Set(this.connectedRelays)
+    this.listeners.forEach((listener) => listener(this.connectedRelays))
+    this.relays.delete(url)
+  }
+
+  connectToRelay(url: string) {
+    const relay = this.relays.get(url)
+    if (!relay) {
+      console.warn("Relay doesn't exist")
+      return
+    }
+    try {
+      relay.connect()
+    } catch (e: any) {
+      console.error(relay.url, ' error connecting')
+    }
+
+    relay.on('connect', () => {
+      console.debug(relay.url, ' connected! status: ', relay.status)
+      this.connectedRelays = new Set(this.connectedRelays).add(relay.url)
+
+      this.listeners.forEach((listener) => listener(this.connectedRelays))
+
+      for (const si of this.subscriptions.values()) {
+        const sub = relay.sub(si.filters)
+        sub.on('event', si.callback)
+        relay.subs.set(si.id, sub)
+      }
+    })
+
+    relay.on('disconnect', () => {
+      console.warn(`🚪 nostr (${relay.url}): Connection closed.`)
+      this.connectedRelays.delete(relay.url)
+      this.connectedRelays = new Set(this.connectedRelays)
+      this.listeners.forEach((listener) => listener(this.connectedRelays))
+    })
+
+    relay.on('error', (error: string) => {
+      console.error(relay.url, ' error connecting: ', error)
+    })
+
+    relay.on('notice', () => {
+      console.debug(relay.url, ' notice')
+    })
   }
 
   addSubscription(id: string, filters: Filter[], eventCb: (event: Event) => void) {
