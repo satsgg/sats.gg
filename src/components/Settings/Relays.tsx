@@ -69,7 +69,7 @@ const AddRelayForm = ({ relays }: { relays: string[] }) => {
           <input
             className={`${
               errors.newRelay && 'focus:border-red-500'
-            } focus:shadow-outline w-full resize-none appearance-none rounded border border-gray-500 bg-stone-700 py-2 px-3 leading-tight text-white shadow focus:border-primary focus:bg-slate-900 focus:outline-none`}
+            } min-w-[20ch] focus:shadow-outline w-full resize-none appearance-none rounded border border-gray-500 bg-stone-700 py-2 px-3 leading-tight text-white shadow focus:border-primary focus:bg-slate-900 focus:outline-none`}
             type="text"
             placeholder="wss://relay.current.fyi"
             autoComplete="off"
