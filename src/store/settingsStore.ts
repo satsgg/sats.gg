@@ -3,12 +3,14 @@ import { nostrClient } from '~/nostr/NostrClient'
 
 type State = {
   // TODO: store connection status
+  pubkey: string | undefined
   relays: string[]
-  // connectedRelays: string[]
 }
 
 type Actions = {
   init: () => void
+  setPubkey: (pubkey: string) => void
+  logout: () => void
   addRelay: (url: string) => void
   removeRelay: (url: string) => void
 }
@@ -27,11 +29,8 @@ const DEFAULT_RELAYS = [
 ]
 
 const initialState = {
-  // TODO: Set initial state based off localStorage data
-  // relays: window.localStorage.getItem('relays') || DEFAULT_RELAYS
-  // use persist localstorage middleware?
+  pubkey: undefined,
   relays: DEFAULT_RELAYS,
-  // relays: [],
 }
 
 // NOTE: This will become a logged in users session
@@ -41,6 +40,11 @@ const SettingsStore = create<State & Actions>((set, get) => ({
   init: () => {
     // from browser storage get
     // public key if available
+    const pubkey = window.localStorage.getItem('pubkey')
+    console.debug('pubkey', pubkey)
+    if (pubkey) {
+      set({ pubkey: pubkey})
+    }
 
     // relays if available
     const initRelays = window.localStorage.getItem('relays')
@@ -57,6 +61,14 @@ const SettingsStore = create<State & Actions>((set, get) => ({
     relaysToConnect.forEach((relay) => {
       nostrClient.addRelay(relay)
     })
+  },
+
+  setPubkey: (pubkey: string) => {
+    set({ pubkey: pubkey })
+  },
+
+  logout: () => {
+    set({ pubkey: undefined })
   },
 
   addRelay: (url: string) => {

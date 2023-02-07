@@ -1,4 +1,3 @@
-import useAuthStore from '~/hooks/useAuthStore'
 import { useState } from 'react'
 import ClickAwayListener from 'react-click-away-listener'
 import Link from 'next/link'
@@ -16,9 +15,8 @@ interface HeaderProps {
 }
 
 export const Navbar = ({ openAuthenticate }: HeaderProps) => {
-  const { pubkey, status: authStatus, logout } = useAuthStore()
   const [showAccountMenu, setShowAccountMenu] = useState(false)
-  const { relays } = useSettingsStore()
+  const { pubkey, relays, logout } = useSettingsStore()
   const connectedRelays = useConnectedRelays()
 
   const utils = trpc.useContext()
@@ -37,12 +35,11 @@ export const Navbar = ({ openAuthenticate }: HeaderProps) => {
             <span className="text-2xl font-bold text-white hover:cursor-pointer">SATS.GG</span>
           </Link>
         </div>
-        {pubkey && (
-          <div className="relative flex items-center gap-4">
-            <Link href={'/settings/relays'} legacyBehavior={false}>
-              {connectedRelays.size}/{relays.length}
-            </Link>
-
+        <div className="relative flex items-center gap-4">
+          <Link href={'/settings/relays'} legacyBehavior={false}>
+            {connectedRelays.size}/{relays.length}
+          </Link>
+          {pubkey && (
             <ClickAwayListener onClickAway={() => setShowAccountMenu(false)}>
               <div className="dropdown relative">
                 <a
@@ -114,19 +111,18 @@ export const Navbar = ({ openAuthenticate }: HeaderProps) => {
                 )}
               </div>
             </ClickAwayListener>
-          </div>
-        )}
-        {authStatus === 'loading' && <div className="h-8 w-8 rounded-[50%] bg-stone-800" />}
-        {authStatus === 'unauthenticated' && (
-          <button
-            type="button"
-            onClick={openAuthenticate}
-            className="font-semi inline-flex items-center rounded bg-primary px-3 py-2 text-sm uppercase text-black shadow-md transition duration-150 ease-in-out hover:bg-primary/80 hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0 active:shadow-lg"
-          >
-            <LogInSVG width={20} height={20} className="mr-1.5 h-4" />
-            <span>Log In</span>
-          </button>
-        )}
+          )}
+          {!pubkey && (
+            <button
+              type="button"
+              onClick={openAuthenticate}
+              className="font-semi inline-flex items-center rounded bg-primary px-3 py-2 text-sm uppercase text-black shadow-md transition duration-150 ease-in-out hover:bg-primary/80 hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0 active:shadow-lg"
+            >
+              <LogInSVG width={20} height={20} className="mr-1.5 h-4" />
+              <span>Log In</span>
+            </button>
+          )}
+        </div>
       </div>
     </nav>
   )
