@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import ClickAwayListener from 'react-click-away-listener'
 import Link from 'next/link'
-import { trpc } from '~/utils/trpc'
 import ChannelSVG from '~/svgs/my-channel.svg'
 import LogOutSVG from '~/svgs/log-out.svg'
 import LogInSVG from '~/svgs/log-in.svg'
@@ -18,8 +17,6 @@ export const Navbar = ({ openAuthenticate }: HeaderProps) => {
   const [showAccountMenu, setShowAccountMenu] = useState(false)
   const { pubkey, relays, logout } = useSettingsStore()
   const connectedRelays = useConnectedRelays()
-
-  const utils = trpc.useContext()
 
   const handleLogout = async () => {
     setShowAccountMenu(false)

@@ -1,4 +1,4 @@
-export const Spinner = ({height=12, width=12}: {height?: number, width?: number}) => {
+export const Spinner = ({ height = 12, width = 12 }: { height?: number; width?: number }) => {
   return (
     <div className={'grid place-items-center'} aria-label="Loading..." role="status">
       <svg className={`h-${height} w-${width} animate-spin`} viewBox="3 3 18 18">

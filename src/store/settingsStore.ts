@@ -43,7 +43,7 @@ const SettingsStore = create<State & Actions>((set, get) => ({
     const pubkey = window.localStorage.getItem('pubkey')
     console.debug('pubkey', pubkey)
     if (pubkey) {
-      set({ pubkey: pubkey})
+      set({ pubkey: pubkey })
     }
 
     // relays if available
