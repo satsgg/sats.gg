@@ -3,7 +3,6 @@ import { AppProps } from 'next/app'
 import { AppType } from 'next/dist/shared/lib/utils'
 import { ReactElement, ReactNode } from 'react'
 import { DefaultLayout } from '~/components/DefaultLayout'
-import { trpc } from '~/utils/trpc'
 import '../styles/globals.css'
 
 export type NextPageWithLayout = NextPage & {
@@ -19,4 +18,5 @@ const MyApp = (({ Component, pageProps }: AppPropsWithLayout) => {
   return getLayout(<Component {...pageProps} />)
 }) as AppType
 
-export default trpc.withTRPC(MyApp)
+// export default trpc.withTRPC(MyApp)
+export default MyApp

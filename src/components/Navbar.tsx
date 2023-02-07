@@ -7,28 +7,19 @@ import ChannelSVG from '~/svgs/my-channel.svg'
 import LogOutSVG from '~/svgs/log-out.svg'
 import LogInSVG from '~/svgs/log-in.svg'
 import SettingsSVG from '~/svgs/settings.svg'
-import WalletSVG from '~/svgs/wallet.svg'
-import LightningBoltSVG from '~/svgs/lightning-bolt.svg'
-import EyeVisibleSVG from '~/svgs/eye-visible.svg'
-import EyeHiddenSVG from '~/svgs/eye-hidden.svg'
 import AccountSVG from '~/svgs/account.svg'
 import useConnectedRelays from '~/hooks/useConnectedRelays'
 import useSettingsStore from '~/hooks/useSettingsStore'
 
 interface HeaderProps {
   openAuthenticate: () => void
-  openTransact: () => void
 }
 
-export const Navbar = ({ openAuthenticate, openTransact }: HeaderProps) => {
-  const { user, status: authStatus, logout, showBalance, setShowBalance } = useAuthStore()
+export const Navbar = ({ openAuthenticate }: HeaderProps) => {
+  const { pubkey, status: authStatus, logout } = useAuthStore()
   const [showAccountMenu, setShowAccountMenu] = useState(false)
   const { relays } = useSettingsStore()
   const connectedRelays = useConnectedRelays()
-
-  const { data: myBalance } = trpc.accounting.myBalance.useQuery(undefined, {
-    enabled: !!user?.id,
-  })
 
   const utils = trpc.useContext()
 
@@ -46,24 +37,8 @@ export const Navbar = ({ openAuthenticate, openTransact }: HeaderProps) => {
             <span className="text-2xl font-bold text-white hover:cursor-pointer">SATS.GG</span>
           </Link>
         </div>
-        {user && (
+        {pubkey && (
           <div className="relative flex items-center gap-4">
-            <div className="inline-flex items-center">
-              <div className="inline-flex items-center rounded-lg border px-2 py-1 text-sm">
-                <span className="inline-flex items-center hover:cursor-pointer" onClick={openTransact}>
-                  <LightningBoltSVG width={20} height={20} className="mr-1 text-primary" />
-                  <span className="w-11">{showBalance ? myBalance : '*******'}</span>
-                </span>
-                <span className="ml-2 hover:cursor-pointer" onClick={() => setShowBalance(!showBalance)}>
-                  {showBalance ? (
-                    <EyeVisibleSVG width={16} height={16} fill="currentColor" />
-                  ) : (
-                    <EyeHiddenSVG width={16} height={16} fill="currentColor" />
-                  )}
-                </span>
-              </div>
-            </div>
-
             <Link href={'/settings/relays'} legacyBehavior={false}>
               {connectedRelays.size}/{relays.length}
             </Link>
@@ -93,34 +68,23 @@ export const Navbar = ({ openAuthenticate, openTransact }: HeaderProps) => {
                         <Link href="/settings/profile" legacyBehavior={false} onClick={() => setShowAccountMenu(false)}>
                           <img
                             className="mr-2 h-10 w-10 rounded-[50%] hover:cursor-pointer"
-                            src={user.profileImage ?? 'https://picsum.photos/250'}
-                            alt={`profile image of ${user.userName}`}
+                            src={'https://picsum.photos/250'}
+                            alt={`profile image of ${pubkey}`}
                           />
                         </Link>
-                        <span className="text-sm font-semibold">{user.userName}</span>
+                        <span className="text-sm font-semibold">{pubkey.slice(0, 12)}</span>
                       </div>
                     </li>
                     <hr className="my-2 rounded border-t border-gray-500"></hr>
                     <li>
                       <Link
-                        href={`/${user.userName}`}
+                        href={`/p/${pubkey}`}
                         legacyBehavior={false}
                         onClick={() => setShowAccountMenu(false)}
                         className="inline-flex w-full whitespace-nowrap rounded bg-transparent py-1 px-1 text-sm font-normal text-white hover:bg-stone-700"
                       >
                         <ChannelSVG width={20} height={20} className="mr-1" strokeWidth={1.5} />
                         <span>My Channel</span>
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href="/wallet"
-                        legacyBehavior={false}
-                        onClick={() => setShowAccountMenu(false)}
-                        className="dropdown-item inline-flex w-full items-center whitespace-nowrap rounded bg-transparent py-1 px-1 text-sm font-normal text-white hover:bg-stone-700"
-                      >
-                        <WalletSVG width={20} height={20} className="mr-1" strokeWidth={1.5} />
-                        <span>Wallet</span>
                       </Link>
                     </li>
                     <li>

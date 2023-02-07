@@ -1,14 +1,7 @@
 import MuxPlayer from '@mux/mux-player-react'
-import { inferProcedureOutput } from '@trpc/server'
 import { useEffect, useRef } from 'react'
-import { AppRouter } from '~/server/routers/_app'
 
-type UserSingleOutput = inferProcedureOutput<AppRouter['user']['getUser']>
-interface UserSingleProps {
-  channelUser: UserSingleOutput
-}
-
-export const Stream = ({ channelUser }: UserSingleProps) => {
+export const Stream = ({ channelPubkey }: { channelPubkey: string }) => {
   const videoEl = useRef(null)
 
   // console.log('playbackid', channelUser?.playbackId)
@@ -34,7 +27,7 @@ export const Stream = ({ channelUser }: UserSingleProps) => {
 
   useEffect(() => {
     attemptPlay()
-  }, [videoEl, channelUser.streamStatus])
+  }, [videoEl])
 
   // Banner offline display
   // if (channelUser?.streamStatus === 'IDLE') {
@@ -83,7 +76,6 @@ export const Stream = ({ channelUser }: UserSingleProps) => {
       metadata={{
         video_id: 'video-id-54321',
         video_title: 'Test video title',
-        status: channelUser?.streamStatus,
         // viewer_user_id: "chad1",
       }}
     />

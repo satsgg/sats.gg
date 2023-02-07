@@ -10,18 +10,9 @@ export const getUser = z.object({
 
 export default function Channel() {
   const router = useRouter()
-  const { channel } = router.query
-  const {
-    data: channelUser,
-    isLoading: userLoading,
-    isError: userError,
-  } = trpc.user.getUser.useQuery({ userName: channel }, { refetchInterval: 15000 })
+  const { channelPubkey } = router.query
 
-  if (userLoading) {
-    return <div className="flex grow bg-stone-900"></div>
-  }
-
-  if (!userLoading && !channelUser) {
+  if (true) {
     return (
       <div className="flex grow bg-stone-900">
         <p className="text-white">Channel not found</p>
@@ -30,13 +21,11 @@ export default function Channel() {
   }
 
   return (
-    // <NostrProvider relayUrls={relayUrls} debug={true}>
     <>
-      <StreamContainer channelUser={channelUser} />
+      <StreamContainer channelUser={channelPubkey} />
       <div className="w-max-sm flex h-full w-1/5 min-w-[20%]">
-        <Chat channelUser={channelUser} />
+        <Chat channelUser={channelPubkey} />
       </div>
     </>
-    // {/* </NostrProvider> */}
   )
 }

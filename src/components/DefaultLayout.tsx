@@ -6,18 +6,15 @@ import { useEffect, useState } from 'react'
 import { Navbar } from '~/components/Navbar'
 import { FollowedChannelList } from '~/components/FollowedChannelList'
 import { InteractionModal } from '~/components/InteractionModal'
-import { Authenticate } from '~/components/Authenticate'
-import { Transact } from '~/components/Transact'
 import { nostrClient } from '~/nostr/NostrClient'
 import useSettingsStore from '~/hooks/useSettingsStore'
 
 type DefaultLayoutProps = { children: ReactNode }
 
 export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
-  const { setUser, setStatus, storeToken, storeLogin, setNym, unsetNym, setShowBalance } = useAuthStore()
+  const { setPubkey, setStatus } = useAuthStore()
   const { init: initSettingsStore } = useSettingsStore()
-  const [modal, setModal] = useState<'none' | 'login' | 'wallet'>('none')
-  const utils = trpc.useContext()
+  const [modal, setModal] = useState<'none' | 'login'>('none')
 
   // TODO: Initialize local storage of user (pubkey, privkey, relays, users etc)
   // useEffect(() => {
@@ -29,38 +26,6 @@ export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
     nostrClient.connect()
   }, [])
 
-  useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (token) {
-      storeLogin(token)
-    } else {
-      setNym()
-      setStatus('unauthenticated')
-    }
-    if (storeToken) {
-      utils.auth.getMe
-        .fetch()
-        .then((data) => {
-          setUser(data)
-          setModal('none')
-          unsetNym()
-        })
-        .catch((error) => {
-          console.log('errorrrrr', error)
-          setStatus('unauthenticated')
-        })
-    }
-  }, [storeToken])
-
-  useEffect(() => {
-    const showBalance = localStorage.getItem('showBalance')
-    if (showBalance !== null) {
-      setShowBalance(JSON.parse(showBalance))
-    } else {
-      setShowBalance(false)
-    }
-  }, [])
-
   return (
     <>
       <Head>
@@ -68,24 +33,7 @@ export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div id="appContainer" className="h-screen w-screen bg-stone-900">
-        <Navbar openAuthenticate={() => setModal('login')} openTransact={() => setModal('wallet')} />
-        <div>
-          {
-            {
-              login: (
-                <InteractionModal title={'Log In'} close={() => setModal('none')}>
-                  <Authenticate />
-                </InteractionModal>
-              ),
-              wallet: (
-                <InteractionModal title={'Wallet'} close={() => setModal('none')}>
-                  <Transact />
-                </InteractionModal>
-              ),
-              none: null,
-            }[modal]
-          }
-        </div>
+        <Navbar openAuthenticate={() => setModal('login')} />
         <div id="contentContainer" className="flex h-full">
           <div id="followContainer" className="flex h-full w-60 shrink-0">
             <FollowedChannelList />
