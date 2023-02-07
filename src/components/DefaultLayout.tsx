@@ -37,7 +37,7 @@ export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
             {
               login: (
                 <InteractionModal title={'Log In'} close={() => setModal('none')}>
-                  <Authenticate />
+                  <Authenticate close={() => setModal('none')} />
                 </InteractionModal>
               ),
               none: null,

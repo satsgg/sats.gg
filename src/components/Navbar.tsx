@@ -22,7 +22,6 @@ export const Navbar = ({ openAuthenticate }: HeaderProps) => {
   const utils = trpc.useContext()
 
   const handleLogout = async () => {
-    await utils.invalidate()
     setShowAccountMenu(false)
     logout()
   }

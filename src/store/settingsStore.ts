@@ -65,10 +65,12 @@ const SettingsStore = create<State & Actions>((set, get) => ({
 
   setPubkey: (pubkey: string) => {
     set({ pubkey: pubkey })
+    window.localStorage.setItem('pubkey', pubkey)
   },
 
   logout: () => {
     set({ pubkey: undefined })
+    window.localStorage.removeItem('pubkey')
   },
 
   addRelay: (url: string) => {
