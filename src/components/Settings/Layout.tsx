@@ -1,9 +1,10 @@
 import { useRouter } from 'next/router'
 import Link from 'next/link'
-import { ReactNode, ReactElement } from 'react'
+import { ReactNode, ReactElement, useEffect } from 'react'
 import useAuthStore from '~/hooks/useAuthStore'
 import { DefaultLayout } from '../DefaultLayout'
 import { Spinner } from '../Spinner'
+import useSettingsStore from '~/hooks/useSettingsStore'
 
 // TODO: Overlap highlighted tab button bottom border with the full tabs bottom border
 // they are currently stacked
@@ -23,23 +24,30 @@ const TabButton = ({ tab, current = false }: { tab: string; current: boolean }) 
 
 const SettingsLayout = ({ children }: { children: ReactNode }) => {
   const { status: authStatus } = useAuthStore()
+  const pubkey = useSettingsStore((state) => state.pubkey)
   const router = useRouter()
 
-  const tabs = ['profile', 'stream', 'relays']
+  const tabs = ['profile', 'relays']
 
   const getContent = () => {
-    if (authStatus === 'authenticated') {
+    if (pubkey) {
       return <main className="flex flex-col overflow-y-auto">{children}</main>
-    } else if (authStatus === 'unauthenticated') {
-      return <p>You must be logged in to view this page</p>
     } else {
-      return (
-        <div className={'w-full text-center'}>
-          <Spinner />
-        </div>
-      )
+      return <p>You must be logged in to view this page</p>
     }
   }
+
+  useEffect(() => {
+    const logRelaysNostr = async () => {
+      console.log(await window.nostr.getRelays())
+      // alby has a list of default relays and permissions... not settable in ext though
+      // what about getting the relays from kind0?
+      // async window.nostr.getRelays(): { [url: string]: {read: boolean, write: boolean} } // returns a basic map of relay urls to relay policies
+    }
+
+    logRelaysNostr()
+  }, [])
+
 
   return (
     <DefaultLayout>
