@@ -1,7 +1,7 @@
-export const Spinner = ({}) => {
+export const Spinner = ({height=12, width=12}: {height?: number, width?: number}) => {
   return (
     <div className={'grid place-items-center'} aria-label="Loading..." role="status">
-      <svg className="h-12 w-12 animate-spin" viewBox="3 3 18 18">
+      <svg className={`h-${height} w-${width} animate-spin`} viewBox="3 3 18 18">
         <path
           className="fill-gray-200"
           d="M12 5C8.13401 5 5 8.13401 5 12C5 15.866 8.13401 19 12 19C15.866 19 19 15.866 19 12C19 8.13401 15.866 5 12 5ZM3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12Z"

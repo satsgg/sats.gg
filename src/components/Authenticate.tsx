@@ -1,9 +1,14 @@
-import { useEffect, useState } from 'react'
-import SettingsStore from '~/store/settingsStore' 
+import { useState } from 'react'
 import { useZodForm } from '~/utils/useZodForm'
 import { z } from 'zod'
 import useSettingsStore from '~/hooks/useSettingsStore'
 import { nip19 } from 'nostr-tools'
+
+declare global {
+  interface Window {
+    nostr: any
+  }
+}
 
 const PubkeyForm = ({ close}: {  close: () => void}) => {
   const setPubkey = useSettingsStore((state) => state.setPubkey)
@@ -70,7 +75,7 @@ const PubkeyForm = ({ close}: {  close: () => void}) => {
       {errors.pubkey && <p className="text-sm ">{errors.pubkey.message}</p>}
       </form>
       <button 
-          className={`${isDirty ? 'bg-primary hover:bg-primary/80' : 'bg-gray-500'} w-full text-center items-center rounded bg-primary px-3 py-2 text-sm font-semibold uppercase shadow-md transition duration-150 ease-in-out hover:shadow-lg focus:bg-primary focus:shadow-lg focus:outline-none focus:ring-0 active:bg-primary active:shadow-lg`}
+          className={`${isDirty ? 'bg-primary hover:bg-primary/80' : 'bg-gray-500'} w-full text-center items-center rounded px-3 py-2 text-sm font-semibold uppercase shadow-md transition duration-150 ease-in-out hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0 active:shadow-lg`}
           disabled={!isDirty}
           onClick={handleSubmit(onSubmit)}
           >
@@ -88,19 +93,40 @@ const recommendedExtensions = [
   {
     name: 'nos2x',
     link: 'https://github.com/fiatjaf/nos2x'
-  }
+  },
+  // {
+  //   name: 'nos2x-fox',
+  //   link: 'https://diegogurpegui.com/nos2x-fox/'
+  // }
 ]
 
 const Nip07Login = ({ close}: {  close: () => void}) => {
+  const setPubkey = useSettingsStore((state) => state.setPubkey)
+  const [waiting, setWaiting] = useState(false)
+
+  const onClick = async () => {
+    try {
+      setWaiting(true)
+      const pubkey = await window.nostr.getPublicKey()
+      setPubkey(pubkey)
+      close()
+    } catch(error) {
+      console.error(error)
+    }
+
+    setWaiting(false)
+  }
+
   return (
     <div className="flex flex-col gap-y-2">
       <h2 className="font-semibold text-lg">Recommended</h2>
       {window.nostr && 
         <button 
-          className="w-full text-center items-center rounded bg-primary px-3 py-2 text-sm font-semibold uppercase shadow-md transition duration-150 ease-in-out hover:bg-primary/80 hover:shadow-lg focus:bg-primary focus:shadow-lg focus:outline-none focus:ring-0 active:bg-primary active:shadow-lg"
-          onClick={(() => console.debug('window.nostr', window.nostr))}
+          className={`${!waiting ? 'bg-primary hover:bg-primary/80' : 'bg-gray-500'} w-full text-center items-center rounded px-3 py-2 text-sm font-semibold uppercase shadow-md transition duration-150 ease-in-out hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0 active:shadow-lg`}
+          onClick={() => onClick()}
           >
-          Log in with extension (NIP07)
+          { !waiting && 'Log in with extension (NIP07)' }
+          { waiting && 'Waiting for extension...' }
         </button>
       }
       {!window.nostr && (
