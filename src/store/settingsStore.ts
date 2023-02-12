@@ -40,6 +40,7 @@ const SettingsStore = create<State & Actions>((set, get) => ({
   init: () => {
     // from browser storage get
     // public key if available
+    console.debug('Getting pubkey')
     const pubkey = window.localStorage.getItem('pubkey')
     console.debug('pubkey', pubkey)
     if (pubkey) {

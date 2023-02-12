@@ -26,8 +26,9 @@ interface Metadata {
 // picture : "https://nostr.build/i/p/6838p.jpeg"
 // website : "edwardsnowden.substack.com"
 
-export const useProfile = (pubkey: string) => {
+export const useProfile = (pubkey: string | undefined) => {
   const profile = useLiveQuery(async () => {
+    console.debug('useLiveQuery: ', pubkey)
     if (pubkey) {
       const ret = await db.users.get(pubkey)
       // logging multiple times b/c each callback is updated the store?
@@ -41,10 +42,13 @@ export const useProfile = (pubkey: string) => {
 
   useEffect(() => {
     if (pubkey) {
+      console.debug('pubkey: ', pubkey)
       nostrClient.addProfileToFetch(pubkey)
       return () => {
         nostrClient.removeProfileToFetch(pubkey)
       }
+    } else {
+      console.debug('skipping client add/remove')
     }
   }, [pubkey])
 

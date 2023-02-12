@@ -62,6 +62,7 @@ export default class RelayPool {
       this.listeners.forEach((listener) => listener(this.connectedRelays))
 
       for (const si of this.subscriptions.values()) {
+        console.debug('on connect adding sub: ', si.id)
         const sub = relay.sub(si.filters)
         sub.on('event', si.callback)
         relay.subs.set(si.id, sub)
@@ -94,6 +95,8 @@ export default class RelayPool {
       r.subs.set(id, sub)
     }
 
+
+    console.debug('setting subscription: ', id)
     this.subscriptions.set(id, {
       id: id,
       filters: filters,

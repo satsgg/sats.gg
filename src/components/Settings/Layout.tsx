@@ -23,30 +23,20 @@ const TabButton = ({ tab, current = false }: { tab: string; current: boolean }) 
 }
 
 const SettingsLayout = ({ children }: { children: ReactNode }) => {
-  const { status: authStatus } = useAuthStore()
-  const pubkey = useSettingsStore((state) => state.pubkey)
   const router = useRouter()
 
   const tabs = ['profile', 'relays']
 
-  const getContent = () => {
-    if (pubkey) {
-      return <main className="flex flex-col overflow-y-auto">{children}</main>
-    } else {
-      return <p>You must be logged in to view this page</p>
-    }
-  }
+  // useEffect(() => {
+  //   const logRelaysNostr = async () => {
+  //     console.log(await window.nostr.getRelays())
+  //     // alby has a list of default relays and permissions... not settable in ext though
+  //     // what about getting the relays from kind0?
+  //     // async window.nostr.getRelays(): { [url: string]: {read: boolean, write: boolean} } // returns a basic map of relay urls to relay policies
+  //   }
 
-  useEffect(() => {
-    const logRelaysNostr = async () => {
-      console.log(await window.nostr.getRelays())
-      // alby has a list of default relays and permissions... not settable in ext though
-      // what about getting the relays from kind0?
-      // async window.nostr.getRelays(): { [url: string]: {read: boolean, write: boolean} } // returns a basic map of relay urls to relay policies
-    }
-
-    logRelaysNostr()
-  }, [])
+  //   logRelaysNostr()
+  // }, [])
 
 
   return (
@@ -59,8 +49,7 @@ const SettingsLayout = ({ children }: { children: ReactNode }) => {
             return <TabButton tab={tab} key={tab} current={router.pathname.includes(tab)} />
           })}
         </div>
-
-        {getContent()}
+        <main className="flex flex-col overflow-y-auto">{children}</main>
       </div>
     </DefaultLayout>
   )

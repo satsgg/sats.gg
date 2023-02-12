@@ -1,4 +1,4 @@
-import Profile from '~/components/Settings/Profile'
+import Profile from '~/components/Settings/Profile2'
 import type { NextPageWithLayout } from '~/pages/_app'
 import getSettingsLayout from '~/components/Settings/Layout'
 
