@@ -8,6 +8,7 @@ import SettingsSVG from '~/svgs/settings.svg'
 import AccountSVG from '~/svgs/account.svg'
 import useConnectedRelays from '~/hooks/useConnectedRelays'
 import useSettingsStore from '~/hooks/useSettingsStore'
+import { useProfile } from '~/hooks/useProfile'
 
 interface HeaderProps {
   openAuthenticate: () => void
@@ -15,7 +16,8 @@ interface HeaderProps {
 
 export const Navbar = ({ openAuthenticate }: HeaderProps) => {
   const [showAccountMenu, setShowAccountMenu] = useState(false)
-  const { pubkey, relays, logout } = useSettingsStore()
+  const { pubkey, npub, relays, logout } = useSettingsStore()
+  const profile = useProfile(pubkey)
   const connectedRelays = useConnectedRelays()
 
   const handleLogout = async () => {
@@ -59,19 +61,27 @@ export const Navbar = ({ openAuthenticate }: HeaderProps) => {
                     <li>
                       <div className="inline-flex items-center py-2 px-1">
                         <Link href="/settings/profile" legacyBehavior={false} onClick={() => setShowAccountMenu(false)}>
-                          <img
-                            className="mr-2 h-10 w-10 rounded-[50%] hover:cursor-pointer"
-                            src={'https://picsum.photos/250'}
-                            alt={`profile image of ${pubkey}`}
-                          />
+                          { (profile && profile.picture) ?
+                            <img
+                              className="mr-2 h-10 w-10 rounded-[50%] hover:cursor-pointer"
+                              src={profile.picture}
+                              alt={`profile image of ${npub}`}
+                            />
+                            :
+                            <div className="mr-2 rounded-[50%] border border-gray-500 h-10 w-10"></div>
+                          }
                         </Link>
-                        <span className="text-sm font-semibold">{pubkey.slice(0, 12)}</span>
+                        { (profile && profile.name) ? 
+                          <span className="text-sm font-semibold">{profile.name.slice(0, 12)}</span>
+                          :
+                          <span className="text-sm font-semibold">{npub!.slice(0, 12)}...</span>
+                        }
                       </div>
                     </li>
                     <hr className="my-2 rounded border-t border-gray-500"></hr>
                     <li>
                       <Link
-                        href={`/p/${pubkey}`}
+                        href={`/${npub}`}
                         legacyBehavior={false}
                         onClick={() => setShowAccountMenu(false)}
                         className="inline-flex w-full whitespace-nowrap rounded bg-transparent py-1 px-1 text-sm font-normal text-white hover:bg-stone-700"

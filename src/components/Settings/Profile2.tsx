@@ -84,8 +84,12 @@ const Profile = () => {
         <form className="flex flex-col gap-2" spellCheck={false} onSubmit={handleSubmit(onSubmit)}>
 
         <div className="flex gap-4">
-          <img src={profile?.picture || undefined} height={200} width={200} />
-          <div className="grow">
+          { (profile && profile.picture) ?
+            <img className="h-52 w-52" src={profile?.picture ?? undefined} alt={`profile image of ${pubkey}`} />
+            :
+            <div className="h-52 w-52 border border-gray-500" />
+          }
+          <div className="flex flex-col grow gap-2">
             <Input label={"Your Name"} name={'name'} register={register} />
             <Input label={"Display Name"} name={"display_name"} register={register} />
             <Input label={"Picture URL"} name={"picture"} register={register} />

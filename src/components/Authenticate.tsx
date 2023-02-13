@@ -50,6 +50,7 @@ const PubkeyForm = ({ close }: { close: () => void }) => {
     }
 
     try {
+      // try npub encode to vaildate hex public key
       nip19.npubEncode(data.pubkey)
       setPubkey(data.pubkey)
       close()

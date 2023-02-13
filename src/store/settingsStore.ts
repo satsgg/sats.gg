@@ -1,9 +1,11 @@
 import create from 'zustand/vanilla'
 import { nostrClient } from '~/nostr/NostrClient'
+import { nip19 } from 'nostr-tools'
 
 type State = {
   // TODO: store connection status
   pubkey: string | undefined
+  npub: string | undefined
   relays: string[]
 }
 
@@ -30,6 +32,7 @@ const DEFAULT_RELAYS = [
 
 const initialState = {
   pubkey: undefined,
+  npub: undefined,
   relays: DEFAULT_RELAYS,
 }
 
@@ -45,6 +48,8 @@ const SettingsStore = create<State & Actions>((set, get) => ({
     console.debug('pubkey', pubkey)
     if (pubkey) {
       set({ pubkey: pubkey })
+      set({ npub: nip19.npubEncode(pubkey) })
+      console.debug('npub', nip19.npubEncode(pubkey))
     }
 
     // relays if available
@@ -66,6 +71,8 @@ const SettingsStore = create<State & Actions>((set, get) => ({
 
   setPubkey: (pubkey: string) => {
     set({ pubkey: pubkey })
+    set({ npub: nip19.npubEncode(pubkey) })
+    console.debug('npub', nip19.npubEncode(pubkey))
     window.localStorage.setItem('pubkey', pubkey)
   },
 
