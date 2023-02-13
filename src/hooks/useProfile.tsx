@@ -36,21 +36,22 @@ export const useProfile = (pubkey: string | undefined) => {
       if (ret) return ret
       // negatives with this method is that querying is after first db check
       // it will also query for pubkeys w/out nip05s forever
-      // else nostrClient.addProfileToFetch(pubkey)
+      else nostrClient.addProfileToFetch(pubkey)
+      // would need to change this when we add cache refresh rate...
     }
   }, [pubkey])
 
-  useEffect(() => {
-    if (pubkey) {
-      console.debug('pubkey: ', pubkey)
-      nostrClient.addProfileToFetch(pubkey)
-      return () => {
-        nostrClient.removeProfileToFetch(pubkey)
-      }
-    } else {
-      console.debug('skipping client add/remove')
-    }
-  }, [pubkey])
+  // useEffect(() => {
+  //   if (pubkey) {
+  //     console.debug('pubkey: ', pubkey)
+  //     nostrClient.addProfileToFetch(pubkey)
+  //     return () => {
+  //       nostrClient.removeProfileToFetch(pubkey)
+  //     }
+  //   } else {
+  //     console.debug('skipping client add/remove')
+  //   }
+  // }, [pubkey])
 
   return profile
 }

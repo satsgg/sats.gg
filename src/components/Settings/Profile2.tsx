@@ -77,16 +77,21 @@ const Profile = () => {
     reset({...profile})
   }, [profile])
 
-  if (!profile) return <div>nada</div>
-
   return (
     <div className="flex w-3/5 flex-col gap-4">
-      <h2 className="font-md mb-2 text-xl">Profile</h2>
+      <h2 className="font-md mb-2 text-2xl">Profile</h2>
       <div className="flex flex-col px-6 py-4 gap-4 rounded border border-gray-500 bg-stone-800">
         <form className="flex flex-col gap-2" spellCheck={false} onSubmit={handleSubmit(onSubmit)}>
-          <Input label={"Your Name"} name={'name'} register={register} />
-          <Input label={"Display Name"} name={"display_name"} register={register} />
-          <Input label={"Picture URL"} name={"picture"} register={register} />
+
+        <div className="flex gap-4">
+          <img src={profile?.picture || undefined} height={200} width={200} />
+          <div className="grow">
+            <Input label={"Your Name"} name={'name'} register={register} />
+            <Input label={"Display Name"} name={"display_name"} register={register} />
+            <Input label={"Picture URL"} name={"picture"} register={register} />
+          </div>
+        </div>
+
           <Input label={"About"} name={"about"} register={register} />
           <Input label={"Website"} name={'website'} placeholder={"https://example.com"} register={register} />
           <Input label={"Banner URL"} name={'banner'} register={register} />

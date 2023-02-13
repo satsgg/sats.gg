@@ -100,7 +100,7 @@ const Relays = () => {
 
   return (
     <div className="flex w-3/5 flex-col gap-4">
-      <h2 className="font-md mb-2 text-xl">Relays</h2>
+      <h2 className="font-md mb-2 text-2xl">Relays</h2>
 
       {Array.from(relays).map((relay) => {
         return (

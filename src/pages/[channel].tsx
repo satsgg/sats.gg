@@ -11,14 +11,15 @@ export const getUser = z.object({
 export default function Channel() {
   const router = useRouter()
   const { channelPubkey } = router.query
+  console.log(channelPubkey)
 
-  if (true) {
-    return (
-      <div className="flex grow bg-stone-900">
-        <p className="text-white">Channel not found</p>
-      </div>
-    )
-  }
+  // if (true) {
+  //   return (
+  //     <div className="flex grow bg-stone-900">
+  //       <p className="text-white">Channel not found</p>
+  //     </div>
+  //   )
+  // }
 
   return (
     <>

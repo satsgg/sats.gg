@@ -1,8 +1,7 @@
 import { useRef, useState, useEffect } from 'react'
 import { Virtuoso, LogLevel, VirtuosoHandle } from 'react-virtuoso'
 import { inferProcedureOutput } from '@trpc/server'
-import { AppRouter } from '~/server/routers/_app'
-import { useNostr } from '~/context/nostr'
+// import { useNostr } from '~/context/nostr'
 import { Filter, Event as NostrEvent } from 'nostr-tools'
 import { createEvent, uniqBy } from '~/utils/nostr'
 import MessageInput from './MessageInput'
@@ -16,13 +15,8 @@ const eventOrder = {
   content: null,
 }
 
-type UserSingleOutput = inferProcedureOutput<AppRouter['user']['getUser']>
-interface ChannelUserProps {
-  channelUser: UserSingleOutput
-}
-
-export const Chat = ({ channelUser }: ChannelUserProps) => {
-  const { publish } = useNostr()
+export const Chat = ({ channelUser }: { channelUser: string }) => {
+  // const { publish } = useNostr()
   const [message, setMessage] = useState<string>('')
   const virtuosoRef = useRef<VirtuosoHandle>(null)
   const [chatRef, setChatRef] = useState<HTMLDivElement | null>(null)
@@ -49,7 +43,7 @@ export const Chat = ({ channelUser }: ChannelUserProps) => {
       since: now.current,
     },
   ]
-  const notes = useSubscription(channelUser.id, filters, 250)
+  const notes = useSubscription(channelUser, filters, 250)
 
   const handleSubmitMessage = (e: any) => {
     e.preventDefault()

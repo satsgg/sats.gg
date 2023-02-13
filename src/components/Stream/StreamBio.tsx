@@ -12,7 +12,7 @@ export const followUserInput = z.object({
 
 export const StreamBio = ({ channelPubkey }: { channelPubkey: string }) => {
   const { pubkey } = useAuthStore()
-  const { refetch: refetchFollowedChannels } = useFollowedChannels()
+  // const { refetch: refetchFollowedChannels } = useFollowedChannels()
   const [followAnimation, setFollowAnimation] = useState(false)
 
   // Figure out how to fix 'object is possibly null'. We know at this point channelUser exists
