@@ -1,272 +1,121 @@
-import { useState } from 'react'
-import { useZodForm } from '~/utils/useZodForm'
+import { useProfile } from "~/hooks/useProfile"
+import useSettingsStore from "~/hooks/useSettingsStore"
+import { useZodForm } from "~/utils/useZodForm"
 import { z } from 'zod'
-import { trpc } from '~/utils/trpc'
-import { AppRouter } from '~/server/routers/_app'
-import { inferProcedureInput } from '@trpc/server'
-import Resizer from 'react-image-file-resizer'
-import useAuthStore from '~/hooks/useAuthStore'
-import IsLoadingSVG from '~/svgs/is-loading.svg'
+import { useEffect } from "react"
 
-type EditUserInput = inferProcedureInput<AppRouter['user']['edit']>
-
-// TODO: Add these to a neutral location? Used in user api routes
-export const editUserInput = z.object({
-  userName: z.string().min(4).max(24).optional(),
-  bio: z.string().max(256).optional(),
-})
-
-export const updateProfilePicInput = z.object({
-  base64EncodedImage: z.string().optional(),
-})
+const Input = ({ label, name, placeholder, register }: {label: string, name: string, placeholder?: string, register: Function}) => {
+  return (
+    <div>
+      <p>{label}</p>
+      <input
+        type="text"
+        autoComplete="off"
+        placeholder={placeholder || undefined}
+        className={`placeholder:italic focus:shadow-outline w-full min-w-[20ch] resize-none appearance-none rounded border border-gray-500 bg-stone-700 py-2 px-3 leading-tight text-white shadow focus:border-primary focus:bg-slate-900 focus:outline-none`}
+        {...register(name)}
+      />
+    </div>
+  )
+}
 
 const Profile = () => {
-  const { user, setUser, storeLogin } = useAuthStore()
-  const [base64EncodedImage, setBase64EncodedImage] = useState<string | undefined>(user?.profileImage ?? undefined)
-
-  const editUserMutation = trpc.user.edit.useMutation()
-  const updateProfilePicMutation = trpc.user.updateProfilePic.useMutation()
-  const utils = trpc.useContext()
-
-  // TODO:
-  // If they aren't logged in and access this route,
-  // 1. show You must be logged in to view this page
-  // 2. open up the login modal on top
-  // This goes for any page that requires auth... need to make it reusable or something
+  const pubkey = useSettingsStore(state => state.pubkey)
+  const profile = useProfile(pubkey)
 
   const {
     register,
     handleSubmit,
-    // getValues,
+    setError,
     setValue,
+    getValues,
     watch,
     reset,
     formState: { errors },
   } = useZodForm({
-    schema: editUserInput,
+    mode: 'onSubmit',
+    schema: z.object({
+      name: z.string().optional(),
+      display_name: z.string().optional(),
+      picture: z.union([z.literal(""), z.string().trim().url()]),
+      about: z.string().optional(),
+      website: z.union([z.literal(""), z.string().trim().url()]),
+      banner: z.union([z.literal(""), z.string().trim().url()]),
+      lud06: z.string().optional(),
+      lud16: z.string().optional(),
+      nip05: z.string().optional()
+    }),
     defaultValues: {
-      userName: user?.userName,
-      bio: user?.bio ?? '',
+      name: '',
+      display_name: '',
+      picture: '',
+      about: '',
+      website: '',
+      banner: '',
+      lud06: '',
+      lud16: '',
+      nip05: '',
     },
   })
 
-  const {
-    // register: registerProfilePic,
-    handleSubmit: handleProfilePicSubmit,
-    // getValues,
-    // setValue: setProfilePic,
-    // watch,
-    // reset,
-    formState: { errors: profilePicErrors },
-  } = useZodForm({
-    schema: updateProfilePicInput,
-    defaultValues: {
-      base64EncodedImage: user?.profileImage ?? '',
-    },
-  })
-  console.log('formstate', errors)
-
-  const resizeFile = (file: any) =>
-    new Promise<string>((resolve) => {
-      Resizer.imageFileResizer(
-        file,
-        250,
-        250,
-        'JPEG',
-        100,
-        0,
-        (uri) => {
-          resolve(uri as string)
-        },
-        'base64',
-      )
-    })
-
-  const onSubmit = async (data: EditUserInput) => {
-    const newUserToken = await editUserMutation.mutateAsync({ ...data })
-    // this ends up refreshing all components since everything depends on it...
-    // but only way to change the token for the chat server
-    // other option is to query dbs
-    storeLogin(newUserToken.user)
-    await utils.invalidate()
-    // utils.auth.getMe.fetch().then((res) => {
-    //   setUser(res)
-    // })
+  const onSubmit = (data: any) => {
+    console.log('data', data)
+    // TODO: filter out any empty values ('') for event
+    // don't need to populate a bunch of empty strings...
   }
 
-  // const onProfilePicSubmit = async (data: UpdateUserInput) => {
-  //   console.log('onProfilePicSubmit data', data)
-  //   await updateProfilePicMutation.mutateAsync({ ...data })
-  //   await utils.invalidate()
-  //   utils.auth.getMe.fetch().then((res) => {
-  //     setUser(res)
-  //   })
-  // }
-
-  const onProfilePicSubmit = async (e) => {
-    await updateProfilePicMutation.mutateAsync({ base64EncodedImage: base64EncodedImage })
-    await utils.invalidate()
-    utils.auth.getMe.fetch().then((res) => {
-      setUser(res)
-    })
-  }
-  // TODO:
-  // Auto submit profile pic change
-  // remove profile pic update from Save Changes
-  // disable Save Changes button if no changes
-  // don't let user submit empty userName
-  // handle form errors
-  // lots of styling fixes needed...
+  useEffect(() => {
+    console.debug('effect', profile)
+    // TODO: Last/slowest relay to return profile can reset our input...
+    // i.e. brb.io connects, receives the profile sub (which should be deleted already...)
+    // then updates way late...
+    // maybe we should allow the user to select which relay to use for loading their existing metadata
+    // also want better information from sub to know when it returned results.. 
+    // so we can kinda simulate a 'loading' and disable inputs/buttons
+    // each relay could have different metadata...
+    // which they do for jack's npub for example
+    reset({...profile})
+  }, [profile])
 
   return (
-    <div className="flex w-3/5 flex-col gap-8">
-      <div>
-        <h2 className="font-md mb-2 text-xl">Profile Picture</h2>
-        <div className="flex rounded border border-gray-500 bg-stone-800">
-          <form className="flex p-6" onSubmit={handleProfilePicSubmit(onProfilePicSubmit)}>
-            <div className="mr-6">
-              <img
-                id={'edit-user-profileImage'}
-                src={base64EncodedImage}
-                // src={getValues('base64EncodedImage')}
-                alt={`Profile image of ${user?.userName}`}
-                className="h-24 w-24 rounded-[50%]"
-              />
-            </div>
-            <div className="flex items-center">
-              <input
-                type="file"
-                // {...registerProfilePic('base64EncodedImage', {
-                //   required: true,
-                //   onChange: async (e) => {
-                //     if (e.target.files) {
-                //       const img = await resizeFile(e.target.files[0])
-                //       console.log('setting', img)
-                //       // setBase64EncodedImage(await resizeFile(e.target.files[0]))
-                //       setProfilePic('base64EncodedImage', img)
-                //       // setBase64EncodedImage(img)
-                //       console.log('set', img)
-                //     }
-                //   },
-                //   onBlur: async(e) => {
-                //     console.log('blur', e.target.files[0])
-                //   }
-                // })}
-                onChange={async (e) => {
-                  if (e.target.files) {
-                    setBase64EncodedImage(await resizeFile(e.target.files[0]))
-                    // setProfilePic("base64EncodedImage", await resizeFile(e.target.files[0]))
-                    // console.log('values', getValues())
-                    // console.log('user', user)
-                    // handleSubmit(o)
-                    // await onProfilePicSubmit({base64EncodedImage: await resizeFile(e.target.files[0])})
-                    // handleProfilePicSubmit(onProfilePicSubmit)
-                  }
-                }}
-                className="block align-middle text-sm text-slate-500
-                  file:mr-4 file:rounded file:border-0
-                  file:bg-primary file:py-2
-                  file:px-4 file:text-sm
-                  file:font-semibold file:text-white
-                  hover:file:cursor-pointer hover:file:opacity-90"
-                id="fileupload"
-              />
-            </div>
-          </form>
-          <div className="flex items-center justify-center">
-            <button
-              type="submit"
-              className={`${
-                profilePicErrors.base64EncodedImage ? 'bg-gray-500' : ''
-              } align-right inline-flex h-8 w-32 items-center justify-center rounded bg-primary px-3 py-2 text-sm font-semibold shadow-md transition duration-150 ease-in-out hover:bg-primary hover:shadow-lg focus:bg-primary focus:shadow-lg focus:outline-none focus:ring-0 active:bg-primary active:shadow-lg`}
-              disabled={profilePicErrors.base64EncodedImage ? true : false}
-              onClick={onProfilePicSubmit}
-            >
-              {updateProfilePicMutation.isLoading ? (
-                <IsLoadingSVG width={24} height={24} className="animate-spin" strokeWidth={2} />
-              ) : (
-                'Save Image'
-              )}
-            </button>
+    <div className="flex w-3/5 flex-col gap-4">
+      <h2 className="font-md mb-2 text-2xl">Profile</h2>
+      <div className="flex flex-col px-6 py-4 gap-4 rounded border border-gray-500 bg-stone-800">
+        <form className="flex flex-col gap-2" spellCheck={false} onSubmit={handleSubmit(onSubmit)}>
+
+        <div className="flex gap-4">
+          { (profile && profile.picture) ?
+            <img className="h-52 w-52" src={profile?.picture ?? undefined} alt={`profile image of ${pubkey}`} />
+            :
+            <div className="h-52 w-52 border border-gray-500" />
+          }
+          <div className="flex flex-col grow gap-2">
+            <Input label={"Your Name"} name={'name'} register={register} />
+            <Input label={"Display Name"} name={"display_name"} register={register} />
+            <Input label={"Picture URL"} name={"picture"} register={register} />
           </div>
         </div>
-      </div>
 
-      <div>
-        <h2 className="font-md mb-2 text-xl">Profile Settings</h2>
+          <Input label={"About"} name={"about"} register={register} />
+          <Input label={"Website"} name={'website'} placeholder={"https://example.com"} register={register} />
+          <Input label={"Banner URL"} name={'banner'} register={register} />
+          <Input label={"LNURLPay"} name={'lud06'} placeholder={"LNURL1DP68GURN8GHJ7AMPD3KX2AR0VEE..."} register={register} />
+          <Input label={"Lightning Address"} name={'lud16'} placeholder={"name@getalby.com"} register={register} />
+          <Input label={"Nip05 Verification"} name={'nip05'} placeholder={"name@nostrplebs.com"} register={register} />
+        </form>
 
-        <div className="rounded border border-gray-500 bg-stone-800 p-6">
-          <form spellCheck={false} className="flex flex-col gap-8" onSubmit={handleSubmit(onSubmit)}>
-            <div className="flex">
-              <div className="w-1/4">
-                <p>Username</p>
-              </div>
-              <div className="w-3/4">
-                <input
-                  id={'edit-user-userName'}
-                  {...register('userName', { required: true })}
-                  type="text"
-                  autoComplete="off"
-                  className={`
-                    ${errors.userName ? 'border-red-700 focus:border-red-700' : ''}
-                    form-control
-                    m-0
-                    block
-                    w-full
-                    rounded
-                    border
-                    border-solid
-                    border-gray-500
-                    bg-stone-700
-                    bg-clip-padding
-                    px-2 py-1 text-sm
-                    font-normal
-                    text-white
-                    transition
-                    ease-in-out focus:border-primary focus:bg-slate-900 focus:outline-none
-                  `}
-                />
-                <p className="mt-1 text-sm font-thin">Username must be between 4 and 25 characters</p>
-              </div>
-            </div>
-            <div className="flex">
-              <div className="w-1/4">
-                <p>Bio</p>
-              </div>
-              <div className="w-3/4">
-                <textarea
-                  className={`${
-                    errors.bio ? 'border-red-700 focus:border-red-700' : ''
-                  } focus:shadow-outline w-full resize-none appearance-none rounded border border-gray-500 bg-stone-700 py-2 px-3 leading-tight text-white shadow focus:border-primary focus:bg-slate-900 focus:outline-none`}
-                  id="userBio"
-                  autoComplete="off"
-                  rows={3}
-                  {...register('bio', { required: true })}
-                />
-                <p className="text-sm font-thin">
-                  Description for the About panel on your channel page with no more than 256 characters
-                </p>
-              </div>
-            </div>
-            <div className="flex justify-end">
-              <button
-                type="submit"
-                className={`${
-                  errors.bio || errors.userName ? 'bg-gray-500' : ''
-                } align-right inline-flex h-8 w-32 items-center justify-center rounded bg-primary px-2 py-1 text-sm font-semibold shadow-md transition duration-150 ease-in-out hover:bg-primary hover:shadow-lg focus:bg-primary focus:shadow-lg focus:outline-none focus:ring-0 active:bg-primary active:shadow-lg`}
-                disabled={errors.bio || errors.userName ? true : false}
-              >
-                {editUserMutation.isLoading ? (
-                  <IsLoadingSVG width={24} height={24} className="animate-spin" strokeWidth={2} />
-                ) : (
-                  'Save Changes'
-                )}
-              </button>
-            </div>
-          </form>
+        <div className="flex justify-end">
+          <button 
+            type="submit"
+            className="align-right inline-flex h-8 w-32 items-center justify-center rounded bg-primary px-2 py-1 text-sm font-semibold shadow-md transition duration-150 ease-in-out hover:bg-primary hover:shadow-lg focus:bg-primary focus:shadow-lg focus:outline-none focus:ring-0 active:bg-primary active:shadow-lg"
+            onClick={handleSubmit(onSubmit)}
+          >
+            Submit
+          </button>
         </div>
       </div>
     </div>
+
   )
 }
 
