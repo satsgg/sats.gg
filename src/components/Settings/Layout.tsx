@@ -25,7 +25,7 @@ const TabButton = ({ tab, current = false }: { tab: string; current: boolean }) 
 const SettingsLayout = ({ children }: { children: ReactNode }) => {
   const router = useRouter()
 
-  const tabs = ['profile', 'relays']
+  const tabs = ['profile', 'chat', 'relays']
 
   // useEffect(() => {
   //   const logRelaysNostr = async () => {

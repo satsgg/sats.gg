@@ -2,6 +2,7 @@ import RelayPool from './RelayPool'
 import { Filter, Event, nip19 } from 'nostr-tools'
 import Settings from '~/store/settingsStore'
 import { db } from '~/store/db'
+import { Event as NostrEvent } from 'nostr-tools'
 
 // TODO: Move interfaces to nostr/index.ts
 export interface UserMetadata {
@@ -121,9 +122,9 @@ class NostrClient {
     }, 500)
   }
 
-  // TODO: Remove relay
-
-  publish() {}
+  publish(event: NostrEvent) {
+    
+  }
 }
 
 export const nostrClient = new NostrClient()

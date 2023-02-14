@@ -33,3 +33,23 @@ export const createEvent = (content: string, channelId: string): NostrEvent => {
 
   return event
 }
+
+export const createChannelEvent = (name: string, picture: string, about: string) => {
+  const content = JSON.stringify({
+    name: name,
+    about: about,
+    picture: picture
+  })
+
+  const event: NostrEvent = {
+    kind: 40,
+    pubkey: pubKey,
+    created_at: Math.floor(Date.now() / 1000),
+    // tags: [['e', channelId]],
+    tags: [[]],
+    content: content,
+  }
+
+  console.debug('createChannelEvent', event)
+  return event
+}
