@@ -38,7 +38,6 @@ const SettingsLayout = ({ children }: { children: ReactNode }) => {
   //   logRelaysNostr()
   // }, [])
 
-
   return (
     <DefaultLayout>
       <div className="flex w-full flex-col space-y-4 bg-stone-900 py-8 px-8 text-white">

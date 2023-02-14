@@ -61,21 +61,21 @@ export const Navbar = ({ openAuthenticate }: HeaderProps) => {
                     <li>
                       <div className="inline-flex items-center py-2 px-1">
                         <Link href="/settings/profile" legacyBehavior={false} onClick={() => setShowAccountMenu(false)}>
-                          { (profile && profile.picture) ?
+                          {profile && profile.picture ? (
                             <img
                               className="mr-2 h-10 w-10 rounded-[50%] hover:cursor-pointer"
                               src={profile.picture}
                               alt={`profile image of ${npub}`}
                             />
-                            :
-                            <div className="mr-2 rounded-[50%] border border-gray-500 h-10 w-10"></div>
-                          }
+                          ) : (
+                            <div className="mr-2 h-10 w-10 rounded-[50%] border border-gray-500"></div>
+                          )}
                         </Link>
-                        { (profile && profile.name) ? 
+                        {profile && profile.name ? (
                           <span className="text-sm font-semibold">{profile.name.slice(0, 12)}</span>
-                          :
+                        ) : (
                           <span className="text-sm font-semibold">{npub!.slice(0, 12)}...</span>
-                        }
+                        )}
                       </div>
                     </li>
                     <hr className="my-2 rounded border-t border-gray-500"></hr>

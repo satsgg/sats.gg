@@ -38,7 +38,7 @@ export const createChannelEvent = (name: string, picture: string, about: string)
   const content = JSON.stringify({
     name: name,
     about: about,
-    picture: picture
+    picture: picture,
   })
 
   const event: NostrEvent = {

@@ -95,7 +95,6 @@ export default class RelayPool {
       r.subs.set(id, sub)
     }
 
-
     console.debug('setting subscription: ', id)
     this.subscriptions.set(id, {
       id: id,

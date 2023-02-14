@@ -122,9 +122,7 @@ class NostrClient {
     }, 500)
   }
 
-  publish(event: NostrEvent) {
-    
-  }
+  publish(event: NostrEvent) {}
 }
 
 export const nostrClient = new NostrClient()
