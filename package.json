@@ -65,6 +65,7 @@
         "react-hook-form": "^7.37.0",
         "react-image-file-resizer": "^0.4.8",
         "react-popper": "^2.3.0",
+        "react-toastify": "^9.1.1",
         "react-virtuoso": "^4.0.9",
         "secp256k1": "^4.0.3",
         "socket.io-client": "^4.5.3",
