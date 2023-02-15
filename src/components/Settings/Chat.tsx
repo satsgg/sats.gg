@@ -7,10 +7,12 @@ import { toast } from 'react-toastify';
 import { nostrClient } from '~/nostr/NostrClient'
 import { useEffect, useState } from 'react'
 import useCanSign from '~/hooks/useCanSign'
+import useSettingsStore from '~/hooks/useSettingsStore'
 
 
 const Chat = () => {
   const canSign = useCanSign()
+  const pubkey = useSettingsStore(state => state.pubkey)
 
   const {
     register,
@@ -36,10 +38,12 @@ const Chat = () => {
   })
 
   const onSubmit = async (data: any) => {
+    if (!pubkey) return
+
     console.debug('window', window)
     console.debug('window.nostr', window.nostr)
     console.log('data', data)
-    const event = createChannelEvent(data.name, data.about, data.picture)
+    const event = createChannelEvent(pubkey, data.name, data.about, data.picture)
 
     try {
       const signedEvent = await window.nostr.signEvent(event)
@@ -49,7 +53,7 @@ const Chat = () => {
       let veryOk = verifySignature(signedEvent)
       if (!veryOk) throw new Error('Invalid signature')
 
-      console.debug('event id', event.id)
+      console.debug('event id', signedEvent.id)
       nostrClient.publish(signedEvent)
     } catch (err: any) {
       console.error(err.message)

@@ -13,28 +13,28 @@ export const uniqBy = <T>(arr: T[], key: keyof T): T[] => {
   )
 }
 
-const pubKey = '8757042284f4f36d32ac7f15011213a79a2bc72b8bb1981cb7d8a0a845271e2b'
-const privKey = '366f8ea72b09068ed3041a2fccae2192598e6e0c160f1422570f0911cc23dc51'
+// const pubKey = '8757042284f4f36d32ac7f15011213a79a2bc72b8bb1981cb7d8a0a845271e2b'
+// const privKey = '366f8ea72b09068ed3041a2fccae2192598e6e0c160f1422570f0911cc23dc51'
 
-export const createEvent = (content: string, channelId: string): NostrEvent => {
+export const createEvent = (pubkey: string, content: string, channelId: string): NostrEvent => {
   // Can generalize later... (if kind 42, add e channelID tag etc)
   const event: NostrEvent = {
-    // kind: 42,
-    kind: 1,
-    pubkey: pubKey,
+    kind: 42,
+    // kind: 1,
+    pubkey: pubkey,
     created_at: Math.floor(Date.now() / 1000),
-    // tags: [['e', channelId]],
-    tags: [[]],
+    tags: [['e', channelId]],
+    // tags: [[]],
     content: content,
   }
 
-  event.id = getEventHash(event)
-  event.sig = signEvent(event, privKey)
+  // event.id = getEventHash(event)
+  // event.sig = signEvent(event, privKey)
 
   return event
 }
 
-export const createChannelEvent = (name: string, picture: string, about: string) => {
+export const createChannelEvent = (pubkey: string, name: string, picture: string, about: string) => {
   const content = JSON.stringify({
     name: name,
     about: about,
@@ -43,10 +43,10 @@ export const createChannelEvent = (name: string, picture: string, about: string)
 
   const event: NostrEvent = {
     kind: 40,
-    pubkey: pubKey,
+    pubkey: pubkey,
     created_at: Math.floor(Date.now() / 1000),
     // tags: [['e', channelId]],
-    tags: [[]],
+    tags: [],
     content: content,
   }
 

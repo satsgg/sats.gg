@@ -10,6 +10,10 @@ import Message from './Message'
 import { useSubscription } from '~/hooks/useSubscription'
 import { usePopper } from 'react-popper'
 import useCanSign from '~/hooks/useCanSign'
+import useSettingsStore from '~/hooks/useSettingsStore'
+import { verifySignature, validateEvent } from 'nostr-tools'
+import { toast } from 'react-toastify';
+import { nostrClient } from '~/nostr/NostrClient'
 
 const eventOrder = {
   created_at: null,
@@ -18,6 +22,7 @@ const eventOrder = {
 
 export const Chat = ({ channelUser }: { channelUser: string }) => {
   // const { publish } = useNostr()
+  const pubkey = useSettingsStore(state => state.pubkey)
   const [message, setMessage] = useState<string>('')
   const canSign = useCanSign()
 
@@ -36,29 +41,50 @@ export const Chat = ({ channelUser }: { channelUser: string }) => {
 
   const filters: Filter[] = [
     {
-      // kinds: [42],
-      kinds: [1],
-      since: now.current,
-      // '#e': [channelId],
-    },
-    {
       kinds: [42],
+      // kinds: [1],
       since: now.current,
-    },
+      '#e': ['cb1a5b962701e2c44a7bcf18fb3a60cbc8caec576c776749507acc952df97fcd'],
+    }
   ]
   const notes = useSubscription(channelUser, filters, 250)
 
-  const handleSubmitMessage = (e: any) => {
+  const handleSubmitMessage = async (e: any) => {
     e.preventDefault()
+    if (!pubkey) return
+
     const formattedMessage = message.trim()
     if (formattedMessage === '') return
 
     const event: NostrEvent = createEvent(
+      pubkey,
       formattedMessage,
-      '25e5c82273a271cb1a840d0060391a0bf4965cafeb029d5ab55350b418953fbb',
+      'cb1a5b962701e2c44a7bcf18fb3a60cbc8caec576c776749507acc952df97fcd',
     )
     // error handling here? What if none of the relays accepted our message...
-    publish(event)
+    try {
+      const signedEvent = await window.nostr.signEvent(event)
+      console.debug('signedEvent', signedEvent)
+      let ok = validateEvent(signedEvent)
+      if (!ok) throw new Error('Invalid event')
+      let veryOk = verifySignature(signedEvent)
+      if (!veryOk) throw new Error('Invalid signature')
+
+      console.debug('event id', signedEvent.id)
+      nostrClient.publish(signedEvent)
+    } catch (err: any) {
+      console.error(err.message)
+      toast.error(err.message, {
+        position: "bottom-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      })
+    }
 
     setMessage('')
     return
