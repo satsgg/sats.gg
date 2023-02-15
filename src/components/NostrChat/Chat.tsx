@@ -9,6 +9,7 @@ import ChatUser from './ChatUser'
 import Message from './Message'
 import { useSubscription } from '~/hooks/useSubscription'
 import { usePopper } from 'react-popper'
+import useCanSign from '~/hooks/useCanSign'
 
 const eventOrder = {
   created_at: null,
@@ -18,6 +19,8 @@ const eventOrder = {
 export const Chat = ({ channelUser }: { channelUser: string }) => {
   // const { publish } = useNostr()
   const [message, setMessage] = useState<string>('')
+  const canSign = useCanSign()
+
   const virtuosoRef = useRef<VirtuosoHandle>(null)
   const [chatRef, setChatRef] = useState<HTMLDivElement | null>(null)
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null)
@@ -134,8 +137,9 @@ export const Chat = ({ channelUser }: { channelUser: string }) => {
         </div>
         <div className="flex justify-end">
           <button
-            className="inline-flex items-center rounded bg-primary px-3 py-2 text-sm font-semibold uppercase shadow-md transition duration-150 ease-in-out hover:bg-primary/80 hover:shadow-lg focus:bg-primary focus:shadow-lg focus:outline-none focus:ring-0 active:bg-primary active:shadow-lg"
+            className="inline-flex items-center rounded bg-primary px-3 py-2 text-sm font-semibold uppercase shadow-md transition duration-150 ease-in-out hover:bg-primary/80 hover:shadow-lg focus:bg-primary focus:shadow-lg focus:outline-none focus:ring-0 active:bg-primary active:shadow-lg disabled:bg-gray-500 disabled:cursor-not-allowed"
             // disabled={showTip}
+            disabled={!canSign}
             onClick={(e) => handleSubmitMessage(e)}
           >
             Chat

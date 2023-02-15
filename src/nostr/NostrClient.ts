@@ -122,7 +122,9 @@ class NostrClient {
     }, 500)
   }
 
-  publish(event: NostrEvent) {}
+  publish(event: NostrEvent) {
+    this.relayPool.publish(event)
+  }
 }
 
 export const nostrClient = new NostrClient()

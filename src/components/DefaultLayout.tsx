@@ -7,6 +7,8 @@ import { FollowedChannelList } from '~/components/FollowedChannelList'
 import { InteractionModal } from '~/components/InteractionModal'
 import { nostrClient } from '~/nostr/NostrClient'
 import useSettingsStore from '~/hooks/useSettingsStore'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css';
 
 type DefaultLayoutProps = { children: ReactNode }
 
@@ -52,6 +54,7 @@ export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
           <main className="flex w-full text-white">{children}</main>
         </div>
       </div>
+      <ToastContainer />
     </>
   )
 }

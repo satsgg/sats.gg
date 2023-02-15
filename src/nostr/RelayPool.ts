@@ -127,5 +127,20 @@ export default class RelayPool {
     return () => this.listeners.delete(listener)
   }
 
-  // TODO: Remove relay
+  publish(event: Event) {
+    for (const cr of this.connectedRelays) {
+      const r = this.relays.get(cr)
+      let pub = r.publish(event)
+
+      pub.on('ok', () => {
+        console.log(`${r.url} has accepted our event`)
+      })
+      pub.on('seen', () => {
+        console.log(`we saw the event on ${r.url}`)
+      })
+      pub.on('failed', reason => {
+        console.log(`failed to publish to ${r.url}: ${reason}`)
+      })
+    }
+  }
 }

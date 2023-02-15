@@ -4,10 +4,12 @@ import { useZodForm } from '~/utils/useZodForm'
 import { z } from 'zod'
 import { useEffect } from 'react'
 import Input from './Input'
+import useCanSign from '~/hooks/useCanSign'
 
 const Profile = () => {
   const pubkey = useSettingsStore((state) => state.pubkey)
   const profile = useProfile(pubkey)
+  const canSign = useCanSign()
 
   const {
     register,
@@ -97,7 +99,8 @@ const Profile = () => {
         <div className="flex justify-end">
           <button
             type="submit"
-            className="align-right inline-flex h-8 w-32 items-center justify-center rounded bg-primary px-2 py-1 text-sm font-semibold shadow-md transition duration-150 ease-in-out hover:bg-primary hover:shadow-lg focus:bg-primary focus:shadow-lg focus:outline-none focus:ring-0 active:bg-primary active:shadow-lg"
+            disabled={!canSign}
+            className="align-right inline-flex h-8 w-32 items-center justify-center rounded bg-primary px-2 py-1 text-sm font-semibold shadow-md transition duration-150 ease-in-out hover:bg-primary hover:shadow-lg focus:bg-primary focus:shadow-lg focus:outline-none focus:ring-0 active:bg-primary active:shadow-lg disabled:bg-gray-500 disabled:cursor-not-allowed"
             onClick={handleSubmit(onSubmit)}
           >
             Submit

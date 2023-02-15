@@ -3,11 +3,15 @@ import { z } from 'zod'
 import Input from './Input'
 import { createChannelEvent } from '~/utils/nostr'
 import { verifySignature, validateEvent } from 'nostr-tools'
+import { toast } from 'react-toastify';
+import { nostrClient } from '~/nostr/NostrClient'
+import { useEffect, useState } from 'react'
+import useCanSign from '~/hooks/useCanSign'
 
-// name - string - Channel name
-// about - string - Channel description
-// picture - string - URL of channel picture
+
 const Chat = () => {
+  const canSign = useCanSign()
+
   const {
     register,
     handleSubmit,
@@ -32,8 +36,11 @@ const Chat = () => {
   })
 
   const onSubmit = async (data: any) => {
+    console.debug('window', window)
+    console.debug('window.nostr', window.nostr)
     console.log('data', data)
     const event = createChannelEvent(data.name, data.about, data.picture)
+
     try {
       const signedEvent = await window.nostr.signEvent(event)
       console.debug('signedEvent', signedEvent)
@@ -41,9 +48,21 @@ const Chat = () => {
       if (!ok) throw new Error('Invalid event')
       let veryOk = verifySignature(signedEvent)
       if (!veryOk) throw new Error('Invalid signature')
-    } catch (err) {
-      console.error(err)
-      // show error
+
+      console.debug('event id', event.id)
+      nostrClient.publish(signedEvent)
+    } catch (err: any) {
+      console.error(err.message)
+      toast.error(err.message, {
+        position: "bottom-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      })
     }
   }
 
@@ -63,7 +82,8 @@ const Chat = () => {
         <div className="flex justify-end">
           <button
             type="submit"
-            className="align-right inline-flex h-8 w-32 items-center justify-center rounded bg-primary px-2 py-1 text-sm font-semibold shadow-md transition duration-150 ease-in-out hover:bg-primary hover:shadow-lg focus:bg-primary focus:shadow-lg focus:outline-none focus:ring-0 active:bg-primary active:shadow-lg"
+            disabled={!canSign}
+            className="align-right inline-flex h-8 w-32 items-center justify-center rounded px-2 py-1 text-sm font-semibold bg-primary disabled:bg-gray-500 disabled:cursor-not-allowed"
             onClick={handleSubmit(onSubmit)}
           >
             Submit
