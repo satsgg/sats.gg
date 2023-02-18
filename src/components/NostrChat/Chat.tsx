@@ -20,7 +20,7 @@ const eventOrder = {
   content: null,
 }
 
-export const Chat = ({ channelUser }: { channelUser: string }) => {
+export const Chat = ({ channelPubkey }: { channelPubkey: string }) => {
   // const { publish } = useNostr()
   const pubkey = useSettingsStore(state => state.pubkey)
   const [message, setMessage] = useState<string>('')
@@ -44,10 +44,11 @@ export const Chat = ({ channelUser }: { channelUser: string }) => {
       kinds: [42],
       // kinds: [1],
       since: now.current,
+      // TODO: use chat channel ID corresponding to channelPubkey
       '#e': ['cb1a5b962701e2c44a7bcf18fb3a60cbc8caec576c776749507acc952df97fcd'],
     }
   ]
-  const notes = useSubscription(channelUser, filters, 250)
+  const notes = useSubscription(channelPubkey, filters, 250)
 
   const handleSubmitMessage = async (e: any) => {
     e.preventDefault()
@@ -59,6 +60,7 @@ export const Chat = ({ channelUser }: { channelUser: string }) => {
     const event: NostrEvent = createEvent(
       pubkey,
       formattedMessage,
+      // TODO: use chat channel ID corresponding to channelPubkey
       'cb1a5b962701e2c44a7bcf18fb3a60cbc8caec576c776749507acc952df97fcd',
     )
     // error handling here? What if none of the relays accepted our message...
