@@ -16,7 +16,7 @@ export const StreamBio = ({ channelPubkey }: { channelPubkey: string} ) => {
     <div className="flex grow flex-col gap-6 px-6 pt-4">
       <div className="flex content-center justify-between">
         <div className="flex">
-          {profile && profile.picture ? 
+          {profile?.picture ? 
             <img
               className={`mr-2 h-16 w-16 rounded-[50%] ${
                 // channelUser.streamStatus === 'ACTIVE' ? 'border-2 border-primary p-1' : ''
@@ -28,7 +28,7 @@ export const StreamBio = ({ channelPubkey }: { channelPubkey: string} ) => {
             :
             <div className="h-16 w-16 border rounded-[50%] border-gray-500 mr-2" />   
           }
-          <p className="font-semi text-lg text-white">{(profile && profile.name) ? profile.name.slice(0,12) : nip19.npubEncode(channelPubkey)}</p>
+          <p className="font-semi text-lg text-white">{(profile?.name) ? profile.name.slice(0,12) : nip19.npubEncode(channelPubkey)}</p>
         </div>
       </div>
       <div className="rounded bg-stone-800">

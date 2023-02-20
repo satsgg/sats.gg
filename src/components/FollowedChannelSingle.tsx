@@ -1,18 +1,23 @@
 import Link from 'next/link'
+import { useProfile } from '~/hooks/useProfile'
 import LiveSVG from '~/svgs/live.svg'
+import { nip19 } from 'nostr-tools'
 
 export const FollowedChannelSingle = ({ pubkey }: { pubkey: string }) => {
+
+  const profile = useProfile(pubkey)
+
   return (
-    <Link href={`/p/${pubkey}`}>
+    <Link href={`/${nip19.npubEncode(pubkey)}`}>
       <div className="flex grow justify-between py-2 px-2 hover:cursor-pointer hover:bg-stone-700/25">
         <div className="flex">
-          <img
-            className="mr-2 h-8 w-8 rounded-[50%]"
-            src={'https://picsum.photos/250'}
-            alt={`profile image of ${pubkey}`}
-          />
+          {profile?.picture ? (
+              <img className="mr-2 h-8 w-8 rounded-[50%] " src={profile?.picture ?? undefined} />
+            ) : (
+              <div className="mr-2 h-8 w-8 rounded-[50%] border border-gray-500"></div>
+            )}
           <div className="flex flex-col">
-            <p className="text-sm font-semibold text-white">{pubkey.slice(0, 12)}</p>
+            <p className="text-sm font-semibold text-white">{(profile?.name) ? profile.name.slice(0,12) : nip19.npubEncode(pubkey).slice(0,12)}</p>
             {/* TODO: Live stream category */}
           </div>
         </div>

@@ -7,6 +7,7 @@ type State = {
   pubkey: string | undefined
   npub: string | undefined
   relays: string[]
+  follows: string[]
 }
 
 type Actions = {
@@ -15,6 +16,7 @@ type Actions = {
   logout: () => void
   addRelay: (url: string) => void
   removeRelay: (url: string) => void
+  setFollows: (follows: string[]) => void
 }
 
 const DEFAULT_RELAYS = [
@@ -34,6 +36,7 @@ const initialState = {
   pubkey: undefined,
   npub: undefined,
   relays: DEFAULT_RELAYS,
+  follows: []
 }
 
 // NOTE: This will become a logged in users session
@@ -111,6 +114,10 @@ const SettingsStore = create<State & Actions>((set, get) => ({
 
     nostrClient.removeRelay(url)
   },
+
+  setFollows: (follows: string[]) => {
+    set({ follows: follows })
+  }
 }))
 
 export default SettingsStore
