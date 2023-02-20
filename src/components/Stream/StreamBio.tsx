@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { z } from 'zod'
 import { useProfile } from '~/hooks/useProfile'
 import FollowHeartSVG from '~/svgs/follow-heart.svg'
+import { nip19 } from 'nostr-tools'
 
 export const StreamBio = ({ channelPubkey }: { channelPubkey: string} ) => {
   const profile = useProfile(channelPubkey)
@@ -25,9 +26,9 @@ export const StreamBio = ({ channelPubkey }: { channelPubkey: string} ) => {
               alt={`profile image of ${channelPubkey}`}
             />
             :
-            <div className="h-16 w-16 border rounded-[50%] border-gray-500" />   
+            <div className="h-16 w-16 border rounded-[50%] border-gray-500 mr-2" />   
           }
-          <p className="font-semi text-lg text-white">{(profile && profile.name) ? profile.name : channelPubkey}</p>
+          <p className="font-semi text-lg text-white">{(profile && profile.name) ? profile.name.slice(0,12) : nip19.npubEncode(channelPubkey)}</p>
         </div>
       </div>
       <div className="rounded bg-stone-800">
