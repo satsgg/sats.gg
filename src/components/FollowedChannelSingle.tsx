@@ -5,7 +5,6 @@ import { nip19 } from 'nostr-tools'
 import { useState } from 'react'
 
 export const FollowedChannelSingle = ({ pubkey }: { pubkey: string }) => {
-  const [hideImg, setHideImg] = useState(false)
   const profile = useProfile(pubkey)
 
   return (
@@ -14,9 +13,9 @@ export const FollowedChannelSingle = ({ pubkey }: { pubkey: string }) => {
         <div className="flex">
           <img 
             className="mr-2 h-8 w-8 rounded-[50%]" 
-            src={profile?.picture || `https://robohash.org/${pubkey}.png`}
+            src={profile?.picture || `https://robohash.org/${pubkey}.png?bgset=bg1`}
             onError={(e) => {
-              e.target.src = `https://robohash.org/${pubkey}.png`
+              e.target.src = `https://robohash.org/${pubkey}.png?bgset=bg1`
               e.target.onerror = null
             }}
           />
