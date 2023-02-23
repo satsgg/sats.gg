@@ -6,6 +6,7 @@ import { nip19 } from 'nostr-tools'
 
 export const StreamBio = ({ channelPubkey }: { channelPubkey: string} ) => {
   const profile = useProfile(channelPubkey)
+  const [hideImg, setHideImg] = useState(false)
   const [followAnimation, setFollowAnimation] = useState(false)
 
   // Figure out how to fix 'object is possibly null'. We know at this point channelUser exists
@@ -16,12 +17,13 @@ export const StreamBio = ({ channelPubkey }: { channelPubkey: string} ) => {
     <div className="flex grow flex-col gap-6 px-6 pt-4">
       <div className="flex content-center justify-between">
         <div className="flex">
-          {profile?.picture ? 
+          {profile?.picture && !hideImg ? 
             <img
               className={`mr-2 h-16 w-16 rounded-[50%] ${
                 // channelUser.streamStatus === 'ACTIVE' ? 'border-2 border-primary p-1' : ''
                 true ? 'border-2 border-primary p-1' : ''
               }`}
+              onError={() => setHideImg(true)}
               src={profile.picture}
               alt={`profile image of ${channelPubkey}`}
             />
