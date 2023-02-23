@@ -3,7 +3,7 @@ import { Filter, Event } from 'nostr-tools'
 import { nostrClient } from '~/nostr/NostrClient'
 import useSettingsStore from './useSettingsStore'
 
-const useFollows = (pubkey: string ) => {
+const useFollows = (pubkey: string | undefined ) => {
   const [notes, setNotes] = useState<Event[]>([])
   const [follows, setFollows] = useState<string[]>([])
   // const [follows, setFollows] = useSettingsStore(state => [state.follows, state.setFollows])
@@ -44,14 +44,15 @@ const useFollows = (pubkey: string ) => {
   }
 
   useEffect(() => {
-    nostrClient.subscribe('follows', filters, onEventCallback)
+    if (pubkey) {
+      nostrClient.subscribe('follows', filters, onEventCallback)
 
-    return () => {
-      nostrClient.unsubscribe('follows')
+      return () => {
+        nostrClient.unsubscribe('follows')
+      }
     }
   }, [pubkey])
   
-  // return notes
   return follows
 }
 

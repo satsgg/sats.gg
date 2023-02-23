@@ -4,15 +4,8 @@ import useSettingsStore from '~/hooks/useSettingsStore'
 import { FollowedChannelSingle } from './FollowedChannelSingle'
 
 export const FollowedChannelList = ({}) => {
-  // const { pubkey } = useAuthStore()
   const pubkey = useSettingsStore(state => state.pubkey)
   const follows = useFollows(pubkey)
-
-  // TODO: SSR this? Would probably require SSR for auth first
-  // const { data: followedChannels, isLoading: followedChannelsIsLoading } = trpc.auth.getMeFollows.useQuery(undefined, {
-  // WANT: https://reactjs.org/docs/reconciliation.html
-  // It's fine to not exist on first load... but should be there when clicking around
-  // shouldn't reload every page (same with auth)
 
   return (
     <div className="no-scrollbar grow overflow-y-auto bg-stone-800">
