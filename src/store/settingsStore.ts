@@ -36,7 +36,7 @@ const initialState = {
   pubkey: undefined,
   npub: undefined,
   relays: DEFAULT_RELAYS,
-  follows: []
+  follows: [],
 }
 
 // NOTE: This will become a logged in users session
@@ -67,9 +67,18 @@ const SettingsStore = create<State & Actions>((set, get) => ({
       relaysToConnect = get().relays
       window.localStorage.setItem('relays', JSON.stringify(relaysToConnect))
     }
+
     relaysToConnect.forEach((relay) => {
       nostrClient.addRelay(relay)
     })
+
+    const follows = window.localStorage.getItem('follows')
+    if (follows) {
+      console.debug("YES FOLLOWS")
+      set({follows: JSON.parse(follows)})
+    } else {
+      console.debug("NO FOLLOWS")
+    }
   },
 
   setPubkey: (pubkey: string) => {
@@ -117,7 +126,8 @@ const SettingsStore = create<State & Actions>((set, get) => ({
 
   setFollows: (follows: string[]) => {
     set({ follows: follows })
-  }
+    window.localStorage.setItem('follows', JSON.stringify(follows))
+  },
 }))
 
 export default SettingsStore

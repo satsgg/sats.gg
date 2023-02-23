@@ -4,7 +4,7 @@ import useSettingsStore from '~/hooks/useSettingsStore'
 import { FollowedChannelSingle } from './FollowedChannelSingle'
 
 export const FollowedChannelList = ({}) => {
-  const pubkey = useSettingsStore(state => state.pubkey)
+  const pubkey = useSettingsStore((state) => state.pubkey)
   const follows = useFollows(pubkey)
 
   return (

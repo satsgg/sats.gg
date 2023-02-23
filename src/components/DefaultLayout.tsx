@@ -8,7 +8,7 @@ import { InteractionModal } from '~/components/InteractionModal'
 import { nostrClient } from '~/nostr/NostrClient'
 import useSettingsStore from '~/hooks/useSettingsStore'
 import { ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css';
+import 'react-toastify/dist/ReactToastify.css'
 
 type DefaultLayoutProps = { children: ReactNode }
 

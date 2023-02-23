@@ -138,7 +138,7 @@ export default class RelayPool {
       pub.on('seen', () => {
         console.log(`we saw the event on ${r.url}`)
       })
-      pub.on('failed', reason => {
+      pub.on('failed', (reason) => {
         console.log(`failed to publish to ${r.url}: ${reason}`)
       })
     }

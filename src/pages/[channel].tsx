@@ -6,11 +6,11 @@ import { Stream } from '~/components/Stream/Stream'
 import { StreamBio } from '~/components/Stream/StreamBio'
 
 const isValidQuery = (query: ParsedUrlQuery) => {
-  return typeof (query.channel) === 'string'
+  return typeof query.channel === 'string'
 }
 
 const getChannelPubkey = (channel: string) => {
-  if (typeof (channel) !== 'string') return null
+  if (typeof channel !== 'string') return null
   if (channel.startsWith('npub1')) {
     try {
       let { type, data: nipData } = nip19.decode(channel)
@@ -40,7 +40,6 @@ const getChannelPubkey = (channel: string) => {
 export default function Channel() {
   // const router = useRouter()
   const { query, isReady } = useRouter()
-
 
   // if (!isValidQuery(router.query)) {
   //   return (

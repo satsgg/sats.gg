@@ -11,8 +11,8 @@ export const FollowedChannelSingle = ({ pubkey }: { pubkey: string }) => {
     <Link href={`/${nip19.npubEncode(pubkey)}`}>
       <div className="flex grow justify-between py-2 px-2 hover:cursor-pointer hover:bg-stone-700/25">
         <div className="flex">
-          <img 
-            className="mr-2 h-8 w-8 rounded-[50%]" 
+          <img
+            className="mr-2 h-8 w-8 rounded-[50%]"
             src={profile?.picture || `https://robohash.org/${pubkey}.png?bgset=bg1`}
             onError={(e) => {
               e.target.src = `https://robohash.org/${pubkey}.png?bgset=bg1`
@@ -20,7 +20,9 @@ export const FollowedChannelSingle = ({ pubkey }: { pubkey: string }) => {
             }}
           />
           <div className="flex flex-col">
-            <p className="text-sm font-semibold text-white">{(profile?.name) ? profile.name.slice(0,12) : nip19.npubEncode(pubkey).slice(0,12)}</p>
+            <p className="text-sm font-semibold text-white">
+              {profile?.name ? profile.name.slice(0, 12) : nip19.npubEncode(pubkey).slice(0, 12)}
+            </p>
             {/* TODO: Live stream category */}
           </div>
         </div>

@@ -12,7 +12,7 @@ import { usePopper } from 'react-popper'
 import useCanSign from '~/hooks/useCanSign'
 import useSettingsStore from '~/hooks/useSettingsStore'
 import { verifySignature, validateEvent } from 'nostr-tools'
-import { toast } from 'react-toastify';
+import { toast } from 'react-toastify'
 import { nostrClient } from '~/nostr/NostrClient'
 
 const eventOrder = {
@@ -22,7 +22,7 @@ const eventOrder = {
 
 export const Chat = ({ channelPubkey }: { channelPubkey: string }) => {
   // const { publish } = useNostr()
-  const pubkey = useSettingsStore(state => state.pubkey)
+  const pubkey = useSettingsStore((state) => state.pubkey)
   const [message, setMessage] = useState<string>('')
   const canSign = useCanSign()
 
@@ -46,7 +46,7 @@ export const Chat = ({ channelPubkey }: { channelPubkey: string }) => {
       since: now.current,
       // TODO: use chat channel ID corresponding to channelPubkey
       '#e': ['cb1a5b962701e2c44a7bcf18fb3a60cbc8caec576c776749507acc952df97fcd'],
-    }
+    },
   ]
   const notes = useSubscription(channelPubkey, filters, 250)
 
@@ -77,14 +77,14 @@ export const Chat = ({ channelPubkey }: { channelPubkey: string }) => {
     } catch (err: any) {
       console.error(err.message)
       toast.error(err.message, {
-        position: "bottom-center",
+        position: 'bottom-center',
         autoClose: 5000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
         progress: undefined,
-        theme: "light",
+        theme: 'light',
       })
     }
 
@@ -165,7 +165,7 @@ export const Chat = ({ channelPubkey }: { channelPubkey: string }) => {
         </div>
         <div className="flex justify-end">
           <button
-            className="inline-flex items-center rounded bg-primary px-3 py-2 text-sm font-semibold uppercase shadow-md transition duration-150 ease-in-out hover:bg-primary/80 hover:shadow-lg focus:bg-primary focus:shadow-lg focus:outline-none focus:ring-0 active:bg-primary active:shadow-lg disabled:bg-gray-500 disabled:cursor-not-allowed"
+            className="inline-flex items-center rounded bg-primary px-3 py-2 text-sm font-semibold uppercase shadow-md transition duration-150 ease-in-out hover:bg-primary/80 hover:shadow-lg focus:bg-primary focus:shadow-lg focus:outline-none focus:ring-0 active:bg-primary active:shadow-lg disabled:cursor-not-allowed disabled:bg-gray-500"
             // disabled={showTip}
             disabled={!canSign}
             onClick={(e) => handleSubmitMessage(e)}

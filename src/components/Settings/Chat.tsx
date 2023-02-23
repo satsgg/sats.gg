@@ -3,16 +3,15 @@ import { z } from 'zod'
 import Input from './Input'
 import { createChannelEvent } from '~/utils/nostr'
 import { verifySignature, validateEvent } from 'nostr-tools'
-import { toast } from 'react-toastify';
+import { toast } from 'react-toastify'
 import { nostrClient } from '~/nostr/NostrClient'
 import { useEffect, useState } from 'react'
 import useCanSign from '~/hooks/useCanSign'
 import useSettingsStore from '~/hooks/useSettingsStore'
 
-
 const Chat = () => {
   const canSign = useCanSign()
-  const pubkey = useSettingsStore(state => state.pubkey)
+  const pubkey = useSettingsStore((state) => state.pubkey)
 
   const {
     register,
@@ -58,14 +57,14 @@ const Chat = () => {
     } catch (err: any) {
       console.error(err.message)
       toast.error(err.message, {
-        position: "bottom-center",
+        position: 'bottom-center',
         autoClose: 5000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
         progress: undefined,
-        theme: "light",
+        theme: 'light',
       })
     }
   }
@@ -87,7 +86,7 @@ const Chat = () => {
           <button
             type="submit"
             disabled={!canSign}
-            className="align-right inline-flex h-8 w-32 items-center justify-center rounded px-2 py-1 text-sm font-semibold bg-primary disabled:bg-gray-500 disabled:cursor-not-allowed"
+            className="align-right inline-flex h-8 w-32 items-center justify-center rounded bg-primary px-2 py-1 text-sm font-semibold disabled:cursor-not-allowed disabled:bg-gray-500"
             onClick={handleSubmit(onSubmit)}
           >
             Submit
