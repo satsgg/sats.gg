@@ -17,19 +17,14 @@ export const StreamBio = ({ channelPubkey }: { channelPubkey: string} ) => {
     <div className="flex grow flex-col gap-6 px-6 pt-4">
       <div className="flex content-center justify-between">
         <div className="flex">
-          {profile?.picture && !hideImg ? 
-            <img
-              className={`mr-2 h-16 w-16 rounded-[50%] ${
-                // channelUser.streamStatus === 'ACTIVE' ? 'border-2 border-primary p-1' : ''
-                true ? 'border-2 border-primary p-1' : ''
-              }`}
-              onError={() => setHideImg(true)}
-              src={profile.picture}
-              alt={`profile image of ${channelPubkey}`}
-            />
-            :
-            <div className="h-16 w-16 border rounded-[50%] border-gray-500 mr-2" />   
-          }
+          <img 
+            className="mr-2 h-16 w-16 rounded-[50%]" 
+            src={profile?.picture || `https://robohash.org/${channelPubkey}.png?bgset=bg1`}
+            onError={(e) => {
+              e.target.src = `https://robohash.org/${channelPubkey}.png?bgset=bg1`
+              e.target.onerror = null
+            }}
+          />
           <p className="font-semi text-lg text-white">{(profile?.name) ? profile.name.slice(0,12) : nip19.npubEncode(channelPubkey)}</p>
         </div>
       </div>
