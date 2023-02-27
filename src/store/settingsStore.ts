@@ -74,10 +74,7 @@ const SettingsStore = create<State & Actions>((set, get) => ({
 
     const follows = window.localStorage.getItem('follows')
     if (follows) {
-      console.debug("YES FOLLOWS")
       set({follows: JSON.parse(follows)})
-    } else {
-      console.debug("NO FOLLOWS")
     }
   },
 
@@ -125,8 +122,10 @@ const SettingsStore = create<State & Actions>((set, get) => ({
   },
 
   setFollows: (follows: string[]) => {
-    set({ follows: follows })
-    window.localStorage.setItem('follows', JSON.stringify(follows))
+    const f = [...get().follows, ...follows]
+    const newF = [...new Set(f)]
+    set({ follows: newF })
+    window.localStorage.setItem('follows', JSON.stringify(newF))
   },
 }))
 
