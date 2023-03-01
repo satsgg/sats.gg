@@ -42,6 +42,17 @@ module.exports = getConfig({
   // reactStrictMode: true,
   reactStrictMode: false,
 
+  // images: {
+  //   remotePatterns: [
+  //     {
+  //       protocol: 'https',
+  //       hostname: 'robohash.org',
+  //       port: '',
+  //       pathname: '/**',
+  //     },
+  //   ],
+  // },
+
   async redirects() {
     return [
       {

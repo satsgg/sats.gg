@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect} from 'react'
 import { Filter, Event } from 'nostr-tools'
 import { nostrClient } from '~/nostr/NostrClient'
 import useSettingsStore from './useSettingsStore'
@@ -19,7 +19,6 @@ const useFollows = (pubkey: string | undefined) => {
 
   const onEventCallback = (event: Event) => {
     const newnew = event.tags.map((t) => t[1])
-    console.log('on follows callback')
     setFollows(newnew)
   }
 

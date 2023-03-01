@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { useProfile } from '~/hooks/useProfile'
 import FollowHeartSVG from '~/svgs/follow-heart.svg'
 import { nip19 } from 'nostr-tools'
+import NostrichImg from '~/assets/Nostrich.jpeg'
 
 export const StreamBio = ({ channelPubkey }: { channelPubkey: string }) => {
   const profile = useProfile(channelPubkey)
@@ -21,8 +22,8 @@ export const StreamBio = ({ channelPubkey }: { channelPubkey: string }) => {
             className="mr-2 h-16 w-16 rounded-[50%]"
             src={profile?.picture || `https://robohash.org/${channelPubkey}.png?bgset=bg1`}
             onError={(e) => {
-              e.target.src = `https://robohash.org/${channelPubkey}.png?bgset=bg1`
               e.target.onerror = null
+              e.target.src=NostrichImg.src
             }}
           />
           <p className="font-semi text-lg text-white">
