@@ -20,7 +20,8 @@ export const StreamBio = ({ channelPubkey }: { channelPubkey: string }) => {
         <div className="flex">
           <img
             className="mr-2 h-16 w-16 rounded-[50%]"
-            src={profile?.picture || `https://robohash.org/${channelPubkey}.png?bgset=bg1`}
+            // src={profile?.picture || `https://robohash.org/${channelPubkey}.png?bgset=bg1`}
+            src={profile?.picture || `https://robohash.org/${channelPubkey}.png`}
             onError={(e) => {
               e.target.onerror = null
               e.target.src = NostrichImg.src

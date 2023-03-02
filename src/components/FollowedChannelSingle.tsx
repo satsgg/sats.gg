@@ -14,7 +14,8 @@ export const FollowedChannelSingle = ({ pubkey }: { pubkey: string }) => {
         <div className="flex">
           <img
             className="mr-2 h-8 w-8 rounded-[50%]"
-            src={profile?.picture || `https://robohash.org/${pubkey}.png?bgset=bg1`}
+            // src={profile?.picture || `https://robohash.org/${pubkey}.png?bgset=bg1`}
+            src={profile?.picture || `https://robohash.org/${pubkey}.png`}
             onError={(e) => {
               e.target.onerror = null
               e.target.src = NostrichImg.src

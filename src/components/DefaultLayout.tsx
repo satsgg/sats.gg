@@ -47,7 +47,7 @@ export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
           }
         </div>
         <div id="contentContainer" className="flex h-full">
-          <div id="followContainer" className="flex h-full w-60 shrink-0">
+          <div id="followContainer" className="xs:hidden h-full shrink-0 lg:flex lg:w-60">
             <FollowedChannelList />
           </div>
 
