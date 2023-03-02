@@ -76,7 +76,7 @@ const SettingsStore = create<State & Actions>((set, get) => ({
     // what if logging in with diff pubkey?
     // will be different follows list... diff relays list...
     if (follows) {
-      set({follows: JSON.parse(follows)})
+      set({ follows: JSON.parse(follows) })
     }
   },
 

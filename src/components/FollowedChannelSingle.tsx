@@ -3,7 +3,6 @@ import { useProfile } from '~/hooks/useProfile'
 import LiveSVG from '~/svgs/live.svg'
 import { nip19 } from 'nostr-tools'
 import { useState } from 'react'
-import ImageWithFallback from '~/components/ImageWithFallback'
 import NostrichImg from '~/assets/Nostrich.jpeg'
 
 export const FollowedChannelSingle = ({ pubkey }: { pubkey: string }) => {
@@ -17,8 +16,8 @@ export const FollowedChannelSingle = ({ pubkey }: { pubkey: string }) => {
             className="mr-2 h-8 w-8 rounded-[50%]"
             src={profile?.picture || `https://robohash.org/${pubkey}.png?bgset=bg1`}
             onError={(e) => {
-              e.target.onerror=null
-              e.target.src=NostrichImg.src
+              e.target.onerror = null
+              e.target.src = NostrichImg.src
             }}
           />
           {/* next/Image won't work b/c each image src has to be configured in next.config.js 

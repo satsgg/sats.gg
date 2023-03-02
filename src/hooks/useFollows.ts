@@ -1,4 +1,4 @@
-import { useEffect} from 'react'
+import { useEffect } from 'react'
 import { Filter, Event } from 'nostr-tools'
 import { nostrClient } from '~/nostr/NostrClient'
 import useSettingsStore from './useSettingsStore'
@@ -7,7 +7,7 @@ const useFollows = (pubkey: string | undefined) => {
   // caching?
   // shallow? see zustand docs
   // pubkey undefined ts?
-  const [follows, setFollows] = useSettingsStore(state => [state.follows, state.setFollows])
+  const [follows, setFollows] = useSettingsStore((state) => [state.follows, state.setFollows])
 
   const filters: Filter[] = [
     {
