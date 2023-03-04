@@ -1,5 +1,15 @@
-import MuxPlayer from '@mux/mux-player-react'
 import { useEffect, useRef } from 'react'
+// import MuxPlayer from '@mux/mux-player-react/lazy'
+import MuxPlayer from '@mux/mux-player-react'
+import Nostrich from '~/assets/nostrich.jpeg'
+
+// NOTE: Bug or something with lazy mux loader
+// placeholder (btwn DOM/placeholder and actual video loading) doesn't respect
+// h-full. It only does the aspect ratio. So when the dev console is open
+// and max v height is the used, the palceholder doesn't respect the max v height
+
+// want lazy loader because it makes the DOM content load wayyy faster...
+// just have the issue with the placeholder
 
 export const Stream = ({ channelPubkey }: { channelPubkey: string }) => {
   const videoEl = useRef(null)
@@ -70,9 +80,9 @@ export const Stream = ({ channelPubkey }: { channelPubkey: string }) => {
       //   playback: "zkma4FkEBYfNGXf6dcu9t3qcFpeLRpGT0001R5xDOVGkI",
       //   thumbnail: "zkma4FkEBYfNGXf6dcu9t3qcFpeLRpGT0001R5xDOVGkI"
       // }}
-      // className={'aspect-video'}
-      // className={'h-max-[calc(100vh-16rem)]'}
-      className={'h-full'}
+      // loading="viewport"
+      // placeholder={Nostrich.src}
+      className={'aspect-video h-full'}
       metadata={{
         video_id: 'video-id-54321',
         video_title: 'Test video title',

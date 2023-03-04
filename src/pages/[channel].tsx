@@ -4,6 +4,7 @@ import { Chat } from '~/components/NostrChat/Chat'
 import { nip19 } from 'nostr-tools'
 import { Stream } from '~/components/Stream/Stream'
 import { StreamBio } from '~/components/Stream/StreamBio'
+import muxBlurHash from '@mux/blurhash'
 
 const isValidQuery = (query: ParsedUrlQuery) => {
   return typeof query.channel === 'string'
@@ -37,7 +38,7 @@ const getChannelPubkey = (channel: string) => {
   }
 }
 
-export default function Channel() {
+export default function Channel({ playbackId, sourceWidth, sourceHeight, blurHashBase64 }) {
   // const router = useRouter()
   const { query, isReady } = useRouter()
 
@@ -66,16 +67,16 @@ export default function Channel() {
 
   return (
     <>
-      <div className="flex w-full grow flex-col">
-        <div className="no-scrollbar flex grow flex-col overflow-y-auto">
-          <div className="max-h-[calc(100vh-9rem)]">
+      <div className="flex w-full flex-col">
+        <div className="no-scrollbar flex flex-col overflow-y-auto">
+          <div className="aspect-video max-h-[calc(100vh-9rem)] border-b border-solid border-gray-500">
             <Stream channelPubkey={channelPubkey} />
           </div>
           <StreamBio channelPubkey={channelPubkey} />
         </div>
       </div>
 
-      <div className="w-max-sm flex h-full w-1/5 min-w-[20%]">
+      <div className="flex h-full w-80">
         <Chat channelPubkey={channelPubkey} />
       </div>
     </>
