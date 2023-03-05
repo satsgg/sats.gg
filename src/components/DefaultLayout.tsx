@@ -15,6 +15,7 @@ type DefaultLayoutProps = { children: ReactNode }
 export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
   const { init: initSettingsStore } = useSettingsStore()
   const [modal, setModal] = useState<'none' | 'login'>('none')
+  const [collapse, setCollapse] = useState(false)
 
   // TODO: Initialize local storage of user (pubkey, privkey, relays, users etc)
   // useEffect(() => {
@@ -47,8 +48,8 @@ export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
           }
         </div>
         <div id="contentContainer" className="relative flex grow">
-          <div id="followContainer" className="h-full shrink-0 sm:hidden lg:flex lg:w-60">
-            <FollowedChannelList />
+          <div id="followContainer" className={`${collapse ? 'w-12' : 'w-60'} h-full shrink-0 sm:hidden lg:flex`}>
+            <FollowedChannelList collapse={collapse} setCollapse={setCollapse} />
           </div>
 
           <main className="flex h-full w-full flex-col overflow-y-auto text-white sm:flex-row">{children}</main>

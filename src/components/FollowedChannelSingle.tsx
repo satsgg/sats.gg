@@ -5,16 +5,15 @@ import { nip19 } from 'nostr-tools'
 import { useState } from 'react'
 import NostrichImg from '~/assets/Nostrich.jpeg'
 
-export const FollowedChannelSingle = ({ pubkey }: { pubkey: string }) => {
+export const FollowedChannelSingle = ({ pubkey, collapse }: { pubkey: string; collapse: boolean }) => {
   const profile = useProfile(pubkey)
 
   return (
     <Link href={`/${nip19.npubEncode(pubkey)}`}>
       <div className="flex grow justify-between py-2 px-2 hover:cursor-pointer hover:bg-stone-700/25">
-        <div className="flex">
+        <div className="flex shrink-0">
           <img
-            className="mr-2 h-8 w-8 rounded-[50%]"
-            // src={profile?.picture || `https://robohash.org/${pubkey}.png?bgset=bg1`}
+            className={`${collapse ? '' : 'mr-2'} h-8 w-8 rounded-[50%]`}
             src={profile?.picture || `https://robohash.org/${pubkey}.png`}
             onError={(e) => {
               e.target.onerror = null
@@ -30,7 +29,7 @@ export const FollowedChannelSingle = ({ pubkey }: { pubkey: string }) => {
             src={profile?.picture || `https://robohash.org/${pubkey}`}
             fallbackSrc={NostrichImg} 
           /> */}
-          <div className="flex flex-col">
+          <div className={`${collapse ? 'hidden' : 'flex flex-col '}`}>
             <p className="text-sm font-semibold text-white">
               {profile?.name ? profile.name.slice(0, 12) : nip19.npubEncode(pubkey).slice(0, 12)}
             </p>
@@ -38,7 +37,7 @@ export const FollowedChannelSingle = ({ pubkey }: { pubkey: string }) => {
           </div>
         </div>
         {/* TODO: live viewer count */}
-        <div className="align-right">
+        <div className={`${collapse ? 'hidden' : 'align-right'}`}>
           {false ? (
             <LiveSVG width={20} height={20} className="fill-red-600" />
           ) : (
