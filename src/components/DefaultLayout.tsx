@@ -53,7 +53,7 @@ export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
         <div id="contentContainer" className="relative flex grow">
           <div
             id="followContainer"
-            className={`${collapse || toggleCollapse ? 'w-12' : 'w-60'} hidden h-full shrink-0 md:flex`}
+            className={`${collapse || toggleCollapse ? 'w-12' : 'w-60'} hidden h-full shrink-0 sm:flex`}
           >
             <FollowedChannelList
               collapse={collapse}
