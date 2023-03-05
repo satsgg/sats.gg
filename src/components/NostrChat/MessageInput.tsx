@@ -22,7 +22,7 @@ const MessageInput = ({ message, setMessage, handleSubmitMessage }: MessageInput
 
   return (
     <form
-      className=""
+      className="w-full"
       spellCheck={false}
       onSubmit={handleSubmitMessage}
       // onKeyDown={(e) => {

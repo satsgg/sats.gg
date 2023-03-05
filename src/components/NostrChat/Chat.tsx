@@ -114,8 +114,8 @@ export const Chat = ({ channelPubkey }: { channelPubkey: string }) => {
   // const uniqEvents = events.length > 0 ? uniqBy(events, 'id') : []
 
   return (
-    <div className="w-max-full flex grow flex-col border-l border-solid border-gray-500 bg-stone-800">
-      <div className="flex justify-center border-b border-solid border-gray-500">
+    <div className="flex w-full flex-col bg-stone-800 sm:border-l sm:border-solid sm:border-gray-500">
+      <div className="hidden justify-center border-b border-solid border-gray-500 sm:flex">
         <p className="py-2 px-4 font-normal text-white">CHAT</p>
       </div>
       <Virtuoso
@@ -124,7 +124,7 @@ export const Chat = ({ channelPubkey }: { channelPubkey: string }) => {
         followOutput
         // followOutput={'smooth'}
         ref={virtuosoRef}
-        className={'max-h-[calc(100vh-13rem)]'}
+        className={'max-h-[calc(100vh-12.5rem)]'}
         // not sure on these pixel calcs, but 1000px bottom seems to have *improved*
         // the scrollToBottom issue as recommended by virtuoso guy.
         increaseViewportBy={{
@@ -159,10 +159,8 @@ export const Chat = ({ channelPubkey }: { channelPubkey: string }) => {
         </div>
       )}
 
-      <div ref={setChatRef} className="flex w-full flex-col gap-3 py-3 px-3">
-        <div>
-          <MessageInput message={message} setMessage={setMessage} handleSubmitMessage={handleSubmitMessage} />
-        </div>
+      <div ref={setChatRef} className="flex w-full flex-row gap-1 py-3 px-3 sm:flex-col">
+        <MessageInput message={message} setMessage={setMessage} handleSubmitMessage={handleSubmitMessage} />
         <div className="flex justify-end">
           <button
             className="inline-flex items-center rounded bg-primary px-3 py-2 text-sm font-semibold uppercase shadow-md transition duration-150 ease-in-out hover:bg-primary/80 hover:shadow-lg focus:bg-primary focus:shadow-lg focus:outline-none focus:ring-0 active:bg-primary active:shadow-lg disabled:cursor-not-allowed disabled:bg-gray-500"

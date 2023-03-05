@@ -32,7 +32,7 @@ export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
         <title>SATS.GG</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div id="appContainer" className="h-screen w-screen bg-stone-900">
+      <div id="appContainer" className="flex h-screen w-screen flex-col bg-stone-900">
         <Navbar openAuthenticate={() => setModal('login')} />
         <div>
           {
@@ -46,12 +46,12 @@ export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
             }[modal]
           }
         </div>
-        <div id="contentContainer" className="flex h-full">
-          <div id="followContainer" className="xs:hidden h-full shrink-0 lg:flex lg:w-60">
+        <div id="contentContainer" className="relative flex grow">
+          <div id="followContainer" className="h-full shrink-0 sm:hidden lg:flex lg:w-60">
             <FollowedChannelList />
           </div>
 
-          <main className="flex w-full text-white">{children}</main>
+          <main className="flex h-full w-full flex-col overflow-y-auto text-white sm:flex-row">{children}</main>
         </div>
       </div>
       <ToastContainer />
