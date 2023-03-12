@@ -3,7 +3,7 @@ import { useProfile } from '~/hooks/useProfile'
 import LiveSVG from '~/svgs/live.svg'
 import { nip19 } from 'nostr-tools'
 import { useState } from 'react'
-import NostrichImg from '~/assets/Nostrich.jpeg'
+import NostrichImg from '~/assets/nostrich.jpeg'
 
 export const FollowedChannelSingle = ({ pubkey, toggleCollapse }: { pubkey: string; toggleCollapse: boolean }) => {
   const profile = useProfile(pubkey)

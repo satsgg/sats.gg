@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useProfile } from '~/hooks/useProfile'
 import FollowButton from './FollowButton'
 import { nip19 } from 'nostr-tools'
-import NostrichImg from '~/assets/Nostrich.jpeg'
+import NostrichImg from '~/assets/nostrich.jpeg'
 
 export const StreamBio = ({ channelPubkey }: { channelPubkey: string }) => {
   const profile = useProfile(channelPubkey)
