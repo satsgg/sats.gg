@@ -6,7 +6,7 @@
     "scripts": {
         "build:1-migrate": "prisma migrate deploy",
         "build:2-build": "next build",
-        "build": "run-s build:*",
+        "build": "next build",
         "db-seed": "prisma db seed",
         "db-migrate-dev": "yarn prisma migrate dev",
         "db-reset": "yarn prisma migrate reset",
