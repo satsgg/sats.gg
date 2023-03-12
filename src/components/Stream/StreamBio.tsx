@@ -1,14 +1,11 @@
 import { useState } from 'react'
-import { z } from 'zod'
 import { useProfile } from '~/hooks/useProfile'
-import FollowHeartSVG from '~/svgs/follow-heart.svg'
+import FollowButton from './FollowButton'
 import { nip19 } from 'nostr-tools'
 import NostrichImg from '~/assets/Nostrich.jpeg'
 
 export const StreamBio = ({ channelPubkey }: { channelPubkey: string }) => {
   const profile = useProfile(channelPubkey)
-  const [hideImg, setHideImg] = useState(false)
-  const [followAnimation, setFollowAnimation] = useState(false)
 
   // Figure out how to fix 'object is possibly null'. We know at this point channelUser exists
   // or else we would have never loaded this component
@@ -20,7 +17,6 @@ export const StreamBio = ({ channelPubkey }: { channelPubkey: string }) => {
         <div className="flex">
           <img
             className="mr-2 h-12 w-12 rounded-[50%] md:h-16 md:w-16"
-            // src={profile?.picture || `https://robohash.org/${channelPubkey}.png?bgset=bg1`}
             src={profile?.picture || `https://robohash.org/${channelPubkey}.png`}
             onError={(e) => {
               e.target.onerror = null
@@ -31,7 +27,10 @@ export const StreamBio = ({ channelPubkey }: { channelPubkey: string }) => {
             {profile?.name ? profile.name.slice(0, 12) : nip19.npubEncode(channelPubkey)}
           </p>
         </div>
+
+        <FollowButton />
       </div>
+
       <div className="hidden rounded bg-stone-800 p-12 sm:block">
         <p className="font-semi text-xl text-white">About {profile?.name}</p>
         <p className="font-semi text-lg text-white">{profile?.about}</p>
