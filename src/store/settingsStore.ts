@@ -88,8 +88,15 @@ const SettingsStore = create<State & Actions>((set, get) => ({
   },
 
   logout: () => {
-    set({ pubkey: undefined })
+    set({
+      pubkey: undefined,
+      npub: undefined,
+      follows: [],
+      // relays: [],
+    })
     window.localStorage.removeItem('pubkey')
+    window.localStorage.removeItem('follows')
+    // window.localStorage.removeItem('relays')
   },
 
   addRelay: (url: string) => {
