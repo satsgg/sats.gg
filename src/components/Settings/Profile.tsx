@@ -5,6 +5,10 @@ import { z } from 'zod'
 import { useEffect } from 'react'
 import Input from './Input'
 import useCanSign from '~/hooks/useCanSign'
+import { getEventHash, signEvent, Event as NostrEvent } from 'nostr-tools'
+import { verifySignature, validateEvent } from 'nostr-tools'
+import { toast } from 'react-toastify'
+import { nostrClient } from '~/nostr/NostrClient'
 
 const Profile = () => {
   const pubkey = useSettingsStore((state) => state.pubkey)
@@ -46,10 +50,42 @@ const Profile = () => {
     },
   })
 
-  const onSubmit = (data: any) => {
+  const onSubmit = async (data: any) => {
     console.log('data', data)
+    if (!pubkey) return
     // TODO: filter out any empty values ('') for event
     // don't need to populate a bunch of empty strings...
+    const event: NostrEvent = {
+      kind: 0,
+      pubkey: pubkey,
+      created_at: Math.floor(Date.now() / 1000),
+      tags: [],
+      content: JSON.stringify(data),
+    }
+
+    try {
+      const signedEvent = await window.nostr.signEvent(event)
+      console.debug('signedEvent', signedEvent)
+      let ok = validateEvent(signedEvent)
+      if (!ok) throw new Error('Invalid event')
+      let veryOk = verifySignature(signedEvent)
+      if (!veryOk) throw new Error('Invalid signature')
+
+      console.debug('event id', signedEvent.id)
+      nostrClient.publish(signedEvent)
+    } catch (err: any) {
+      console.error(err.message)
+      toast.error(err.message, {
+        position: 'bottom-right',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'light',
+      })
+    }
   }
 
   useEffect(() => {

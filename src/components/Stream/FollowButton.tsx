@@ -3,6 +3,7 @@ import FollowHeartSVG from '~/svgs/follow-heart.svg'
 
 export default function FollowButton() {
   const [followAnimation, setFollowAnimation] = useState(false)
+  // TODO: Get this based off follows lsit
   const [followsUser, setFollowsUser] = useState(false)
 
   const handleFollowClick = () => {
