@@ -10,25 +10,54 @@ import useSettingsStore from '~/hooks/useSettingsStore'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import useMediaQuery from '~/hooks/useMediaQuery'
+import { Spinner } from './Spinner'
+import useLayoutStore from '~/store/layoutStore'
+import useHasMounted from '~/hooks/useHasMounted'
 
 type DefaultLayoutProps = { children: ReactNode }
 
 export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
   const { init: initSettingsStore } = useSettingsStore()
+  const { leftBarUserClosed, userCloseLeftBar, rightBarUserClosed } = useLayoutStore()
+  const isMounted = useHasMounted()
+
   const [modal, setModal] = useState<'none' | 'login'>('none')
   // False when < 1024 px (< tailwind lg)
-  const collapse = !useMediaQuery('(min-width: 1024px)')
-  const [toggleCollapse, setToggleCollapse] = useState(false)
-
-  // TODO: Initialize local storage of user (pubkey, privkey, relays, users etc)
-  // useEffect(() => {
-  //   // initialize local storage of user
-  // })
+  const autoCollapseLeftBar = !useMediaQuery('(min-width: 1024px)')
 
   useEffect(() => {
     initSettingsStore()
     nostrClient.connect()
   }, [])
+
+  const content = () => {
+    // Make sure we get layout from localstorage before
+    // displaying the content container to avoid shitfting
+    if (!isMounted) {
+      return (
+        <div className="flex h-full w-full content-center justify-center">
+          <Spinner height={6} width={6} />
+        </div>
+      )
+    }
+
+    return (
+      <div id="contentContainer" className="relative flex grow">
+        <div
+          id="followContainer"
+          className={`${autoCollapseLeftBar || leftBarUserClosed ? 'w-12' : 'w-60'} hidden h-full shrink-0 sm:flex`}
+        >
+          <FollowedChannelList
+            autoCollapse={autoCollapseLeftBar}
+            userCollapse={leftBarUserClosed}
+            setUserCollapse={userCloseLeftBar}
+          />
+        </div>
+
+        <main className="flex h-full w-full flex-col overflow-y-auto text-white sm:flex-row">{children}</main>
+      </div>
+    )
+  }
 
   return (
     <>
@@ -50,21 +79,10 @@ export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
             }[modal]
           }
         </div>
-        <div id="contentContainer" className="relative flex grow">
-          <div
-            id="followContainer"
-            className={`${collapse || toggleCollapse ? 'w-12' : 'w-60'} hidden h-full shrink-0 sm:flex`}
-          >
-            <FollowedChannelList
-              collapse={collapse}
-              toggleCollapse={toggleCollapse}
-              setToggleCollapse={setToggleCollapse}
-            />
-          </div>
 
-          <main className="flex h-full w-full flex-col overflow-y-auto text-white sm:flex-row">{children}</main>
-        </div>
+        {content()}
       </div>
+
       <ToastContainer />
     </>
   )

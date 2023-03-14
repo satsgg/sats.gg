@@ -6,13 +6,13 @@ import OpenRightSVG from '~/svgs/open-right.svg'
 import OpenLeftSVG from '~/svgs/open-left.svg'
 
 export const FollowedChannelList = ({
-  collapse,
-  toggleCollapse,
-  setToggleCollapse,
+  autoCollapse,
+  userCollapse,
+  setUserCollapse,
 }: {
-  collapse: boolean
-  toggleCollapse: boolean
-  setToggleCollapse: Function
+  autoCollapse: boolean
+  userCollapse: boolean
+  setUserCollapse: Function
 }) => {
   const pubkey = useSettingsStore((state) => state.pubkey)
   const follows = useFollows(pubkey)
@@ -20,11 +20,13 @@ export const FollowedChannelList = ({
   return (
     <div className="no-scrollbar grow overflow-y-auto bg-stone-800">
       <div
-        className={`${collapse && 'hidden'} ${toggleCollapse ? 'justify-center' : 'justify-between'} flex shrink-0 p-2`}
+        className={`${autoCollapse && 'hidden'} ${
+          userCollapse ? 'justify-center' : 'justify-between'
+        } flex shrink-0 p-2`}
       >
-        <p className={`${toggleCollapse ? 'hidden' : 'text-sm uppercase text-white'}`}>followed channels</p>
-        <button onClick={() => setToggleCollapse(!toggleCollapse)}>
-          {toggleCollapse ? (
+        <p className={`${userCollapse ? 'hidden' : 'text-sm uppercase text-white'}`}>followed channels</p>
+        <button onClick={() => setUserCollapse(!userCollapse)}>
+          {userCollapse ? (
             <OpenRightSVG width={24} height={24} strokeWidth={2} className="stroke-white" />
           ) : (
             <OpenLeftSVG width={24} height={24} strokeWidth={2} className="stroke-white" />
@@ -35,7 +37,7 @@ export const FollowedChannelList = ({
         data={follows}
         className="no-scrollbar"
         itemContent={(index, user) => {
-          return <FollowedChannelSingle key={index} pubkey={user} toggleCollapse={toggleCollapse} />
+          return <FollowedChannelSingle key={index} pubkey={user} userCollapse={userCollapse} />
         }}
       />
     </div>
