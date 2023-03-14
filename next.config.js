@@ -39,8 +39,8 @@ module.exports = getConfig({
     ignoreBuildErrors: true,
   },
 
-  // reactStrictMode: true,
-  reactStrictMode: false,
+  reactStrictMode: true,
+  // reactStrictMode: false,
 
   // images: {
   //   remotePatterns: [

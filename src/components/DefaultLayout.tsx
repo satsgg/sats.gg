@@ -34,11 +34,10 @@ export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
     // Make sure we get layout from localstorage before
     // displaying the content container to avoid shitfting
     if (!isMounted) {
-      return (
-        <div className="flex h-full w-full content-center justify-center">
-          <Spinner height={6} width={6} />
-        </div>
-      )
+      return null
+      // <div className="flex h-full w-full content-center justify-center">
+      //   <Spinner height={6} width={6} />
+      // </div>
     }
 
     return (

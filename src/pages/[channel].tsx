@@ -4,12 +4,14 @@ import { Chat } from '~/components/NostrChat/Chat'
 import { nip19 } from 'nostr-tools'
 import { Stream } from '~/components/Stream/Stream'
 import { StreamBio } from '~/components/Stream/StreamBio'
+import { Spinner } from '~/components/Spinner'
 
 const isValidQuery = (query: ParsedUrlQuery) => {
   return typeof query.channel === 'string'
 }
 
-const getChannelPubkey = (channel: string) => {
+const getChannelPubkey = (channel: string, isReady: boolean) => {
+  if (!isReady) return null
   if (typeof channel !== 'string') return null
   if (channel.startsWith('npub1')) {
     try {
@@ -54,11 +56,22 @@ export default function Channel({ playbackId, sourceWidth, sourceHeight, blurHas
 
   // const channel = router.query.channel as string
   console.debug('channel', channel)
-  const channelPubkey = getChannelPubkey(channel)
+  const channelPubkey = getChannelPubkey(channel, isReady)
+
+  // loading -> found
+  // loading -> error
+  // assume it's the right key... display skeleton channel always before invalid
+  if (!isReady) {
+    return (
+      <div className="flex h-full w-full content-center justify-center">
+        <Spinner height={6} width={6} />
+      </div>
+    )
+  }
 
   if (!channelPubkey) {
     return (
-      <div className="flex grow bg-stone-900">
+      <div className="flex h-full w-full content-center items-center justify-center">
         <p className="text-white">Invalid public key</p>
       </div>
     )
