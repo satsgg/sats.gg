@@ -19,7 +19,9 @@ export const StreamBio = ({ channelPubkey }: { channelPubkey: string }) => {
     <div className="flex grow flex-col gap-4 px-4 py-2 md:px-6 md:py-4">
       <div className="flex content-center justify-between">
         <div className="flex">
-          <ProfileImg pubkey={channelPubkey} isLoading={isLoading} picture={profile?.picture} />
+          <div className="mr-2 h-12 w-12 md:h-16 md:w-16">
+            <ProfileImg pubkey={channelPubkey} isLoading={isLoading} picture={profile?.picture} />
+          </div>
           <p className="font-semi text-lg text-white">{getProfileName()}</p>
         </div>
 

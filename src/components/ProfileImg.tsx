@@ -23,11 +23,9 @@ const ProfileImg = ({
 
   return (
     <>
-      {isLoading || !imgLoaded ? (
-        <div className="mr-2 h-12 w-12 rounded-[50%] bg-gray-600 md:h-16 md:w-16"></div>
-      ) : null}
+      {isLoading || !imgLoaded ? <div className="h-full w-full rounded-[50%] bg-gray-600"></div> : null}
       <img
-        className={`${imgLoaded ? '' : 'hidden'}  mr-2 h-12 w-12 rounded-[50%] md:h-16 md:w-16`}
+        className={`${imgLoaded ? '' : 'hidden'}  h-full w-full rounded-[50%]`}
         // src={profile?.picture || `https://robohash.org/${channelPubkey}.png`}
         // src={profile?.picture}
         src={getImgUrl()}
