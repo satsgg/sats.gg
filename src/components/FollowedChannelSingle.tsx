@@ -6,7 +6,6 @@ import ProfileImg from './ProfileImg'
 
 export const FollowedChannelSingle = ({ pubkey, userCollapse }: { pubkey: string; userCollapse: boolean }) => {
   const { profile, isLoading } = useProfile(pubkey)
-  console.debug('userCollapse', userCollapse)
 
   return (
     <Link href={`/${nip19.npubEncode(pubkey)}`}>

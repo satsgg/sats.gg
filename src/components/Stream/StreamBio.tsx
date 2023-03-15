@@ -17,15 +17,15 @@ export const StreamBio = ({ channelPubkey }: { channelPubkey: string }) => {
 
   return (
     <div className="flex grow flex-col gap-4 px-4 py-2 md:px-6 md:py-4">
-      <div className="flex content-center justify-between">
-        <div className="flex">
-          <div className="mr-2 h-12 w-12 md:h-16 md:w-16">
-            <ProfileImg pubkey={channelPubkey} isLoading={isLoading} picture={profile?.picture} />
-          </div>
-          <p className="font-semi text-lg text-white">{getProfileName()}</p>
+      <div className="flex gap-2">
+        <div className="h-12 w-12 shrink-0 md:h-16 md:w-16">
+          <ProfileImg pubkey={channelPubkey} isLoading={isLoading} picture={profile?.picture} />
         </div>
 
-        <FollowButton />
+        <div className="flex w-full min-w-0 justify-between">
+          <span className=" font-semi min-h-0 truncate text-lg text-white">{getProfileName()}</span>
+          <FollowButton />
+        </div>
       </div>
 
       <div className="hidden rounded bg-stone-800 p-12 sm:block">

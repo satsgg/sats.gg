@@ -17,26 +17,22 @@ export default function FollowButton() {
   }
 
   return (
-    <div className="align-center flex max-h-max gap-2">
-      <button
-        className={`${
-          followsUser && !followAnimation ? 'bg-stone-700' : 'bg-primary'
-        } inline-flex h-8 items-center space-x-1 rounded px-3 py-1`}
-        onClick={handleFollowClick}
-        onAnimationEnd={() => setFollowAnimation(false)}
-      >
-        <FollowHeartSVG
-          height={20}
-          width={20}
-          strokeWidth={2.0}
-          fill={followsUser ? 'white ' : 'none'}
-          // className={`${followAnimation && 'animate-wiggle'} ${followsUser ? 'fill-white' : 'fill-none'} `}
-          className={`${followAnimation && 'animate-wiggle'}`}
-        />
-        <span className={`${followsUser && !followAnimation && 'hidden'} text-sm font-semibold capitalize`}>
-          follow
-        </span>
-      </button>
-    </div>
+    <button
+      className={`${
+        followsUser && !followAnimation ? 'bg-stone-700' : 'bg-primary'
+      } inline-flex h-8 items-center space-x-1 rounded px-3 py-1`}
+      onClick={handleFollowClick}
+      onAnimationEnd={() => setFollowAnimation(false)}
+    >
+      <FollowHeartSVG
+        height={20}
+        width={20}
+        strokeWidth={2.0}
+        fill={followsUser ? 'white ' : 'none'}
+        // className={`${followAnimation && 'animate-wiggle'} ${followsUser ? 'fill-white' : 'fill-none'} `}
+        className={`${followAnimation && 'animate-wiggle'}`}
+      />
+      <span className={`${followsUser && !followAnimation && 'hidden'} text-sm font-semibold capitalize`}>follow</span>
+    </button>
   )
 }
