@@ -17,7 +17,7 @@ interface HeaderProps {
 export const Navbar = ({ openAuthenticate }: HeaderProps) => {
   const [showAccountMenu, setShowAccountMenu] = useState(false)
   const { pubkey, npub, relays, logout } = useSettingsStore()
-  const profile = useProfile(pubkey)
+  const { profile, isLoading } = useProfile(pubkey)
   const connectedRelays = useConnectedRelays()
 
   const handleLogout = async () => {

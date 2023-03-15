@@ -46,13 +46,10 @@ const SettingsStore = create<State & Actions>((set, get) => ({
   init: () => {
     // from browser storage get
     // public key if available
-    console.debug('Getting pubkey')
     const pubkey = window.localStorage.getItem('pubkey')
-    console.debug('pubkey', pubkey)
     if (pubkey) {
       set({ pubkey: pubkey })
       set({ npub: nip19.npubEncode(pubkey) })
-      console.debug('npub', nip19.npubEncode(pubkey))
     }
 
     // relays if available
@@ -61,7 +58,6 @@ const SettingsStore = create<State & Actions>((set, get) => ({
     if (initRelays) {
       relaysToConnect = JSON.parse(initRelays)
       set({ relays: relaysToConnect })
-      console.debug('init relays json parse: ', JSON.parse(initRelays))
     } else {
       // Start with default list
       relaysToConnect = get().relays

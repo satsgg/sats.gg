@@ -6,7 +6,7 @@ import { useState } from 'react'
 import NostrichImg from '~/assets/nostrich.jpeg'
 
 export const FollowedChannelSingle = ({ pubkey, toggleCollapse }: { pubkey: string; toggleCollapse: boolean }) => {
-  const profile = useProfile(pubkey)
+  const { profile, isLoading } = useProfile(pubkey)
 
   return (
     <Link href={`/${nip19.npubEncode(pubkey)}`}>

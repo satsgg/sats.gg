@@ -27,19 +27,27 @@ interface Metadata {
 // website : "edwardsnowden.substack.com"
 
 export const useProfile = (pubkey: string | undefined) => {
-  const profile = useLiveQuery(async () => {
-    console.debug('useLiveQuery: ', pubkey)
-    if (pubkey) {
-      const ret = await db.users.get(pubkey)
-      // logging multiple times b/c each callback is updated the store?
-      // would need a quick returning relaypool sub (promise based, exit on first response)
-      if (ret) return ret
-      // negatives with this method is that querying is after first db check
-      // it will also query for pubkeys w/out nip05s forever
-      else nostrClient.addProfileToFetch(pubkey)
-      // would need to change this when we add cache refresh rate...
-    }
-  }, [pubkey])
+  const [profile, isLoading] = useLiveQuery(
+    async () => {
+      if (pubkey) {
+        const ret = await db.users.get(pubkey)
+        // logging multiple times b/c each callback is updated the store?
+        // would need a quick returning relaypool sub (promise based, exit on first response)
+        if (ret) {
+          return [ret, false]
+        }
+        // negatives with this method is that querying is after first db check
+        // it will also query for pubkeys w/out nip05s forever
+        nostrClient.addProfileToFetch(pubkey)
+        return [undefined, false]
+        // would need to change this when we add cache refresh rate...
+      }
+
+      return [undefined, false]
+    },
+    [pubkey],
+    [undefined, true],
+  )
 
   // useEffect(() => {
   //   if (pubkey) {
@@ -53,5 +61,5 @@ export const useProfile = (pubkey: string | undefined) => {
   //   }
   // }, [pubkey])
 
-  return profile
+  return { profile, isLoading }
 }

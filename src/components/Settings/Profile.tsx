@@ -12,7 +12,7 @@ import { nostrClient } from '~/nostr/NostrClient'
 
 const Profile = () => {
   const pubkey = useSettingsStore((state) => state.pubkey)
-  const profile = useProfile(pubkey)
+  const { profile, isLoading } = useProfile(pubkey)
   const canSign = useCanSign()
 
   const {

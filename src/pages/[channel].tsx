@@ -51,11 +51,9 @@ export default function Channel({ playbackId, sourceWidth, sourceHeight, blurHas
   //   )
   // }
   const { channel } = query
-  console.log('query', query)
   // if (!isReady) return
 
   // const channel = router.query.channel as string
-  console.debug('channel', channel)
   const channelPubkey = getChannelPubkey(channel, isReady)
 
   // loading -> found

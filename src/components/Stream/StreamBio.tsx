@@ -1,31 +1,26 @@
-import { useState } from 'react'
 import { useProfile } from '~/hooks/useProfile'
 import FollowButton from './FollowButton'
 import { nip19 } from 'nostr-tools'
-import NostrichImg from '~/assets/nostrich.jpeg'
+import ProfileImg from '../ProfileImg'
 
 export const StreamBio = ({ channelPubkey }: { channelPubkey: string }) => {
-  const profile = useProfile(channelPubkey)
+  const { profile, isLoading } = useProfile(channelPubkey)
 
-  // Figure out how to fix 'object is possibly null'. We know at this point channelUser exists
-  // or else we would have never loaded this component
-  // need to stop using infer, and make a fresh one or some
+  const getProfileName = () => {
+    if (isLoading) return ''
+    else if (profile?.name) {
+      return profile.name
+    } else {
+      return nip19.npubEncode(channelPubkey)
+    }
+  }
 
   return (
     <div className="flex grow flex-col gap-4 px-4 py-2 md:px-6 md:py-4">
       <div className="flex content-center justify-between">
         <div className="flex">
-          <img
-            className="mr-2 h-12 w-12 rounded-[50%] md:h-16 md:w-16"
-            src={profile?.picture || `https://robohash.org/${channelPubkey}.png`}
-            onError={(e) => {
-              e.target.onerror = null
-              e.target.src = NostrichImg.src
-            }}
-          />
-          <p className="font-semi text-lg text-white">
-            {profile?.name ? profile.name.slice(0, 12) : nip19.npubEncode(channelPubkey)}
-          </p>
+          <ProfileImg pubkey={channelPubkey} isLoading={isLoading} picture={profile?.picture} />
+          <p className="font-semi text-lg text-white">{getProfileName()}</p>
         </div>
 
         <FollowButton />
