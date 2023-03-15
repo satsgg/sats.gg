@@ -28,7 +28,7 @@ export class DexieDB extends Dexie {
     // lud16: lnaddr (might want to index)
     //  i.e. get all users where ln addr contains *@sats.gg? nip05 does same thing for verification
     this.version(1).stores({
-      users: '++pubkey, name, display_name, picture, nip05', // Primary key and indexed props
+      users: '++pubkey, name, npub', // Primary key and indexed props
     })
   }
 }

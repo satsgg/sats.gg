@@ -2,24 +2,19 @@ import Link from 'next/link'
 import { useProfile } from '~/hooks/useProfile'
 import LiveSVG from '~/svgs/live.svg'
 import { nip19 } from 'nostr-tools'
-import { useState } from 'react'
-import NostrichImg from '~/assets/nostrich.jpeg'
+import ProfileImg from './ProfileImg'
 
-export const FollowedChannelSingle = ({ pubkey, toggleCollapse }: { pubkey: string; toggleCollapse: boolean }) => {
+export const FollowedChannelSingle = ({ pubkey, userCollapse }: { pubkey: string; userCollapse: boolean }) => {
   const { profile, isLoading } = useProfile(pubkey)
+  console.debug('userCollapse', userCollapse)
 
   return (
     <Link href={`/${nip19.npubEncode(pubkey)}`}>
       <div className="flex grow justify-between py-2 px-2 hover:cursor-pointer hover:bg-stone-700/25">
         <div className="flex shrink-0">
-          <img
-            className={`${toggleCollapse ? '' : 'mr-2'} h-8 w-8 rounded-[50%]`}
-            src={profile?.picture || `https://robohash.org/${pubkey}.png`}
-            onError={(e) => {
-              e.target.onerror = null
-              e.target.src = NostrichImg.src
-            }}
-          />
+          <div className={`${userCollapse ? '' : 'mr-2'} h-8 w-8`}>
+            <ProfileImg pubkey={pubkey} isLoading={isLoading} picture={profile?.picture} />
+          </div>
           {/* next/Image won't work b/c each image src has to be configured in next.config.js 
               We could set it to **... 
           */}
@@ -29,7 +24,7 @@ export const FollowedChannelSingle = ({ pubkey, toggleCollapse }: { pubkey: stri
             src={profile?.picture || `https://robohash.org/${pubkey}`}
             fallbackSrc={NostrichImg} 
           /> */}
-          <div className={`${toggleCollapse ? 'hidden' : 'flex flex-col '}`}>
+          <div className={`${userCollapse ? 'hidden' : 'flex flex-col'}`}>
             <p className="text-sm font-semibold text-white">
               {profile?.name ? profile.name.slice(0, 12) : nip19.npubEncode(pubkey).slice(0, 12)}
             </p>
@@ -37,7 +32,7 @@ export const FollowedChannelSingle = ({ pubkey, toggleCollapse }: { pubkey: stri
           </div>
         </div>
         {/* TODO: live viewer count */}
-        <div className={`${toggleCollapse ? 'hidden' : 'align-right'}`}>
+        <div className={`${userCollapse ? 'hidden' : 'align-right'}`}>
           {false ? (
             <LiveSVG width={20} height={20} className="fill-red-600" />
           ) : (
