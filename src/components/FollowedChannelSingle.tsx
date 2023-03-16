@@ -7,6 +7,15 @@ import ProfileImg from './ProfileImg'
 export const FollowedChannelSingle = ({ pubkey, userCollapse }: { pubkey: string; userCollapse: boolean }) => {
   const { profile, isLoading } = useProfile(pubkey)
 
+  const getProfileName = () => {
+    if (isLoading) return ''
+    else if (profile?.name) {
+      return profile.name
+    } else {
+      return nip19.npubEncode(pubkey)
+    }
+  }
+
   return (
     <Link href={`/${nip19.npubEncode(pubkey)}`}>
       <div className="flex grow justify-between py-2 px-2 hover:cursor-pointer hover:bg-stone-700/25">
@@ -24,9 +33,7 @@ export const FollowedChannelSingle = ({ pubkey, userCollapse }: { pubkey: string
             fallbackSrc={NostrichImg} 
           /> */}
           <div className={`${userCollapse ? 'hidden' : 'flex flex-col'}`}>
-            <p className="text-sm font-semibold text-white">
-              {profile?.name ? profile.name.slice(0, 12) : nip19.npubEncode(pubkey).slice(0, 12)}
-            </p>
+            <p className="text-sm font-semibold text-white">{getProfileName()}</p>
             {/* TODO: Live stream category */}
           </div>
         </div>
