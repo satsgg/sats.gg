@@ -23,6 +23,7 @@ const Profile = () => {
     getValues,
     watch,
     reset,
+    // TODO: Display errors
     formState: { errors },
   } = useZodForm({
     mode: 'onSubmit',
@@ -31,6 +32,7 @@ const Profile = () => {
       display_name: z.string().optional(),
       picture: z.union([z.literal(''), z.string().trim().url()]),
       about: z.string().optional(),
+      // TODO: url parse requires https://... shouldn't require that?
       website: z.union([z.literal(''), z.string().trim().url()]),
       banner: z.union([z.literal(''), z.string().trim().url()]),
       lud06: z.string().optional(),

@@ -1,9 +1,8 @@
 import create from 'zustand/vanilla'
 import { nostrClient } from '~/nostr/NostrClient'
-import { nip19 } from 'nostr-tools'
+import { nip19, Event } from 'nostr-tools'
 
 type State = {
-  // TODO: store connection status
   pubkey: string | undefined
   npub: string | undefined
   relays: string[]
@@ -16,7 +15,7 @@ type Actions = {
   logout: () => void
   addRelay: (url: string) => void
   removeRelay: (url: string) => void
-  setFollows: (follows: string[]) => void
+  setFollows: (event: Event) => void
 }
 
 const DEFAULT_RELAYS = [
@@ -69,8 +68,6 @@ const SettingsStore = create<State & Actions>((set, get) => ({
     })
 
     const follows = window.localStorage.getItem('follows')
-    // what if logging in with diff pubkey?
-    // will be different follows list... diff relays list...
     if (follows) {
       set({ follows: JSON.parse(follows) })
     }
@@ -126,11 +123,11 @@ const SettingsStore = create<State & Actions>((set, get) => ({
     nostrClient.removeRelay(url)
   },
 
-  setFollows: (follows: string[]) => {
-    const f = [...get().follows, ...follows]
-    const newF = [...new Set(f)]
-    set({ follows: newF })
-    window.localStorage.setItem('follows', JSON.stringify(newF))
+  setFollows: (event: Event) => {
+    if (!event.tags) return
+    const follows = event.tags.map((t) => t[1])
+    set({ follows: follows })
+    window.localStorage.setItem('follows', JSON.stringify(follows))
   },
 }))
 

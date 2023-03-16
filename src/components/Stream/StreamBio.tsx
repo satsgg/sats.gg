@@ -24,7 +24,7 @@ export const StreamBio = ({ channelPubkey }: { channelPubkey: string }) => {
 
         <div className="flex w-full min-w-0 justify-between">
           <span className=" font-semi min-h-0 truncate text-lg text-white">{getProfileName()}</span>
-          <FollowButton />
+          <FollowButton pubkey={channelPubkey} />
         </div>
       </div>
 

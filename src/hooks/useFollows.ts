@@ -1,25 +1,28 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Filter, Event } from 'nostr-tools'
 import { nostrClient } from '~/nostr/NostrClient'
 import useSettingsStore from './useSettingsStore'
 
+// caching?
+// shallow? see zustand docs
 const useFollows = (pubkey: string | undefined) => {
-  // caching?
-  // shallow? see zustand docs
-  // pubkey undefined ts?
   const [follows, setFollows] = useSettingsStore((state) => [state.follows, state.setFollows])
+  const [currentNote, setCurrentNote] = useState<Event | undefined>(undefined)
 
   const filters: Filter[] = [
     {
       kinds: [3],
-      // TODO: use chat channel ID corresponding to channelPubkey
-      authors: [pubkey],
+      authors: [pubkey || ''],
     },
   ]
 
   const onEventCallback = (event: Event) => {
-    const newnew = event.tags.map((t) => t[1])
-    setFollows(newnew)
+    setCurrentNote((cn) => {
+      if (!cn) return event
+      if (event.created_at <= cn.created_at) return cn
+      setFollows(event)
+      return event
+    })
   }
 
   useEffect(() => {
