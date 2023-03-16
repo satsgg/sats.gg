@@ -20,11 +20,16 @@ export const FollowedChannelList = ({
   return (
     <div className="no-scrollbar grow overflow-y-auto bg-stone-800">
       <div
-        className={`${autoCollapse && 'hidden'} ${
-          userCollapse ? 'justify-center' : 'justify-between'
-        } flex shrink-0 p-2`}
+        className={`
+          ${autoCollapse ? 'hidden' : ''} 
+          ${userCollapse ? 'justify-center' : 'justify-between'} 
+          flex shrink-0 p-2`}
       >
-        <p className={`${userCollapse ? 'hidden' : 'text-sm uppercase text-white'}`}>followed channels</p>
+        <div className="flex flex-col justify-center">
+          <p className={`${userCollapse ? 'hidden' : ''} align-middle text-sm uppercase text-white`}>
+            followed channels
+          </p>
+        </div>
         <button onClick={() => setUserCollapse(!userCollapse)}>
           {userCollapse ? (
             <OpenRightSVG width={24} height={24} strokeWidth={2} className="stroke-white" />
