@@ -26,14 +26,12 @@ export const Navbar = ({ openAuthenticate }: HeaderProps) => {
   }
 
   return (
-    <nav className="flex w-full flex-wrap items-center justify-between bg-stone-900 py-2 text-gray-200 shadow-lg">
-      <div className="container-fluid flex w-full flex-wrap items-center justify-between px-6">
-        <div className="container-fluid">
-          <Link href="/">
-            <span className="text-2xl font-bold text-white hover:cursor-pointer">SATS.GG</span>
-          </Link>
-        </div>
-        <div className="relative flex items-center gap-4">
+    <nav className="flex w-full items-center justify-between bg-stone-900 py-2 text-gray-200 shadow-lg">
+      <div className="flex w-full items-center justify-between px-6">
+        <Link href="/">
+          <h1 className="text-2xl font-bold text-white hover:cursor-pointer">SATS.GG</h1>
+        </Link>
+        <div className="flex items-center gap-4">
           <Link href={'/settings/relays'} legacyBehavior={false}>
             {connectedRelays.size}/{relays.length}
           </Link>
