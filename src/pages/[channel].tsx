@@ -83,7 +83,7 @@ export default function Channel({ playbackId, sourceWidth, sourceHeight, blurHas
       >
         <div
           id="streamWrapper"
-          className="no-scrollbar flex aspect-video max-h-[calc(100vh-9rem)] flex-col sm:border-b sm:border-solid sm:border-gray-500"
+          className="flex aspect-video max-h-[calc(100vh-9rem)] flex-col sm:border-b sm:border-solid sm:border-gray-500"
         >
           <Stream channelPubkey={channelPubkey} />
         </div>
