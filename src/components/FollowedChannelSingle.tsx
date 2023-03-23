@@ -4,7 +4,15 @@ import LiveSVG from '~/svgs/live.svg'
 import { nip19 } from 'nostr-tools'
 import ProfileImg from './ProfileImg'
 
-export const FollowedChannelSingle = ({ pubkey, userCollapse }: { pubkey: string; userCollapse: boolean }) => {
+export const FollowedChannelSingle = ({
+  pubkey,
+  userCollapse,
+  autoCollapse,
+}: {
+  pubkey: string
+  userCollapse: boolean
+  autoCollapse: boolean
+}) => {
   const { profile, isLoading } = useProfile(pubkey)
 
   const getProfileName = () => {
@@ -32,13 +40,14 @@ export const FollowedChannelSingle = ({ pubkey, userCollapse }: { pubkey: string
             src={profile?.picture || `https://robohash.org/${pubkey}`}
             fallbackSrc={NostrichImg} 
           /> */}
-          <div className={`${userCollapse ? 'hidden' : 'flex flex-col'}`}>
+          <div className={`${userCollapse || autoCollapse ? 'hidden' : 'flex flex-col'}`}>
             <p className="text-sm font-semibold text-white">{getProfileName()}</p>
             {/* TODO: Live stream category */}
           </div>
         </div>
+
         {/* TODO: live viewer count */}
-        <div className={`${userCollapse ? 'hidden' : 'align-right'}`}>
+        <div className={`${userCollapse || autoCollapse ? 'hidden' : 'align-right'}`}>
           {false ? (
             <LiveSVG width={20} height={20} className="fill-red-600" />
           ) : (

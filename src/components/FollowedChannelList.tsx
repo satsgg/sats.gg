@@ -42,7 +42,9 @@ export const FollowedChannelList = ({
         data={follows}
         className="no-scrollbar"
         itemContent={(index, user) => {
-          return <FollowedChannelSingle key={index} pubkey={user} userCollapse={userCollapse} />
+          return (
+            <FollowedChannelSingle key={index} pubkey={user} userCollapse={userCollapse} autoCollapse={autoCollapse} />
+          )
         }}
       />
     </>
