@@ -79,11 +79,11 @@ export default function Channel({ playbackId, sourceWidth, sourceHeight, blurHas
     <>
       <div
         id="centerColumnWrapper"
-        className="no-scrollbar flex w-full shrink-0 flex-col overflow-y-auto sm:h-screen sm:shrink"
+        className="no-scrollbar flex w-full shrink-0 flex-col overflow-y-auto sm:h-full sm:shrink"
       >
         <div
           id="streamWrapper"
-          className="flex aspect-video max-h-[calc(100vh-9rem)] flex-col sm:border-b sm:border-solid sm:border-gray-500"
+          className="aspect-video max-h-[calc(100vh-9rem)] sm:border-b sm:border-solid sm:border-gray-500"
         >
           <Stream channelPubkey={channelPubkey} />
         </div>

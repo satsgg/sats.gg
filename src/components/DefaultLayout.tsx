@@ -41,10 +41,12 @@ export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
     }
 
     return (
-      <div id="contentContainer" className="relative flex grow">
+      <div id="contentContainer" className="flex h-full overflow-hidden">
         <div
           id="followContainer"
-          className={`${autoCollapseLeftBar || leftBarUserClosed ? 'w-12' : 'w-60'} hidden h-full shrink-0 sm:flex`}
+          className={`${
+            autoCollapseLeftBar || leftBarUserClosed ? 'w-12' : 'w-60'
+          } hidden h-full shrink-0 flex-col bg-stone-800 sm:flex`}
         >
           <FollowedChannelList
             autoCollapse={autoCollapseLeftBar}
@@ -64,23 +66,22 @@ export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
         <title>SATS.GG</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div id="appContainer" className="flex h-screen w-screen flex-col bg-stone-900">
-        <Navbar openAuthenticate={() => setModal('login')} />
-        <div>
-          {
-            {
-              login: (
-                <InteractionModal title={'Log In'} close={() => setModal('none')}>
-                  <Authenticate close={() => setModal('none')} />
-                </InteractionModal>
-              ),
-              none: null,
-            }[modal]
-          }
-        </div>
+      <Navbar openAuthenticate={() => setModal('login')} />
 
-        {content()}
+      <div>
+        {
+          {
+            login: (
+              <InteractionModal title={'Log In'} close={() => setModal('none')}>
+                <Authenticate close={() => setModal('none')} />
+              </InteractionModal>
+            ),
+            none: null,
+          }[modal]
+        }
       </div>
+
+      {content()}
 
       <ToastContainer />
     </>

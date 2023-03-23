@@ -16,8 +16,8 @@ export const StreamBio = ({ channelPubkey }: { channelPubkey: string }) => {
   }
 
   return (
-    <div className="flex grow flex-col gap-4 px-4 py-2 md:px-6 md:py-4">
-      <div className="flex gap-2">
+    <div id="streamBioWrapper" className="flex grow flex-col gap-4 px-4 py-2 md:px-6 md:py-4">
+      <div id="profile" className="flex gap-2">
         <div className="h-12 w-12 shrink-0 md:h-16 md:w-16">
           <ProfileImg pubkey={channelPubkey} isLoading={isLoading} picture={profile?.picture} />
         </div>
@@ -28,12 +28,12 @@ export const StreamBio = ({ channelPubkey }: { channelPubkey: string }) => {
         </div>
       </div>
 
-      <div className="hidden rounded bg-stone-800 p-12 sm:block">
+      <div id="about" className="hidden rounded bg-stone-800 p-12 sm:block">
         <p className="font-semi text-xl text-white">About {profile?.name}</p>
         <p className="font-semi text-lg text-white">{profile?.about}</p>
       </div>
 
-      <div className="hidden h-screen w-full border-4 border-cyan-500 bg-slate-500 sm:block" />
+      <div className="hidden h-screen w-full border-4 border-cyan-500 sm:block" />
     </div>
   )
 }

@@ -18,7 +18,7 @@ export const FollowedChannelList = ({
   const follows = useFollows(pubkey)
 
   return (
-    <div className="no-scrollbar grow overflow-y-auto bg-stone-800">
+    <>
       <div
         className={`
           ${autoCollapse ? 'hidden' : ''} 
@@ -45,6 +45,6 @@ export const FollowedChannelList = ({
           return <FollowedChannelSingle key={index} pubkey={user} userCollapse={userCollapse} />
         }}
       />
-    </div>
+    </>
   )
 }

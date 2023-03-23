@@ -30,13 +30,12 @@ export default function IndexPage() {
   }
 
   return (
-    <div className="flex h-full w-full flex-col overflow-y-auto px-8 py-6">
+    <div className="flex w-full flex-col overflow-y-auto px-8 py-6">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-        {[...Array(21)].map((e, i) => (
+        {[...Array(32)].map((e, i) => (
           <DummyStreamCard key={i} />
         ))}
       </div>
-      <div className="h-screen w-full border-4 border-cyan-500 bg-slate-500" />
     </div>
   )
 }

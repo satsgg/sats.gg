@@ -10,9 +10,9 @@ export const FollowedChannelSingle = ({ pubkey, userCollapse }: { pubkey: string
   const getProfileName = () => {
     if (isLoading) return ''
     else if (profile?.name) {
-      return profile.name
+      return profile.name.slice(0, 12)
     } else {
-      return nip19.npubEncode(pubkey)
+      return nip19.npubEncode(pubkey).slice(0, 12)
     }
   }
 
