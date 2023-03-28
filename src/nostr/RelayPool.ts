@@ -62,7 +62,6 @@ export default class RelayPool {
       this.listeners.forEach((listener) => listener(this.connectedRelays))
 
       for (const si of this.subscriptions.values()) {
-        console.debug('on connect adding sub: ', si.id)
         const sub = relay.sub(si.filters)
         sub.on('event', si.callback)
         relay.subs.set(si.id, sub)
@@ -88,14 +87,13 @@ export default class RelayPool {
   addSubscription(id: string, filters: Filter[], eventCb: (event: Event) => void) {
     for (const cr of this.connectedRelays) {
       const r = this.relays.get(cr)
-      const sub = r.sub(filters)
+      const sub = r!.sub(filters)
       sub.on('event', eventCb)
-      sub.on('eose', () => console.log('SUB EOSE: ', r.url, ' ', id))
+      sub.on('eose', () => console.log('SUB EOSE: ', r!.url, ' ', id))
 
-      r.subs.set(id, sub)
+      r!.subs.set(id, sub)
     }
 
-    console.debug('setting subscription: ', id)
     this.subscriptions.set(id, {
       id: id,
       filters: filters,
@@ -104,7 +102,6 @@ export default class RelayPool {
   }
 
   removeSubscription(id: string) {
-    console.debug('removing sub: ', id)
     if (!this.subscriptions.has(id)) {
       console.warn(id, 'not found in subscriptions')
       return

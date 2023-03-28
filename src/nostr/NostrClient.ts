@@ -7,8 +7,6 @@ import { Event as NostrEvent } from 'nostr-tools'
 // TODO: Move interfaces to nostr/index.ts
 export interface UserMetadata {
   name?: string
-  // pubkey?: string
-  // npub?: string
   display_name?: string
   picture?: string
   about?: string
@@ -20,8 +18,10 @@ export interface UserMetadata {
 }
 
 export type UserMetadataStore = UserMetadata & {
-  pubkey?: string
-  npub?: string
+  pubkey: string
+  npub: string
+  created_at: number
+  updated_at: number
 }
 
 class NostrClient {
@@ -70,7 +70,6 @@ class NostrClient {
   }
 
   unsubscribe(id: string) {
-    console.log('unsubscribing')
     this.relayPool.removeSubscription(id)
   }
 
@@ -83,12 +82,6 @@ class NostrClient {
     this.profileQueue.delete(pubkey)
   }
 
-  // issue would be if paused was false and multiple messages arrived within pause window
-  // first pubkey would be fetched and would pause the function.
-  // remaining pubkeys wouldn't be fetched until another message comes in, which could be
-  // any time later.
-  // if (paused) setTimeout(fetchPubkeys, 500) // would cause infinite loop?
-  // https://underscorejs.org/docs/modules/throttle.html
   _fetchPubkeys() {
     if (this.paused || this.profileQueue.size === 0) return
 
@@ -101,13 +94,20 @@ class NostrClient {
     console.log('subscribing for pubkeys: ', Array.from(this.profileQueue))
 
     const callback = async (event: Event) => {
-      const metadataContent: UserMetadata = JSON.parse(event.content)
-      const metadataStore: UserMetadataStore = {
-        ...metadataContent,
+      const profile: UserMetadata = JSON.parse(event.content)
+      const profileToStore: UserMetadataStore = {
+        ...profile,
         pubkey: event.pubkey,
         npub: nip19.npubEncode(event.pubkey),
+        created_at: event.created_at,
+        updated_at: Math.floor(Date.now() / 1000),
       }
-      await db.users.put(metadataStore)
+
+      // only keep the newest profile event stored
+      const existingProfile = await db.users.get(profileToStore.pubkey)
+      if (!existingProfile || profileToStore.created_at > existingProfile.created_at) {
+        await db.users.put(profileToStore)
+      }
     }
 
     // fetch with promises? want to close this.unsubscribe() when one relay returns info...

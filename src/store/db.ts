@@ -12,6 +12,8 @@ export interface UserMetadataStore {
   lud06?: string
   lud16?: string
   nip05?: string
+  created_at: number
+  updated_at: number
 }
 
 export class DexieDB extends Dexie {
