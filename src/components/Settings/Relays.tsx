@@ -99,7 +99,7 @@ const Relays = () => {
   const connectedRelays = useConnectedRelays()
 
   return (
-    <div className="flex w-3/5 flex-col gap-4">
+    <div className="flex w-11/12 flex-col gap-4 sm:w-3/5">
       <h2 className="font-md mb-2 text-2xl">Relays</h2>
 
       {Array.from(relays).map((relay) => {

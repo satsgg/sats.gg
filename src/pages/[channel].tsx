@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router'
 import { ParsedUrlQuery } from 'querystring'
-import { Chat } from '~/components/NostrChat/Chat'
+import { Chat } from '~/components/Chat/Chat'
 import { nip19 } from 'nostr-tools'
 import { Stream } from '~/components/Stream/Stream'
 import { StreamBio } from '~/components/Stream/StreamBio'
