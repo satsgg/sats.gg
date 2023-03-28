@@ -119,6 +119,7 @@ class NostrClient {
     this.paused = true
     setTimeout(() => {
       this.paused = false
+      this._fetchPubkeys()
     }, 500)
   }
 
