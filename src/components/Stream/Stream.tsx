@@ -1,40 +1,43 @@
-import MuxPlayer from '@mux/mux-player-react'
-import { inferProcedureOutput } from '@trpc/server'
 import { useEffect, useRef } from 'react'
-import { AppRouter } from '~/server/routers/_app'
+// import MuxPlayer from '@mux/mux-player-react/lazy'
+import MuxPlayer from '@mux/mux-player-react'
+import Nostrich from '~/assets/nostrich.jpeg'
 
-type UserSingleOutput = inferProcedureOutput<AppRouter['user']['getUser']>
-interface UserSingleProps {
-  user: UserSingleOutput
-}
+// NOTE: Bug or something with lazy mux loader
+// placeholder (btwn DOM/placeholder and actual video loading) doesn't respect
+// h-full. It only does the aspect ratio. So when the dev console is open
+// and max v height is the used, the palceholder doesn't respect the max v height
 
-export const Stream = ({ channelUser }: UserSingleProps) => {
+// want lazy loader because it makes the DOM content load wayyy faster...
+// just have the issue with the placeholder
+
+export const Stream = ({ channelPubkey }: { channelPubkey: string }) => {
   const videoEl = useRef(null)
 
-  console.log('playbackid', channelUser.playbackId)
-  console.log('channelUser', channelUser)
+  // console.log('playbackid', channelUser?.playbackId)
+  // console.log('channelUser', channelUser)
   const attemptPlay = () => {
     // videoEl &&
     //   videoEl.current &&
     //   videoEl.current.play().catch(error => {
     //     console.error("Error attempting to play", error);
     //   });
-    console.log('attempting play')
+    // console.log('attempting play')
     videoEl.current
       ?.play()
       .then(function () {
         // autoplay was successful!
-        console.log('AUTOPLAY')
+        // console.log('AUTOPLAY')
       })
       .catch(function (error) {
         // do something if you want to handle or track this error
-        console.log('no autoplay', error)
+        // console.log('no autoplay', error)
       })
   }
 
   useEffect(() => {
     attemptPlay()
-  }, [videoEl, channelUser.streamStatus])
+  }, [videoEl])
 
   // Banner offline display
   // if (channelUser?.streamStatus === 'IDLE') {
@@ -45,21 +48,26 @@ export const Stream = ({ channelUser }: UserSingleProps) => {
   //   )
   // }
 
+  // return (
+  // <div className="min-h-full border-2 border-red-600 2xl:border-white"></div>
+  // <div className="max-h-[calc(100vh-32rem)] aspect-video border-2 border-red-600 2xl:border-white"></div>
+  // )
+
   // Player skeleton offline display
-  if (channelUser?.streamStatus === 'IDLE') {
-    return (
-      <div className="flex h-full w-full items-center justify-center bg-black">
-        {/* TODO: Better channel offline display */}
-        <p className="text-3xl text-white">Offline</p>
-      </div>
-    )
-  }
+  // if (channelUser?.streamStatus === 'IDLE') {
+  //   return (
+  //     <div className="flex h-full w-full items-center justify-center bg-black">
+  //       {/* TODO: Better channel offline display */}
+  //       <p className="text-3xl text-white">Offline</p>
+  //     </div>
+  //   )
+  // }
 
   return (
     <MuxPlayer
       streamType="ll-live"
-      playbackId={channelUser?.playbackId}
-      // playbackId="v69RSHhFelSm4701snP22dYz2jICy4E4FUyk02rW4gxRM"
+      // playbackId={channelUser?.playbackId}
+      playbackId="v69RSHhFelSm4701snP22dYz2jICy4E4FUyk02rW4gxRM"
       // title="hi"
       // debug
       envKey="06ap5jkfhpso2kfdumgvn5ml9"
@@ -72,10 +80,12 @@ export const Stream = ({ channelUser }: UserSingleProps) => {
       //   playback: "zkma4FkEBYfNGXf6dcu9t3qcFpeLRpGT0001R5xDOVGkI",
       //   thumbnail: "zkma4FkEBYfNGXf6dcu9t3qcFpeLRpGT0001R5xDOVGkI"
       // }}
+      // loading="viewport"
+      // placeholder={Nostrich.src}
+      className={'aspect-video h-full'}
       metadata={{
         video_id: 'video-id-54321',
         video_title: 'Test video title',
-        status: channelUser?.streamStatus,
         // viewer_user_id: "chad1",
       }}
     />

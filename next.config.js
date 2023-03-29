@@ -1,6 +1,6 @@
 // @ts-check
 /* eslint-disable @typescript-eslint/no-var-requires */
-const { env } = require('./src/server/env');
+const { env } = require('./src/server/env')
 
 /**
  * Don't be scared of the generics here.
@@ -11,7 +11,7 @@ const { env } = require('./src/server/env');
  * @constraint {{import('next').NextConfig}}
  */
 function getConfig(config) {
-  return config;
+  return config
 }
 
 /**
@@ -38,8 +38,45 @@ module.exports = getConfig({
     // !! WARN !!
     ignoreBuildErrors: true,
   },
-  // not working (default true)
+
+  reactStrictMode: true,
   // reactStrictMode: false,
+
+  // images: {
+  //   remotePatterns: [
+  //     {
+  //       protocol: 'https',
+  //       hostname: 'robohash.org',
+  //       port: '',
+  //       pathname: '/**',
+  //     },
+  //   ],
+  // },
+
+  async redirects() {
+    return [
+      {
+        source: '/settings',
+        destination: '/settings/profile',
+        permanent: true,
+      },
+    ]
+  },
+
+  async headers() {
+    return [
+      {
+        source: '/.well-known/nostr.json',
+        headers: [
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*',
+          },
+        ],
+      },
+    ]
+  },
+
   webpack(config) {
     config.module.rules.push({
       test: /\.svg$/i,
@@ -48,5 +85,5 @@ module.exports = getConfig({
     })
 
     return config
-  }
-});
+  },
+})

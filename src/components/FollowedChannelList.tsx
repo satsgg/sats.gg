@@ -1,50 +1,52 @@
-import { trpc } from '~/utils/trpc'
-import useAuthStore from '~/store/useAuthStore'
+import { Virtuoso } from 'react-virtuoso'
+import useFollows from '~/hooks/useFollows'
+import useSettingsStore from '~/hooks/useSettingsStore'
 import { FollowedChannelSingle } from './FollowedChannelSingle'
-// TODO: Just pass array of followed channels?
-// Separate query for
-// type UserFollowsOutput = inferProcedureOutput<AppRouter['auth']['getMeFollows']>
+import OpenRightSVG from '~/svgs/open-right.svg'
+import OpenLeftSVG from '~/svgs/open-left.svg'
 
-export const useFollowedChannels = () => {
-  const { user } = useAuthStore()
-
-  return trpc.follow.getMyFollowedChannels.useQuery(undefined, {
-    enabled: !!user?.id,
-    refetchInterval: 30000,
-  })
-}
-
-export const FollowedChannelList = ({}) => {
-  const { user, status: authStatus } = useAuthStore()
-  const { data: followedChannels, isLoading } = useFollowedChannels()
-
-  // TODO: SSR this? Would probably require SSR for auth first
-  // const { data: followedChannels, isLoading: followedChannelsIsLoading } = trpc.auth.getMeFollows.useQuery(undefined, {
-  // WANT: https://reactjs.org/docs/reconciliation.html
-  // It's fine to not exist on first load... but should be there when clicking around
-  // shouldn't reload every page (same with auth)
+export const FollowedChannelList = ({
+  autoCollapse,
+  userCollapse,
+  setUserCollapse,
+}: {
+  autoCollapse: boolean
+  userCollapse: boolean
+  setUserCollapse: Function
+}) => {
+  const pubkey = useSettingsStore((state) => state.pubkey)
+  const follows = useFollows(pubkey)
 
   return (
-    <div className="grow bg-stone-800">
-      <div className="flex flex-col justify-center">
-        {authStatus == 'authenticated' && Array.isArray(followedChannels) && followedChannels.length ? (
-          <>
-            <p className="py-2 px-4 text-center text-sm font-normal text-white">FOLLOWED CHANNELS</p>
-            {followedChannels.map((followedChannel) => {
-              return <FollowedChannelSingle key={followedChannel.followingId} channel={followedChannel.following} />
-            })}
-          </>
-        ) : (
-          <>
-            {user && !isLoading ? (
-              // TODO: Fancier follow some channels (Maybe link to browse)
-              <p className="py-2 px-4 text-center text-sm font-normal text-white">Follow some channels</p>
-            ) : (
-              <></>
-            )}
-          </>
-        )}
+    <>
+      <div
+        className={`
+          ${autoCollapse ? 'hidden' : ''} 
+          ${userCollapse ? 'justify-center' : 'justify-between'} 
+          flex shrink-0 p-2`}
+      >
+        <div className="flex flex-col justify-center">
+          <p className={`${userCollapse ? 'hidden' : ''} align-middle text-sm uppercase text-white`}>
+            followed channels
+          </p>
+        </div>
+        <button onClick={() => setUserCollapse(!userCollapse)}>
+          {userCollapse ? (
+            <OpenRightSVG width={24} height={24} strokeWidth={2} className="stroke-white" />
+          ) : (
+            <OpenLeftSVG width={24} height={24} strokeWidth={2} className="stroke-white" />
+          )}
+        </button>
       </div>
-    </div>
+      <Virtuoso
+        data={follows}
+        className="no-scrollbar"
+        itemContent={(index, user) => {
+          return (
+            <FollowedChannelSingle key={index} pubkey={user} userCollapse={userCollapse} autoCollapse={autoCollapse} />
+          )
+        }}
+      />
+    </>
   )
 }

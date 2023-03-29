@@ -1,52 +1,64 @@
 import Head from 'next/head'
 import { ReactNode } from 'react'
-import { trpc } from '../utils/trpc'
-import useAuthStore from '~/store/useAuthStore'
 import { useEffect, useState } from 'react'
+import { Authenticate } from '~/components/Authenticate'
 import { Navbar } from '~/components/Navbar'
 import { FollowedChannelList } from '~/components/FollowedChannelList'
 import { InteractionModal } from '~/components/InteractionModal'
-import { Authenticate } from '~/components/Authenticate'
-import { Transact } from '~/components/Transact'
+import { nostrClient } from '~/nostr/NostrClient'
+import useSettingsStore from '~/hooks/useSettingsStore'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
+import useMediaQuery from '~/hooks/useMediaQuery'
+import { Spinner } from './Spinner'
+import useLayoutStore from '~/store/layoutStore'
+import useHasMounted from '~/hooks/useHasMounted'
 
 type DefaultLayoutProps = { children: ReactNode }
 
 export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
-  const { user, setUser, setStatus, storeToken, storeLogin, setNym, unsetNym, setShowBalance } = useAuthStore()
-  const [modal, setModal] = useState<'none' | 'login' | 'wallet'>('none')
-  const utils = trpc.useContext()
+  const { init: initSettingsStore } = useSettingsStore()
+  const { leftBarUserClosed, userCloseLeftBar, rightBarUserClosed } = useLayoutStore()
+  const isMounted = useHasMounted()
+
+  const [modal, setModal] = useState<'none' | 'login'>('none')
+  // False when < 1024 px (< tailwind lg)
+  const autoCollapseLeftBar = !useMediaQuery('(min-width: 1024px)')
 
   useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (token) {
-      storeLogin(token)
-    } else {
-      setNym()
-      setStatus('unauthenticated')
-    }
-    if (storeToken) {
-      utils.auth.getMe
-        .fetch()
-        .then((data) => {
-          setUser(data)
-          setModal('none')
-          unsetNym()
-        })
-        .catch((error) => {
-          console.log('errorrrrr', error)
-          setStatus('unauthenticated')
-        })
-    }
-  }, [storeToken])
-
-  useEffect(() => {
-    const showBalance = localStorage.getItem('showBalance')
-    if (showBalance !== null) {
-      setShowBalance(JSON.parse(showBalance))
-    } else {
-      setShowBalance(false)
-    }
+    initSettingsStore()
+    nostrClient.connect()
   }, [])
+
+  const content = () => {
+    // Make sure we get layout from localstorage before
+    // displaying the content container to avoid shitfting
+    if (!isMounted) {
+      return null
+      // <div className="flex h-full w-full content-center justify-center">
+      //   <Spinner height={6} width={6} />
+      // </div>
+    }
+
+    return (
+      <div id="contentContainer" className="flex h-full overflow-hidden">
+        <div
+          id="followContainer"
+          className={`${
+            autoCollapseLeftBar || leftBarUserClosed ? 'w-12' : 'w-60'
+          } hidden h-full shrink-0 flex-col bg-stone-800 sm:flex`}
+        >
+          <FollowedChannelList
+            autoCollapse={autoCollapseLeftBar}
+            userCollapse={leftBarUserClosed}
+            setUserCollapse={userCloseLeftBar}
+          />
+        </div>
+
+        <main className="flex h-full w-full flex-col text-white sm:flex-row">{children}</main>
+      </div>
+    )
+  }
 
   return (
     <>
@@ -54,35 +66,24 @@ export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
         <title>SATS.GG</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className="flex h-screen w-screen flex-col overflow-hidden px-8 lg:px-0">
-        <Navbar openAuthenticate={() => setModal('login')} openTransact={() => setModal('wallet')} />
-        <div>
+      <Navbar openAuthenticate={() => setModal('login')} />
+
+      <div>
+        {
           {
-            {
-              login: (
-                <InteractionModal title={'Log In'} close={() => setModal('none')}>
-                  <Authenticate />
-                </InteractionModal>
-              ),
-              wallet: (
-                <InteractionModal title={'Wallet'} close={() => setModal('none')}>
-                  <Transact />
-                </InteractionModal>
-              ),
-              none: null,
-            }[modal]
-          }
-        </div>
-        <div className="flex grow">
-          <div className="flex w-60 flex-none">
-            {/* <FollowedChannelList userId={user?.id} /> */}
-            <FollowedChannelList />
-          </div>
-          <div className="flex w-full grow bg-stone-900 text-white">
-            <main className="flex w-full grow bg-stone-900">{children}</main>
-          </div>
-        </div>
+            login: (
+              <InteractionModal title={'Log In'} close={() => setModal('none')}>
+                <Authenticate close={() => setModal('none')} />
+              </InteractionModal>
+            ),
+            none: null,
+          }[modal]
+        }
       </div>
+
+      {content()}
+
+      <ToastContainer />
     </>
   )
 }
