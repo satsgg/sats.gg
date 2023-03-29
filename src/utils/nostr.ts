@@ -1,4 +1,4 @@
-import { getEventHash, signEvent, Event as NostrEvent } from 'nostr-tools'
+import { getEventHash, signEvent, verifySignature, Event as NostrEvent } from 'nostr-tools'
 
 // export const unique = <T extends { [key: string]: unknown }>(arr: T[], key: string): T[] => [   ...new Map(arr.map((item: T) => [item[key], item])).values() ];
 export const uniqBy = <T>(arr: T[], key: keyof T): T[] => {
@@ -52,4 +52,16 @@ export const createChannelEvent = (pubkey: string, name: string, picture: string
 
   console.debug('createChannelEvent', event)
   return event
+}
+
+export const signAuth = async (pubkey: string) => {
+  const event: NostrEvent = {
+    kind: 1,
+    pubkey: pubkey,
+    created_at: Math.floor(Date.now() / 1000),
+    tags: [[]],
+    content: 'Sign this event to authenticate with sats.gg. This event will not be published.',
+  }
+
+  return await window.nostr.signEvent(event)
 }

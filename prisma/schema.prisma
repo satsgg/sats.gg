@@ -19,85 +19,14 @@ model User {
   lastLogin    DateTime?
   publicKey    String    @unique
   userName     String    @unique
-  profileImage String?
-  bio          String?
-
-  // TODO: Add user global role
-  // Role         RoleType
-
-  // transaction Transaction[]
-  transactionToUser   Transaction[] @relation("transactionToUser")
-  transactionFromUser Transaction[] @relation("transactionFromUser")
 
   streamKey    String       @unique
   playbackId   String       @unique
   streamId     String       @unique
   streamStatus StreamStatus @default(IDLE)
-
-  following  Follows[] @relation("follower")
-  followedBy Follows[] @relation("following")
-
-  // TODO: Add subscriptions
-  // subscribedTo Subscriptions @relation("subscriber")
-  // subscriber Subscriptions @relation("subscriber")
-}
-
-model UserAuth {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  k1Hash    String   @unique
-  publicKey String?
-}
-
-model Transaction {
-  id                String            @id @default(uuid())
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
-  confirmedAt       DateTime?
-  maxAgeSeconds     Int
-  description       String
-  transactionKind   TransactionKind
-  transactionStatus TransactionStatus
-  hash              String            @unique
-  bolt11            String
-  lndId             String            @unique
-  k1Hash            String?           @unique
-  mSatsTarget       Int
-  mSatsSettled      Int?
-  // user              User?             @relation(fields: [userId], references: [id])
-  // userId            String?
-  toUser            User?             @relation("transactionToUser", fields: [toUserId], references: [id])
-  toUserId          String?
-  fromUser          User?             @relation("transactionFromUser", fields: [fromUserId], references: [id])
-  fromUserId        String?
-}
-
-enum TransactionKind {
-  INVOICE
-  WITHDRAWAL
-  TRANSFER
-}
-
-enum TransactionStatus {
-  SETTLED
-  PENDING
-  FAILED
-  CANCELED
-  EXPIRED
 }
 
 enum StreamStatus {
   IDLE
   ACTIVE
-}
-
-model Follows {
-  follower    User     @relation("follower", fields: [followerId], references: [id])
-  followerId  String
-  following   User     @relation("following", fields: [followingId], references: [id])
-  followingId String
-  createdAt   DateTime @default(now())
-
-  @@id([followerId, followingId])
 }

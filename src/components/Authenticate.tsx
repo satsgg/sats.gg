@@ -3,6 +3,9 @@ import { useZodForm } from '~/utils/useZodForm'
 import { z } from 'zod'
 import useSettingsStore from '~/hooks/useSettingsStore'
 import { nip19 } from 'nostr-tools'
+import { signAuth } from '~/utils/nostr'
+import { verifySignature } from 'nostr-tools'
+import { toast } from 'react-toastify'
 
 declare global {
   interface Window {
@@ -110,11 +113,31 @@ const Nip07Login = ({ close }: { close: () => void }) => {
   const onClick = async () => {
     try {
       setWaiting(true)
+
       const pubkey = await window.nostr.getPublicKey()
+      const signedEvent = await signAuth(pubkey)
+      console.debug('signedEvent', signedEvent)
+
+      let veryOk = verifySignature(signedEvent)
+      if (!veryOk) throw new Error('Invalid signature')
+
+      // TODO: log in with backend
+
       setPubkey(pubkey)
       close()
-    } catch (error) {
+    } catch (error: any) {
       console.error(error)
+      // TODO: display errors in auth module
+      toast.error(error.message, {
+        position: 'bottom-center',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'light',
+      })
     }
 
     setWaiting(false)
