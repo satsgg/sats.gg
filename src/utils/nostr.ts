@@ -54,13 +54,17 @@ export const createChannelEvent = (pubkey: string, name: string, picture: string
   return event
 }
 
-export const signAuth = async (pubkey: string) => {
+export const signAuthEvent = async (pubkey: string, challenge: string) => {
+  const content = {
+    challenge: challenge,
+    message: 'Sign this event to authenticate with sats.gg. This event will not be published.',
+  }
   const event: NostrEvent = {
-    kind: 1,
+    kind: -1,
     pubkey: pubkey,
     created_at: Math.floor(Date.now() / 1000),
     tags: [[]],
-    content: 'Sign this event to authenticate with sats.gg. This event will not be published.',
+    content: JSON.stringify(content),
   }
 
   return await window.nostr.signEvent(event)

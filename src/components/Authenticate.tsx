@@ -1,11 +1,13 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useZodForm } from '~/utils/useZodForm'
 import { z } from 'zod'
 import useSettingsStore from '~/hooks/useSettingsStore'
 import { nip19 } from 'nostr-tools'
-import { signAuth } from '~/utils/nostr'
+import { signAuthEvent } from '~/utils/nostr'
 import { verifySignature } from 'nostr-tools'
+import { trpc } from '~/utils/trpc'
 import { toast } from 'react-toastify'
+import useAuthStore from '~/hooks/useAuthStore'
 
 declare global {
   interface Window {
@@ -106,24 +108,29 @@ const recommendedExtensions = [
   // }
 ]
 
-const Nip07Login = ({ close }: { close: () => void }) => {
+const Nip07Login = ({ challenge, close }: { challenge: string | undefined; close: () => void }) => {
   const setPubkey = useSettingsStore((state) => state.setPubkey)
+  const setAuthToken = useAuthStore((state) => state.setAuthToken)
   const [waiting, setWaiting] = useState(false)
+  const mutation = trpc.auth.login.useMutation()
 
   const onClick = async () => {
     try {
+      // TODO: user won't receive any feedback why button doesn't do anything
+      // if we fail to get the challenge
+      if (!challenge) return
       setWaiting(true)
 
       const pubkey = await window.nostr.getPublicKey()
-      const signedEvent = await signAuth(pubkey)
+      const signedEvent = await signAuthEvent(pubkey, challenge)
       console.debug('signedEvent', signedEvent)
 
       let veryOk = verifySignature(signedEvent)
       if (!veryOk) throw new Error('Invalid signature')
 
-      // TODO: log in with backend
+      const data = await mutation.mutateAsync(signedEvent)
 
-      setPubkey(pubkey)
+      setAuthToken(data.authToken)
       close()
     } catch (error: any) {
       console.error(error)
@@ -175,10 +182,17 @@ const Nip07Login = ({ close }: { close: () => void }) => {
 }
 
 export const Authenticate = ({ close }: { close: () => void }) => {
+  const { data } = trpc.auth.getChallenge.useQuery(undefined, { refetchOnWindowFocus: false })
+
+  // const utils = trpc.useContext()
+  // useEffect(() => {
+  //   utils.auth.getChallenge.fetch().then((data) => console.debug('data', data))
+  // }, [])
+
   return (
     <div className={'flex flex-col gap-8'}>
       <PubkeyForm close={close} />
-      <Nip07Login close={close} />
+      <Nip07Login challenge={data?.challenge} close={close} />
     </div>
   )
 }

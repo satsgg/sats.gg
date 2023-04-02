@@ -8,10 +8,10 @@ const { z } = require('zod')
 
 /*eslint sort-keys: "error"*/
 const envSchema = z.object({
-  // DATABASE_URL: z.string().url(),
-  // JWT_SECRET: z.string(),
-  // MUX_ACCESS_TOKEN_ID: z.string(),
-  // MUX_SECRET_KEY: z.string(),
+  DATABASE_URL: z.string().url(),
+  JWT_SECRET: z.string(),
+  MUX_ACCESS_TOKEN_ID: z.string(),
+  MUX_SECRET_KEY: z.string(),
   NODE_ENV: z.enum(['development', 'test', 'production']),
 })
 

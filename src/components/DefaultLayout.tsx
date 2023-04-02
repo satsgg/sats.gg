@@ -10,14 +10,17 @@ import useSettingsStore from '~/hooks/useSettingsStore'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import useMediaQuery from '~/hooks/useMediaQuery'
-import { Spinner } from './Spinner'
 import useLayoutStore from '~/store/layoutStore'
 import useHasMounted from '~/hooks/useHasMounted'
+import useAuthStore from '~/hooks/useAuthStore'
+import useAuth from '~/hooks/useAuth'
 
 type DefaultLayoutProps = { children: ReactNode }
 
 export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
   const { init: initSettingsStore } = useSettingsStore()
+  useAuth()
+
   const { leftBarUserClosed, userCloseLeftBar, rightBarUserClosed } = useLayoutStore()
   const isMounted = useHasMounted()
 

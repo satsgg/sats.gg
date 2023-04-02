@@ -9,6 +9,7 @@ import AccountSVG from '~/svgs/account.svg'
 import useConnectedRelays from '~/hooks/useConnectedRelays'
 import useSettingsStore from '~/hooks/useSettingsStore'
 import { useProfile } from '~/hooks/useProfile'
+import useAuthStore from '~/hooks/useAuthStore'
 
 interface HeaderProps {
   openAuthenticate: () => void
@@ -16,7 +17,8 @@ interface HeaderProps {
 
 export const Navbar = ({ openAuthenticate }: HeaderProps) => {
   const [showAccountMenu, setShowAccountMenu] = useState(false)
-  const { pubkey, npub, relays, logout } = useSettingsStore()
+  const { relays } = useSettingsStore()
+  const [pubkey, npub, logout] = useAuthStore((state) => [state.pubkey, state.npub, state.logout])
   const { profile, isLoading } = useProfile(pubkey)
   const connectedRelays = useConnectedRelays()
 
