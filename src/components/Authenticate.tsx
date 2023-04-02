@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useZodForm } from '~/utils/useZodForm'
 import { z } from 'zod'
 import useSettingsStore from '~/hooks/useSettingsStore'
@@ -16,7 +16,7 @@ declare global {
 }
 
 const PubkeyForm = ({ close }: { close: () => void }) => {
-  const setPubkey = useSettingsStore((state) => state.setPubkey)
+  const [setPubkey, setStatus] = useAuthStore((state) => [state.setPubkey, state.setStatus])
 
   const {
     register,
@@ -41,6 +41,7 @@ const PubkeyForm = ({ close }: { close: () => void }) => {
         let { type, data: nipData } = nip19.decode(data.pubkey)
         if (type === 'npub') {
           setPubkey(nipData as string)
+          setStatus('view')
           close()
           return
         } else {
@@ -58,6 +59,7 @@ const PubkeyForm = ({ close }: { close: () => void }) => {
       // try npub encode to vaildate hex public key
       nip19.npubEncode(data.pubkey)
       setPubkey(data.pubkey)
+      setStatus('view')
       close()
     } catch (error) {
       console.error(error)

@@ -18,7 +18,7 @@ interface HeaderProps {
 export const Navbar = ({ openAuthenticate }: HeaderProps) => {
   const [showAccountMenu, setShowAccountMenu] = useState(false)
   const { relays } = useSettingsStore()
-  const [pubkey, npub, logout] = useAuthStore((state) => [state.pubkey, state.npub, state.logout])
+  const [pubkey, npub, status, logout] = useAuthStore((state) => [state.pubkey, state.npub, state.status, state.logout])
   const { profile, isLoading } = useProfile(pubkey)
   const connectedRelays = useConnectedRelays()
 
@@ -33,10 +33,13 @@ export const Navbar = ({ openAuthenticate }: HeaderProps) => {
         <Link href="/">
           <h1 className="text-2xl font-bold text-white hover:cursor-pointer">SATS.GG</h1>
         </Link>
+
         <div className="flex items-center gap-4">
-          <Link href={'/settings/relays'} legacyBehavior={false}>
-            {connectedRelays.size}/{relays.length}
-          </Link>
+          {status && (
+            <Link href={'/settings/relays'} legacyBehavior={false}>
+              {connectedRelays.size}/{relays.length}
+            </Link>
+          )}
           {pubkey && (
             <ClickAwayListener onClickAway={() => setShowAccountMenu(false)}>
               <div className="dropdown relative">
@@ -118,7 +121,7 @@ export const Navbar = ({ openAuthenticate }: HeaderProps) => {
               </div>
             </ClickAwayListener>
           )}
-          {!pubkey && (
+          {status === 'unauthenticated' && (
             <button
               type="button"
               onClick={openAuthenticate}

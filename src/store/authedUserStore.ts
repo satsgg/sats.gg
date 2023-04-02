@@ -5,11 +5,13 @@ import { nip19 } from 'nostr-tools'
 
 type GetMeOutput = inferProcedureOutput<AppRouter['auth']['getMe']>
 
+type AuthStatus = undefined | 'loading' | 'view' | 'authenticated' | 'unauthenticated'
+
 interface AuthedUser {
   user: GetMeOutput | undefined
   pubkey: string | undefined
   npub: string | undefined
-  status: undefined | 'loading' | 'view' | 'authenticated'
+  status: AuthStatus
   authToken: string | undefined
 
   setUser: (user: GetMeOutput) => void
@@ -18,7 +20,7 @@ interface AuthedUser {
   unsetPubkey: () => void
   setAuthToken: (token: string) => void
   unsetAuthToken: () => void
-  setStatus: (status: undefined | 'loading' | 'view' | 'authenticated') => void
+  setStatus: (status: AuthStatus) => void
   logout: () => void
 }
 
@@ -50,15 +52,15 @@ const authedUserStore = create<AuthedUser>((set) => ({
   unsetAuthToken: () => {
     set({ authToken: '' })
   },
-  setStatus: (status: undefined | 'loading' | 'view' | 'authenticated') => {
+  setStatus: (status: AuthStatus) => {
     set({ status: status })
   },
   logout: () => {
-    set({ pubkey: undefined })
     set({
+      user: undefined,
       pubkey: undefined,
       npub: undefined,
-      user: undefined,
+      status: 'unauthenticated',
       authToken: '',
       // relays: [],
     })
@@ -66,7 +68,7 @@ const authedUserStore = create<AuthedUser>((set) => ({
     window.localStorage.removeItem('pubkey')
     window.localStorage.removeItem('follows')
     // window.localStorage.removeItem('relays')
-    localStorage.removeItem('token')
+    window.localStorage.removeItem('token')
   },
 }))
 
