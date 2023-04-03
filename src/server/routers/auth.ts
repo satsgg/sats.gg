@@ -12,12 +12,11 @@ export const authRouter = t.router({
   getMe: t.procedure.use(isAuthed).query(async ({ ctx }) => {
     const tokenUser = ctx.user
     try {
-      const user = await prisma.user.findUnique({
+      return await prisma.user.findUnique({
         where: {
           id: tokenUser?.id,
         },
       })
-      return { ...user }
     } catch (error) {
       throw new TRPCError({
         code: 'UNAUTHORIZED',

@@ -9,7 +9,7 @@ type GetMeOutput = inferProcedureOutput<AppRouter['auth']['getMe']>
 type AuthStatus = undefined | 'loading' | 'view' | 'authenticated' | 'unauthenticated'
 
 interface AuthedUser {
-  user: GetMeOutput | undefined
+  user: GetMeOutput
   pubkey: string | undefined
   npub: string | undefined
   status: AuthStatus
@@ -26,7 +26,7 @@ interface AuthedUser {
 }
 
 const authedUserStore = create<AuthedUser>((set) => ({
-  user: undefined,
+  user: null,
   pubkey: undefined,
   npub: undefined,
   status: undefined,
@@ -36,7 +36,7 @@ const authedUserStore = create<AuthedUser>((set) => ({
     set({ user })
   },
   unsetUser: () => {
-    set({ user: undefined })
+    set({ user: null })
   },
   setPubkey: (pubkey: string) => {
     set({ pubkey, npub: nip19.npubEncode(pubkey) })
@@ -58,7 +58,7 @@ const authedUserStore = create<AuthedUser>((set) => ({
   },
   logout: () => {
     set({
-      user: undefined,
+      user: null,
       pubkey: undefined,
       npub: undefined,
       status: 'unauthenticated',
