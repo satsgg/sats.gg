@@ -1,10 +1,7 @@
 import { useRouter } from 'next/router'
 import Link from 'next/link'
-import { ReactNode, ReactElement, useEffect } from 'react'
-import useAuthStore from '~/hooks/useAuthStore'
+import { ReactNode, ReactElement } from 'react'
 import { DefaultLayout } from '../DefaultLayout'
-import { Spinner } from '../Spinner'
-import useSettingsStore from '~/hooks/useSettingsStore'
 
 // TODO: Overlap highlighted tab button bottom border with the full tabs bottom border
 // they are currently stacked
@@ -40,15 +37,15 @@ const SettingsLayout = ({ children }: { children: ReactNode }) => {
 
   return (
     <DefaultLayout>
-      <div className="flex w-full flex-col space-y-4 bg-stone-900 py-8 px-8 text-white">
-        <h1 className="text-4xl font-bold">Settings</h1>
+      <div className="flex w-full flex-col bg-stone-900 px-8 pt-8 text-white">
+        <h1 className="mb-2 text-4xl font-bold">Settings</h1>
 
         <div className="flex space-x-6 border-b border-gray-500">
           {tabs.map((tab) => {
             return <TabButton tab={tab} key={tab} current={router.pathname.includes(tab)} />
           })}
         </div>
-        <main className="flex flex-col overflow-y-auto">{children}</main>
+        <div className="flex flex-col overflow-y-auto pt-4">{children}</div>
       </div>
     </DefaultLayout>
   )

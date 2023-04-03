@@ -51,7 +51,7 @@ export const trpc = createTRPCNext<AppRouter, SSRContext>({
               }
             }
             return {
-              Authorization: `Bearer ${authedUserStore.getState().storeToken}`,
+              Authorization: `Bearer ${authedUserStore.getState().authToken}`,
             }
           },
         }),

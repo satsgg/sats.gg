@@ -1,5 +1,4 @@
 import { useProfile } from '~/hooks/useProfile'
-import useSettingsStore from '~/hooks/useSettingsStore'
 import { useZodForm } from '~/utils/useZodForm'
 import { z } from 'zod'
 import { useEffect } from 'react'
@@ -9,9 +8,10 @@ import { getEventHash, signEvent, Event as NostrEvent } from 'nostr-tools'
 import { verifySignature, validateEvent } from 'nostr-tools'
 import { toast } from 'react-toastify'
 import { nostrClient } from '~/nostr/NostrClient'
+import useAuthStore from '~/hooks/useAuthStore'
 
 const Profile = () => {
-  const pubkey = useSettingsStore((state) => state.pubkey)
+  const pubkey = useAuthStore((state) => state.pubkey)
   const { profile, isLoading } = useProfile(pubkey)
   const canSign = useCanSign()
 

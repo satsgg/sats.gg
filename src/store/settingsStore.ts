@@ -3,19 +3,16 @@ import { nostrClient } from '~/nostr/NostrClient'
 import { nip19, Event } from 'nostr-tools'
 
 type State = {
-  pubkey: string | undefined
-  npub: string | undefined
   relays: string[]
   follows: string[]
 }
 
 type Actions = {
   init: () => void
-  setPubkey: (pubkey: string) => void
-  logout: () => void
   addRelay: (url: string) => void
   removeRelay: (url: string) => void
   setFollows: (event: Event) => void
+  unsetFollows: () => void
 }
 
 const DEFAULT_RELAYS = [
@@ -32,26 +29,14 @@ const DEFAULT_RELAYS = [
 ]
 
 const initialState = {
-  pubkey: undefined,
-  npub: undefined,
   relays: DEFAULT_RELAYS,
   follows: [],
 }
 
-// NOTE: This will become a logged in users session
 const SettingsStore = create<State & Actions>((set, get) => ({
   ...initialState,
 
   init: () => {
-    // from browser storage get
-    // public key if available
-    const pubkey = window.localStorage.getItem('pubkey')
-    if (pubkey) {
-      set({ pubkey: pubkey })
-      set({ npub: nip19.npubEncode(pubkey) })
-    }
-
-    // relays if available
     const initRelays = window.localStorage.getItem('relays')
     let relaysToConnect: string[] = []
     if (initRelays) {
@@ -71,25 +56,6 @@ const SettingsStore = create<State & Actions>((set, get) => ({
     if (follows) {
       set({ follows: JSON.parse(follows) })
     }
-  },
-
-  setPubkey: (pubkey: string) => {
-    set({ pubkey: pubkey })
-    set({ npub: nip19.npubEncode(pubkey) })
-    console.debug('npub', nip19.npubEncode(pubkey))
-    window.localStorage.setItem('pubkey', pubkey)
-  },
-
-  logout: () => {
-    set({
-      pubkey: undefined,
-      npub: undefined,
-      follows: [],
-      // relays: [],
-    })
-    window.localStorage.removeItem('pubkey')
-    window.localStorage.removeItem('follows')
-    // window.localStorage.removeItem('relays')
   },
 
   addRelay: (url: string) => {
@@ -128,6 +94,11 @@ const SettingsStore = create<State & Actions>((set, get) => ({
     const follows = event.tags.map((t) => t[1])
     set({ follows: follows })
     window.localStorage.setItem('follows', JSON.stringify(follows))
+  },
+
+  unsetFollows: () => {
+    set({ follows: [] })
+    window.localStorage.removeItem('follows')
   },
 }))
 

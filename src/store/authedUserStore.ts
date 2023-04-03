@@ -1,30 +1,77 @@
 import create from 'zustand/vanilla'
+import { inferProcedureOutput } from '@trpc/server'
+import { AppRouter } from '~/server/routers/_app'
+import { nip19 } from 'nostr-tools'
+import SettingsStore from './settingsStore'
+
+type GetMeOutput = inferProcedureOutput<AppRouter['auth']['getMe']>
+
+type AuthStatus = undefined | 'loading' | 'view' | 'authenticated' | 'unauthenticated'
 
 interface AuthedUser {
+  user: GetMeOutput | undefined
   pubkey: string | undefined
-  status: undefined | 'loading' | 'authenticated' | 'unauthenticated'
+  npub: string | undefined
+  status: AuthStatus
+  authToken: string | undefined
 
-  setPubkey: (pubkey: string) => void
+  setUser: (user: GetMeOutput) => void
   unsetUser: () => void
-  setStatus: (status: undefined | 'loading' | 'authenticated' | 'unauthenticated') => void
+  setPubkey: (pubkey: string) => void
+  unsetPubkey: () => void
+  setAuthToken: (token: string) => void
+  unsetAuthToken: () => void
+  setStatus: (status: AuthStatus) => void
   logout: () => void
 }
 
 const authedUserStore = create<AuthedUser>((set) => ({
+  user: undefined,
   pubkey: undefined,
+  npub: undefined,
   status: undefined,
-  setPubkey: (pubkey: string) => {
-    set({ pubkey })
-    set({ status: 'authenticated' })
+  authToken: '',
+
+  setUser: (user: GetMeOutput) => {
+    set({ user })
   },
   unsetUser: () => {
-    set({ pubkey: undefined })
+    set({ user: undefined })
   },
-  setStatus: (status: undefined | 'loading' | 'authenticated' | 'unauthenticated') => {
+  setPubkey: (pubkey: string) => {
+    set({ pubkey, npub: nip19.npubEncode(pubkey) })
+    window.localStorage.setItem('pubkey', pubkey)
+  },
+  unsetPubkey: () => {
+    set({ pubkey: undefined })
+    window.localStorage.removeItem('pubkey')
+  },
+  setAuthToken: (authToken: string) => {
+    set({ authToken })
+    window.localStorage.setItem('token', authToken)
+  },
+  unsetAuthToken: () => {
+    set({ authToken: '' })
+  },
+  setStatus: (status: AuthStatus) => {
     set({ status: status })
   },
   logout: () => {
-    set({ pubkey: undefined })
+    set({
+      user: undefined,
+      pubkey: undefined,
+      npub: undefined,
+      status: 'unauthenticated',
+      authToken: '',
+      // relays: [],
+    })
+    SettingsStore.setState({ follows: [] })
+
+    window.localStorage.removeItem('token')
+    window.localStorage.removeItem('pubkey')
+    window.localStorage.removeItem('follows')
+    // window.localStorage.removeItem('relays')
+    window.localStorage.removeItem('token')
   },
 }))
 

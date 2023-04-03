@@ -1,4 +1,4 @@
-import { getEventHash, signEvent, Event as NostrEvent } from 'nostr-tools'
+import { getEventHash, signEvent, verifySignature, Event as NostrEvent } from 'nostr-tools'
 
 // export const unique = <T extends { [key: string]: unknown }>(arr: T[], key: string): T[] => [   ...new Map(arr.map((item: T) => [item[key], item])).values() ];
 export const uniqBy = <T>(arr: T[], key: keyof T): T[] => {
@@ -13,8 +13,7 @@ export const uniqBy = <T>(arr: T[], key: keyof T): T[] => {
   )
 }
 
-// const pubKey = '8757042284f4f36d32ac7f15011213a79a2bc72b8bb1981cb7d8a0a845271e2b'
-// const privKey = '366f8ea72b09068ed3041a2fccae2192598e6e0c160f1422570f0911cc23dc51'
+// TODO: Make all of these functions better and more consistent
 
 export const createEvent = (pubkey: string, content: string, channelId: string): NostrEvent => {
   // Can generalize later... (if kind 42, add e channelID tag etc)
@@ -52,4 +51,20 @@ export const createChannelEvent = (pubkey: string, name: string, picture: string
 
   console.debug('createChannelEvent', event)
   return event
+}
+
+export const signAuthEvent = async (pubkey: string, challenge: string) => {
+  const content = {
+    challenge: challenge,
+    message: 'Sign this event to authenticate with sats.gg. This event will not be published.',
+  }
+  const event: NostrEvent = {
+    kind: -1,
+    pubkey: pubkey,
+    created_at: Math.floor(Date.now() / 1000),
+    tags: [[]],
+    content: JSON.stringify(content),
+  }
+
+  return await window.nostr.signEvent(event)
 }
