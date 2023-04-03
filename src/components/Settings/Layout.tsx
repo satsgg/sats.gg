@@ -2,6 +2,7 @@ import { useRouter } from 'next/router'
 import Link from 'next/link'
 import { ReactNode, ReactElement } from 'react'
 import { DefaultLayout } from '../DefaultLayout'
+import useAuthStore from '~/hooks/useAuthStore'
 
 // TODO: Overlap highlighted tab button bottom border with the full tabs bottom border
 // they are currently stacked
@@ -21,8 +22,10 @@ const TabButton = ({ tab, current = false }: { tab: string; current: boolean }) 
 
 const SettingsLayout = ({ children }: { children: ReactNode }) => {
   const router = useRouter()
+  const status = useAuthStore((state) => state.status)
 
-  const tabs = ['profile', 'chat', 'relays']
+  let tabs = ['profile', 'chat', 'relays']
+  status === 'authenticated' && tabs.push('stream')
 
   // useEffect(() => {
   //   const logRelaysNostr = async () => {
