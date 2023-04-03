@@ -13,8 +13,7 @@ export const uniqBy = <T>(arr: T[], key: keyof T): T[] => {
   )
 }
 
-// const pubKey = '8757042284f4f36d32ac7f15011213a79a2bc72b8bb1981cb7d8a0a845271e2b'
-// const privKey = '366f8ea72b09068ed3041a2fccae2192598e6e0c160f1422570f0911cc23dc51'
+// TODO: Make all of these functions better and more consistent
 
 export const createEvent = (pubkey: string, content: string, channelId: string): NostrEvent => {
   // Can generalize later... (if kind 42, add e channelID tag etc)
