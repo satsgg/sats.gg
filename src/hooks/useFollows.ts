@@ -11,7 +11,7 @@ const useFollows = (pubkey: string | undefined) => {
     state.setFollows,
     state.unsetFollows,
   ])
-  const [currentEvent, setCurrentEvent] = useState<Event | undefined>(undefined)
+  const [, setCurrentEvent] = useState<Event | undefined>(undefined)
 
   const filters: Filter[] = [
     {
