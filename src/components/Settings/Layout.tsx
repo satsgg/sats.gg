@@ -1,10 +1,7 @@
 import { useRouter } from 'next/router'
 import Link from 'next/link'
-import { ReactNode, ReactElement, useEffect } from 'react'
-import useAuthStore from '~/hooks/useAuthStore'
+import { ReactNode, ReactElement } from 'react'
 import { DefaultLayout } from '../DefaultLayout'
-import { Spinner } from '../Spinner'
-import useSettingsStore from '~/hooks/useSettingsStore'
 
 // TODO: Overlap highlighted tab button bottom border with the full tabs bottom border
 // they are currently stacked

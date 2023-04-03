@@ -17,7 +17,7 @@ interface HeaderProps {
 
 export const Navbar = ({ openAuthenticate }: HeaderProps) => {
   const [showAccountMenu, setShowAccountMenu] = useState(false)
-  const { relays } = useSettingsStore()
+  const relays = useSettingsStore((state) => state.relays)
   const [pubkey, npub, status, logout] = useAuthStore((state) => [state.pubkey, state.npub, state.status, state.logout])
   const { profile, isLoading } = useProfile(pubkey)
   const connectedRelays = useConnectedRelays()

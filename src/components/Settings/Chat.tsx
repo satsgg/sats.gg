@@ -5,13 +5,12 @@ import { createChannelEvent } from '~/utils/nostr'
 import { verifySignature, validateEvent } from 'nostr-tools'
 import { toast } from 'react-toastify'
 import { nostrClient } from '~/nostr/NostrClient'
-import { useEffect, useState } from 'react'
 import useCanSign from '~/hooks/useCanSign'
-import useSettingsStore from '~/hooks/useSettingsStore'
+import useAuthStore from '~/hooks/useAuthStore'
 
 const Chat = () => {
   const canSign = useCanSign()
-  const pubkey = useSettingsStore((state) => state.pubkey)
+  const pubkey = useAuthStore((state) => state.pubkey)
 
   const {
     register,
@@ -39,9 +38,6 @@ const Chat = () => {
   const onSubmit = async (data: any) => {
     if (!pubkey) return
 
-    console.debug('window', window)
-    console.debug('window.nostr', window.nostr)
-    console.log('data', data)
     const event = createChannelEvent(pubkey, data.name, data.about, data.picture)
 
     try {

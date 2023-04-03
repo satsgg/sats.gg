@@ -5,10 +5,12 @@ import FollowHeartSVG from '~/svgs/follow-heart.svg'
 import { verifySignature, validateEvent } from 'nostr-tools'
 import { toast } from 'react-toastify'
 import { nostrClient } from '~/nostr/NostrClient'
+import useAuthStore from '~/hooks/useAuthStore'
 
 export default function FollowButton({ pubkey }: { pubkey: string }) {
   const follows = useSettingsStore((state) => state.follows)
-  const myPubkey = useSettingsStore((state) => state.pubkey)
+  const myPubkey = useAuthStore((state) => state.pubkey)
+
   const followsUser = follows.includes(pubkey)
   const myself = pubkey === myPubkey
   const [followAnimation, setFollowAnimation] = useState(false)

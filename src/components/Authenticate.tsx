@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useZodForm } from '~/utils/useZodForm'
 import { z } from 'zod'
-import useSettingsStore from '~/hooks/useSettingsStore'
 import { nip19 } from 'nostr-tools'
 import { signAuthEvent } from '~/utils/nostr'
 import { verifySignature } from 'nostr-tools'

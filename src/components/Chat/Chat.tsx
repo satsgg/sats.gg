@@ -10,10 +10,10 @@ import Message from './Message'
 import { useSubscription } from '~/hooks/useSubscription'
 import { usePopper } from 'react-popper'
 import useCanSign from '~/hooks/useCanSign'
-import useSettingsStore from '~/hooks/useSettingsStore'
 import { verifySignature, validateEvent } from 'nostr-tools'
 import { toast } from 'react-toastify'
 import { nostrClient } from '~/nostr/NostrClient'
+import useAuthStore from '~/hooks/useAuthStore'
 
 const eventOrder = {
   created_at: null,
@@ -22,7 +22,7 @@ const eventOrder = {
 
 export const Chat = ({ channelPubkey }: { channelPubkey: string }) => {
   // const { publish } = useNostr()
-  const pubkey = useSettingsStore((state) => state.pubkey)
+  const pubkey = useAuthStore((state) => state.pubkey)
   const [message, setMessage] = useState<string>('')
   const canSign = useCanSign()
 
