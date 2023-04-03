@@ -63,6 +63,7 @@ export default class RelayPool {
 
       for (const si of this.subscriptions.values()) {
         const sub = relay.sub(si.filters)
+        console.debug('on connect subscribing to : ' + si.id)
         sub.on('event', si.callback)
         relay.subs.set(si.id, sub)
       }

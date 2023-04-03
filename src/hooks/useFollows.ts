@@ -6,8 +6,12 @@ import useSettingsStore from './useSettingsStore'
 // caching?
 // shallow? see zustand docs
 const useFollows = (pubkey: string | undefined) => {
-  const [follows, setFollows] = useSettingsStore((state) => [state.follows, state.setFollows])
-  const [currentNote, setCurrentNote] = useState<Event | undefined>(undefined)
+  const [follows, setFollows, unsetFollows] = useSettingsStore((state) => [
+    state.follows,
+    state.setFollows,
+    state.unsetFollows,
+  ])
+  const [currentEvent, setCurrentEvent] = useState<Event | undefined>(undefined)
 
   const filters: Filter[] = [
     {
@@ -17,11 +21,13 @@ const useFollows = (pubkey: string | undefined) => {
   ]
 
   const onEventCallback = (event: Event) => {
-    setCurrentNote((cn) => {
-      if (!cn) return event
-      if (event.created_at <= cn.created_at) return cn
-      setFollows(event)
-      return event
+    setCurrentEvent((currentEvent) => {
+      if (!currentEvent || event.created_at > currentEvent.created_at) {
+        setFollows(event)
+        return event
+      }
+
+      return currentEvent
     })
   }
 
@@ -32,6 +38,9 @@ const useFollows = (pubkey: string | undefined) => {
       return () => {
         nostrClient.unsubscribe('follows')
       }
+    } else {
+      unsetFollows()
+      setCurrentEvent(undefined)
     }
   }, [pubkey])
 

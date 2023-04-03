@@ -12,6 +12,7 @@ type Actions = {
   addRelay: (url: string) => void
   removeRelay: (url: string) => void
   setFollows: (event: Event) => void
+  unsetFollows: () => void
 }
 
 const DEFAULT_RELAYS = [
@@ -93,6 +94,11 @@ const SettingsStore = create<State & Actions>((set, get) => ({
     const follows = event.tags.map((t) => t[1])
     set({ follows: follows })
     window.localStorage.setItem('follows', JSON.stringify(follows))
+  },
+
+  unsetFollows: () => {
+    set({ follows: [] })
+    window.localStorage.removeItem('follows')
   },
 }))
 

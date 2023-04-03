@@ -1,6 +1,6 @@
 import create from 'zustand'
-import settingsStore from '~/store/settingsStore'
+import SettingsStore from '~/store/settingsStore'
 
-const useSettingsStore = create(settingsStore)
+const useSettingsStore = create(SettingsStore)
 
 export default useSettingsStore

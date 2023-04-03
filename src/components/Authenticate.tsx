@@ -59,7 +59,6 @@ const PubkeyForm = ({ close }: { close: () => void }) => {
       // try npub encode to vaildate hex public key
       nip19.npubEncode(data.pubkey)
       setPubkey(data.pubkey)
-      setStatus('view')
       close()
     } catch (error) {
       console.error(error)
@@ -111,8 +110,7 @@ const recommendedExtensions = [
 ]
 
 const Nip07Login = ({ challenge, close }: { challenge: string | undefined; close: () => void }) => {
-  const setPubkey = useSettingsStore((state) => state.setPubkey)
-  const setAuthToken = useAuthStore((state) => state.setAuthToken)
+  const [setAuthToken, setPubkey] = useAuthStore((state) => [state.setAuthToken, state.setPubkey])
   const [waiting, setWaiting] = useState(false)
   const mutation = trpc.auth.login.useMutation()
 
@@ -132,6 +130,7 @@ const Nip07Login = ({ challenge, close }: { challenge: string | undefined; close
 
       const data = await mutation.mutateAsync(signedEvent)
 
+      setPubkey(pubkey)
       setAuthToken(data.authToken)
       close()
     } catch (error: any) {

@@ -1,6 +1,6 @@
 import { Virtuoso } from 'react-virtuoso'
 import useFollows from '~/hooks/useFollows'
-import useSettingsStore from '~/hooks/useSettingsStore'
+import useAuthStore from '~/hooks/useAuthStore'
 import { FollowedChannelSingle } from './FollowedChannelSingle'
 import OpenRightSVG from '~/svgs/open-right.svg'
 import OpenLeftSVG from '~/svgs/open-left.svg'
@@ -14,7 +14,7 @@ export const FollowedChannelList = ({
   userCollapse: boolean
   setUserCollapse: Function
 }) => {
-  const pubkey = useSettingsStore((state) => state.pubkey)
+  const pubkey = useAuthStore((state) => state.pubkey)
   const follows = useFollows(pubkey)
 
   return (

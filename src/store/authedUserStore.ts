@@ -2,6 +2,7 @@ import create from 'zustand/vanilla'
 import { inferProcedureOutput } from '@trpc/server'
 import { AppRouter } from '~/server/routers/_app'
 import { nip19 } from 'nostr-tools'
+import SettingsStore from './settingsStore'
 
 type GetMeOutput = inferProcedureOutput<AppRouter['auth']['getMe']>
 
@@ -64,6 +65,8 @@ const authedUserStore = create<AuthedUser>((set) => ({
       authToken: '',
       // relays: [],
     })
+    SettingsStore.setState({ follows: [] })
+
     window.localStorage.removeItem('token')
     window.localStorage.removeItem('pubkey')
     window.localStorage.removeItem('follows')

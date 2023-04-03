@@ -12,28 +12,19 @@ export default function useAuth() {
 
     if (pubkey) setPubkey(pubkey)
     if (token) setAuthToken(token)
-    if (pubkey && !token) {
-      console.debug('setting view status')
-      setStatus('view')
-    }
-    if (!pubkey && !token) {
-      console.debug('setting unauthenticated')
-      setStatus('unauthenticated')
-    }
+    if (pubkey && !token) setStatus('view')
+    if (!pubkey && !token) setStatus('unauthenticated')
 
     if (authToken) {
-      console.debug('fetching0')
       utils.auth.getMe
         .fetch()
         .then((data) => {
           setUser(data)
           setPubkey(data.publicKey!)
-          console.debug('fetching1')
           setStatus('authenticated')
         })
         .catch((error) => {
           console.error('errorrrrr', error)
-          console.debug('fetching2')
           setStatus('unauthenticated')
         })
     }
