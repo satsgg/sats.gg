@@ -6,6 +6,24 @@ import { isAuthed } from '~/server/middlewares/authed'
 import { StreamStatus } from '@prisma/client'
 
 export const userRouter = t.router({
+  getUser: t.procedure
+    .input(
+      z.object({
+        pubkey: z.string(),
+      }),
+    )
+    .query(async ({ input }) => {
+      return await prisma.user.findUnique({
+        where: {
+          publicKey: input.pubkey,
+        },
+        select: {
+          playbackId: true,
+          streamStatus: true,
+        },
+      })
+    }),
+
   refreshStreamKey: t.procedure.use(isAuthed).mutation(async ({ ctx }) => {
     const muxResponse = await fetch(`https://api.mux.com/video/v1/live-streams/${ctx.user.streamId}/reset-stream-key`, {
       method: 'POST',
@@ -33,6 +51,7 @@ export const userRouter = t.router({
         throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
       })
   }),
+
   muxEvent: t.procedure
     .meta({ openapi: { method: 'POST', path: '/webhooks/mux' } })
     .input(

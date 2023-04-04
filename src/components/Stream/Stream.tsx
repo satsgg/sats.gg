@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react'
 // import MuxPlayer from '@mux/mux-player-react/lazy'
 import MuxPlayer from '@mux/mux-player-react'
-import Nostrich from '~/assets/nostrich.jpeg'
 
 // NOTE: Bug or something with lazy mux loader
 // placeholder (btwn DOM/placeholder and actual video loading) doesn't respect

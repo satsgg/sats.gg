@@ -1,18 +1,14 @@
 import { useRouter } from 'next/router'
-import { ParsedUrlQuery } from 'querystring'
 import { Chat } from '~/components/Chat/Chat'
+import ChatSkeleton from '~/components/Chat/ChatSkeleton'
 import { nip19 } from 'nostr-tools'
 import { Stream } from '~/components/Stream/Stream'
+import StreamSkeleton from '~/components/Stream/StreamSkeleton'
 import { StreamBio } from '~/components/Stream/StreamBio'
 import { Spinner } from '~/components/Spinner'
-
-const isValidQuery = (query: ParsedUrlQuery) => {
-  return typeof query.channel === 'string'
-}
+import { trpc } from '~/utils/trpc'
 
 const getChannelPubkey = (channel: string, isReady: boolean) => {
-  if (!isReady) return null
-  if (typeof channel !== 'string') return null
   if (channel.startsWith('npub1')) {
     try {
       let { type, data: nipData } = nip19.decode(channel)
@@ -39,26 +35,8 @@ const getChannelPubkey = (channel: string, isReady: boolean) => {
   }
 }
 
-export default function Channel({ playbackId, sourceWidth, sourceHeight, blurHashBase64 }) {
-  // const router = useRouter()
+export default function Channel() {
   const { query, isReady } = useRouter()
-
-  // if (!isValidQuery(router.query)) {
-  //   return (
-  //     <div className="flex grow bg-stone-900">
-  //       <p className="text-white">Invalid query</p>
-  //     </div>
-  //   )
-  // }
-  const { channel } = query
-  // if (!isReady) return
-
-  // const channel = router.query.channel as string
-  const channelPubkey = getChannelPubkey(channel, isReady)
-
-  // loading -> found
-  // loading -> error
-  // assume it's the right key... display skeleton channel always before invalid
   if (!isReady) {
     return (
       <div className="flex h-full w-full content-center justify-center">
@@ -67,13 +45,29 @@ export default function Channel({ playbackId, sourceWidth, sourceHeight, blurHas
     )
   }
 
-  if (!channelPubkey) {
+  const { channel } = query
+  if (typeof channel !== 'string') {
     return (
       <div className="flex h-full w-full content-center items-center justify-center">
-        <p className="text-white">Invalid public key</p>
+        <p className="text-white">Invalid query</p>
       </div>
     )
   }
+
+  const channelPubkey = getChannelPubkey(channel, isReady)
+  if (!channelPubkey) {
+    return (
+      <div className="flex h-full w-full content-center items-center justify-center">
+        <p className="text-white">Invalid npub or public key</p>
+      </div>
+    )
+  }
+
+  const {
+    data: channelUser,
+    isLoading: userLoading,
+    isError: userError,
+  } = trpc.user.getUser.useQuery({ pubkey: channelPubkey }, { refetchInterval: 15000 })
 
   return (
     <>
@@ -85,13 +79,13 @@ export default function Channel({ playbackId, sourceWidth, sourceHeight, blurHas
           id="streamWrapper"
           className="aspect-video max-h-[calc(100vh-9rem)] sm:border-b sm:border-solid sm:border-gray-500"
         >
-          <Stream channelPubkey={channelPubkey} />
+          {userLoading ? <StreamSkeleton /> : <Stream channelPubkey={channelPubkey} />}
         </div>
         <StreamBio channelPubkey={channelPubkey} />
       </div>
 
       <div className="flex h-full w-full sm:w-80 md:shrink-0">
-        <Chat channelPubkey={channelPubkey} />
+        {userLoading ? <ChatSkeleton /> : <Chat channelPubkey={channelPubkey} />}
       </div>
     </>
   )
