@@ -13,15 +13,21 @@ export const userRouter = t.router({
       }),
     )
     .query(async ({ input }) => {
-      return await prisma.user.findUnique({
-        where: {
-          publicKey: input.pubkey,
-        },
-        select: {
-          playbackId: true,
-          streamStatus: true,
-        },
-      })
+      return await prisma.user
+        .findUnique({
+          where: {
+            publicKey: input.pubkey,
+          },
+          select: {
+            playbackId: true,
+            streamStatus: true,
+            chatChannelId: true,
+          },
+        })
+        .catch((error) => {
+          console.log(error)
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
+        })
     }),
 
   refreshStreamKey: t.procedure.use(isAuthed).mutation(async ({ ctx }) => {
@@ -88,6 +94,22 @@ export const userRouter = t.router({
       }
       return { status: 'OK' }
     }),
+
+  setChatChannelId: t.procedure
+    .use(isAuthed)
+    .input(z.object({ chatChannelId: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      return await prisma.user
+        .update({
+          where: { publicKey: ctx.user.publicKey },
+          data: { chatChannelId: input.chatChannelId },
+        })
+        .catch((error) => {
+          console.debug('setChatChannelId error', error)
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
+        })
+    }),
+
   deleteMe: t.procedure.use(isAuthed).mutation(async ({ ctx }) => {
     return await prisma.user
       .delete({

@@ -4,11 +4,12 @@ interface MessageInputProps {
   message: string
   setMessage: (e: any) => void
   handleSubmitMessage: (e: any) => void
+  disabled: boolean
 }
 
 // TODO: use react-hook-form
 
-const MessageInput = ({ message, setMessage, handleSubmitMessage }: MessageInputProps) => {
+const MessageInput = ({ message, setMessage, handleSubmitMessage, disabled }: MessageInputProps) => {
   // TODO: Autogrow textarea...
   // const textAreaRef = useRef<HTMLTextAreaElement | null>(null)
 
@@ -44,7 +45,7 @@ const MessageInput = ({ message, setMessage, handleSubmitMessage }: MessageInput
         value={message}
         rows={1}
         // ref={textAreaRef}
-        // disabled={disabled}
+        disabled={disabled}
         onChange={(e) => {
           setMessage(e.target.value)
         }}

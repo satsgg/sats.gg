@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import getSettingsLayout from '~/components/Settings/Layout'
 import { useZodForm } from '~/utils/useZodForm'
 import { z } from 'zod'
@@ -8,10 +9,12 @@ import { toast } from 'react-toastify'
 import { nostrClient } from '~/nostr/NostrClient'
 import useCanSign from '~/hooks/useCanSign'
 import useAuthStore from '~/hooks/useAuthStore'
+import CopyValueBar from '~/components/Settings/CopyBar'
 
 export default function Chat() {
   const canSign = useCanSign()
   const pubkey = useAuthStore((state) => state.pubkey)
+  const [createdChannelId, setCreatedChannelId] = useState<string | undefined>(undefined)
 
   const {
     register,
@@ -51,6 +54,7 @@ export default function Chat() {
 
       console.debug('event id', signedEvent.id)
       nostrClient.publish(signedEvent)
+      setCreatedChannelId(signedEvent.id)
     } catch (err: any) {
       console.error(err.message)
       toast.error(err.message, {
@@ -71,11 +75,12 @@ export default function Chat() {
       <h2 className="font-md mb-2 text-2xl">Chat</h2>
       <div className="flex flex-col gap-4 rounded border border-gray-500 bg-stone-800 px-6 py-4">
         <h2 className="font-md mb-2 text-xl">Create Chat Channel</h2>
+        <h3 className="font-sm text-sm">Chat channel name, about, and picture can be updated after creation.</h3>
         <div className="flex gap-4">
-          <div className="h-52 w-52 border border-gray-500" />
+          {/* <div className="h-52 w-52 border border-gray-500" /> */}
           <div className="flex grow flex-col gap-2">
             <Input label={'Name'} name={'name'} register={register} />
-            <Input label={'About'} name={'about'} register={register} />
+            <Input label={'About'} name={'about'} register={register} rows={3} />
             <Input label={'Picture URL'} name={'picture'} register={register} />
           </div>
         </div>
@@ -89,6 +94,7 @@ export default function Chat() {
             Submit
           </button>
         </div>
+        <CopyValueBar value={createdChannelId} />
       </div>
     </div>
   )

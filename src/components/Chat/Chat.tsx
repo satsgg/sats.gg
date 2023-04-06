@@ -14,13 +14,22 @@ import { verifySignature, validateEvent } from 'nostr-tools'
 import { toast } from 'react-toastify'
 import { nostrClient } from '~/nostr/NostrClient'
 import useAuthStore from '~/hooks/useAuthStore'
+import { AppRouter } from '~/server/routers/_app'
 
 const eventOrder = {
   created_at: null,
   content: null,
 }
 
-export const Chat = ({ channelPubkey }: { channelPubkey: string }) => {
+type GetUserOutput = inferProcedureOutput<AppRouter['user']['getUser']>
+
+export const Chat = ({
+  channelPubkey,
+  channelUser,
+}: {
+  channelPubkey: string
+  channelUser: GetUserOutput | undefined
+}) => {
   // const { publish } = useNostr()
   const pubkey = useAuthStore((state) => state.pubkey)
   const [message, setMessage] = useState<string>('')
@@ -118,37 +127,41 @@ export const Chat = ({ channelPubkey }: { channelPubkey: string }) => {
       <div className="hidden justify-center border-b border-solid border-gray-500 sm:flex">
         <p className="py-2 px-4 font-normal text-white">CHAT</p>
       </div>
-      <Virtuoso
-        // logLevel={LogLevel.DEBUG}
-        data={notes}
-        followOutput
-        // followOutput={'smooth'}
-        ref={virtuosoRef}
-        className={'max-h-[calc(100vh-12.5rem)]'}
-        // not sure on these pixel calcs, but 1000px bottom seems to have *improved*
-        // the scrollToBottom issue as recommended by virtuoso guy.
-        increaseViewportBy={{
-          top: 200,
-          bottom: 2000,
-        }}
-        atBottomStateChange={(bottom) => {
-          if (!bottom) console.warn('NOT AT BOTTOM')
-          setAtBottom(bottom)
-        }}
-        itemContent={(index, note) => {
-          return (
-            <div className="break-words px-3">
-              <ChatUser pubkey={note.pubkey} />
-              {/* <span>{note.pubkey.slice(0,12)}</span> */}
-              <span className="text-sm text-white">: </span>
-              {/* <span className="text-sm ">{note.content}</span> */}
-              <Message content={note.content} />
-            </div>
-          )
-        }}
-      />
+      {channelUser?.chatChannelId ? (
+        <Virtuoso
+          // logLevel={LogLevel.DEBUG}
+          data={notes}
+          followOutput
+          // followOutput={'smooth'}
+          ref={virtuosoRef}
+          className={'max-h-[calc(100vh-12.5rem)]'}
+          // not sure on these pixel calcs, but 1000px bottom seems to have *improved*
+          // the scrollToBottom issue as recommended by virtuoso guy.
+          increaseViewportBy={{
+            top: 200,
+            bottom: 2000,
+          }}
+          atBottomStateChange={(bottom) => {
+            if (!bottom) console.warn('NOT AT BOTTOM')
+            setAtBottom(bottom)
+          }}
+          itemContent={(index, note) => {
+            return (
+              <div className="break-words px-3">
+                <ChatUser pubkey={note.pubkey} />
+                {/* <span>{note.pubkey.slice(0,12)}</span> */}
+                <span className="text-sm text-white">: </span>
+                {/* <span className="text-sm ">{note.content}</span> */}
+                <Message content={note.content} />
+              </div>
+            )
+          }}
+        />
+      ) : (
+        <div className="flex h-full w-full items-center justify-center">User has not set a chat channel!</div>
+      )}
 
-      {showBottomButton && (
+      {channelUser?.chatChannelId && showBottomButton && (
         <div ref={setPopperElement} style={styles.popper} {...attributes.popper}>
           <button
             className="bg-slate-600 px-2 py-1"
@@ -160,12 +173,17 @@ export const Chat = ({ channelPubkey }: { channelPubkey: string }) => {
       )}
 
       <div ref={setChatRef} className="flex w-full flex-row gap-1 py-3 px-3 sm:flex-col">
-        <MessageInput message={message} setMessage={setMessage} handleSubmitMessage={handleSubmitMessage} />
+        <MessageInput
+          message={message}
+          setMessage={setMessage}
+          handleSubmitMessage={handleSubmitMessage}
+          disabled={!canSign || !channelUser?.chatChannelId}
+        />
         <div className="flex justify-end">
           <button
             className="inline-flex items-center rounded bg-primary px-3 py-2 text-sm font-semibold uppercase shadow-md transition duration-150 ease-in-out hover:bg-primary/80 hover:shadow-lg focus:bg-primary focus:shadow-lg focus:outline-none focus:ring-0 active:bg-primary active:shadow-lg disabled:cursor-not-allowed disabled:bg-gray-500"
             // disabled={showTip}
-            disabled={!canSign}
+            disabled={!canSign || !channelUser?.chatChannelId}
             onClick={(e) => handleSubmitMessage(e)}
           >
             Chat
