@@ -106,7 +106,9 @@ export default function Profile() {
 
   return (
     <div className="flex w-3/5 flex-col gap-4">
-      <h2 className="font-md mb-2 text-2xl">Profile</h2>
+      <h2 className="font-md text-2xl">Profile</h2>
+      <h3 className="font-sm text-sm text-gray-400">Set your nostr kind0 profile metadata information.</h3>
+
       <div className="flex flex-col gap-4 rounded border border-gray-500 bg-stone-800 px-6 py-4">
         <form className="flex flex-col gap-2" spellCheck={false} onSubmit={handleSubmit(onSubmit)}>
           <div className="flex gap-4">
@@ -116,23 +118,45 @@ export default function Profile() {
               <div className="h-52 w-52 border border-gray-500" />
             )}
             <div className="flex grow flex-col gap-2">
-              <Input label={'Your Name'} name={'name'} register={register} />
-              <Input label={'Display Name'} name={'display_name'} register={register} />
-              <Input label={'Picture URL'} name={'picture'} register={register} />
+              <div>
+                <p>Your Name</p>
+                <Input name={'name'} register={register} />
+              </div>
+              <div>
+                <p>Display Name</p>
+                <Input name={'display_name'} register={register} />
+              </div>
+              <div>
+                <p>Picture URL</p>
+                <Input name={'picture'} register={register} />
+              </div>
             </div>
           </div>
 
-          <Input label={'About'} name={'about'} register={register} />
-          <Input label={'Website'} name={'website'} placeholder={'https://example.com'} register={register} />
-          <Input label={'Banner URL'} name={'banner'} register={register} />
-          <Input
-            label={'LNURLPay'}
-            name={'lud06'}
-            placeholder={'LNURL1DP68GURN8GHJ7AMPD3KX2AR0VEE...'}
-            register={register}
-          />
-          <Input label={'Lightning Address'} name={'lud16'} placeholder={'name@getalby.com'} register={register} />
-          <Input label={'Nip05 Verification'} name={'nip05'} placeholder={'name@nostrplebs.com'} register={register} />
+          <div>
+            <p>About</p>
+            <Input name={'about'} register={register} />
+          </div>
+          <div>
+            <p>Website URL</p>
+            <Input name={'website'} placeholder={'https://example.com'} register={register} />
+          </div>
+          <div>
+            <p>Banner URL</p>
+            <Input name={'banner'} register={register} />
+          </div>
+          <div>
+            <p>LNURLPay</p>
+            <Input name={'lud06'} placeholder={'LNURL1DP68GURN8GHJ7AMPD3KX2AR0VEE...'} register={register} />
+          </div>
+          <div>
+            <p>Lightning Address</p>
+            <Input name={'lud16'} placeholder={'name@getalby.com'} register={register} />
+          </div>
+          <div>
+            <p>Nip05 Verification</p>
+            <Input name={'nip05'} placeholder={'name@nostrplebs.com'} register={register} />
+          </div>
         </form>
 
         <div className="flex justify-end">
@@ -142,7 +166,7 @@ export default function Profile() {
             className="align-right inline-flex h-8 w-32 items-center justify-center rounded bg-primary px-2 py-1 text-sm font-semibold shadow-md transition duration-150 ease-in-out hover:bg-primary hover:shadow-lg focus:bg-primary focus:shadow-lg focus:outline-none focus:ring-0 active:bg-primary active:shadow-lg disabled:cursor-not-allowed disabled:bg-gray-500"
             onClick={handleSubmit(onSubmit)}
           >
-            Submit
+            Publish
           </button>
         </div>
       </div>

@@ -101,7 +101,10 @@ export default function Relays() {
 
   return (
     <div className="flex w-11/12 flex-col gap-4 sm:w-3/5">
-      <h2 className="font-md mb-2 text-2xl">Relays</h2>
+      <h2 className="font-md text-2xl">Relays</h2>
+      <h3 className="font-sm text-sm text-gray-400">
+        Add or remove nostr relays to control where you read and publish nostr events!
+      </h3>
 
       {Array.from(relays).map((relay) => {
         return (

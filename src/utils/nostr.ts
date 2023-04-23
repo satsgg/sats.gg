@@ -33,7 +33,7 @@ export const createEvent = (pubkey: string, content: string, channelId: string):
   return event
 }
 
-export const createChannelEvent = (pubkey: string, name: string, picture: string, about: string) => {
+export const createChannelEvent = (pubkey: string, name: string, about: string, picture: string) => {
   const content = JSON.stringify({
     name: name,
     about: about,
@@ -50,6 +50,31 @@ export const createChannelEvent = (pubkey: string, name: string, picture: string
   }
 
   console.debug('createChannelEvent', event)
+  return event
+}
+
+export const updateChannelEvent = (
+  pubkey: string,
+  chatChannelId: string,
+  name: string,
+  about: string,
+  picture: string,
+) => {
+  const content = JSON.stringify({
+    name: name,
+    about: about,
+    picture: picture,
+  })
+
+  const event: NostrEvent = {
+    kind: 41,
+    pubkey: pubkey,
+    created_at: Math.floor(Date.now() / 1000),
+    tags: [['e', chatChannelId]],
+    content: content,
+  }
+
+  console.debug('updateChannelEvent', event)
   return event
 }
 
