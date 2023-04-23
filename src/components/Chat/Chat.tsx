@@ -51,27 +51,20 @@ export const Chat = ({
   const filters: Filter[] = [
     {
       kinds: [42],
-      // kinds: [1],
       since: now.current,
-      // TODO: use chat channel ID corresponding to channelPubkey
-      '#e': ['cb1a5b962701e2c44a7bcf18fb3a60cbc8caec576c776749507acc952df97fcd'],
+      '#e': [channelUser?.chatChannelId || ''],
     },
   ]
   const notes = useSubscription(channelPubkey, filters, 250)
 
   const handleSubmitMessage = async (e: any) => {
     e.preventDefault()
-    if (!pubkey) return
+    if (!pubkey || !channelUser?.chatChannelId) return
 
     const formattedMessage = message.trim()
     if (formattedMessage === '') return
 
-    const event: NostrEvent = createEvent(
-      pubkey,
-      formattedMessage,
-      // TODO: use chat channel ID corresponding to channelPubkey
-      'cb1a5b962701e2c44a7bcf18fb3a60cbc8caec576c776749507acc952df97fcd',
-    )
+    const event: NostrEvent = createEvent(pubkey, formattedMessage, channelUser.chatChannelId)
     // error handling here? What if none of the relays accepted our message...
     try {
       const signedEvent = await window.nostr.signEvent(event)
