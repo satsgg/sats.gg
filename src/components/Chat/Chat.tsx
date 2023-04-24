@@ -51,7 +51,8 @@ export const Chat = ({
   const filters: Filter[] = [
     {
       kinds: [42],
-      since: now.current,
+      since: now.current - 1000 * 60 * 60 * 24, // one day ago
+      limit: 25,
       '#e': [channelUser?.chatChannelId || ''],
     },
   ]

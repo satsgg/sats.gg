@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Filter, Event } from 'nostr-tools'
 import { nostrClient } from '~/nostr/NostrClient'
+import { uniqBy } from '~/utils/nostr'
 
 export const useSubscription = (id: string, filter: Filter[], limit: number = 500) => {
   const [notes, setNotes] = useState<Event[]>([])
@@ -27,5 +28,6 @@ export const useSubscription = (id: string, filter: Filter[], limit: number = 50
     }
   }, [id])
 
-  return notes
+  const uniqEvents = notes.length > 0 ? uniqBy(notes, 'id') : []
+  return uniqEvents.sort((b, a) => b.created_at - a.created_at)
 }
