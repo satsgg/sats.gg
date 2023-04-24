@@ -33,6 +33,7 @@ const useChannelMetadata = (pubkey: string | undefined, channelId: string | unde
       nostrClient.subscribe('channelMetadata', filters, onEventCallback)
 
       return () => {
+        setCurrentEvent(undefined)
         nostrClient.unsubscribe('channelMetadata')
       }
     } else {

@@ -12,7 +12,6 @@ import useCanSign from '~/hooks/useCanSign'
 import useAuthStore from '~/hooks/useAuthStore'
 import CopyValueBar from '~/components/Settings/CopyBar'
 import useChannelMetadata from '~/hooks/useChannelMetadata'
-import { channel } from 'diagnostics_channel'
 
 export default function Chat() {
   const canSign = useCanSign()
@@ -25,12 +24,7 @@ export default function Chat() {
   const {
     register: registerCreate,
     handleSubmit: handleSubmitCreate,
-    setError,
-    setValue,
-    getValues,
-    watch,
-    reset,
-    formState: { errors },
+    formState: { errors: createErrors },
   } = useZodForm({
     mode: 'onSubmit',
     schema: z.object({
@@ -48,12 +42,8 @@ export default function Chat() {
   const {
     register: registerUpdate,
     handleSubmit: handleSubmitUpdate,
-    // setError,
-    // setValue,
-    // getValues,
-    // watch,
     reset: resetUpdate,
-    // formState: { errors },
+    formState: { errors: updateErrors },
   } = useZodForm({
     mode: 'onSubmit',
     schema: z.object({
@@ -65,6 +55,20 @@ export default function Chat() {
       name: '',
       about: '',
       picture: '',
+    },
+  })
+
+  const {
+    register: registerId,
+    handleSubmit: handleSubmitId,
+    formState: { errors: idErrors },
+  } = useZodForm({
+    mode: 'onSubmit',
+    schema: z.object({
+      id: z.string().length(64),
+    }),
+    defaultValues: {
+      id: '',
     },
   })
 
@@ -87,6 +91,16 @@ export default function Chat() {
 
       // TODO: If no existing chat room, auto save the ID to backend
       // should only save if enough relays see it... and show the user the relay seen status
+      toast.success('Chat room created!', {
+        position: 'bottom-center',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'light',
+      })
     } catch (err: any) {
       console.error(err.message)
       toast.error(err.message, {
@@ -107,10 +121,41 @@ export default function Chat() {
     await utils.invalidate()
   }
 
+  const onSubmitById = async (data: any) => {
+    if (!pubkey) return
+
+    try {
+      // TODO: Warn if existing
+      await onSubmitChatChannel(data.id)
+      resetUpdate({ name: '', about: '', picture: '' })
+      toast.success('Saved chat room by ID!', {
+        position: 'bottom-center',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'light',
+      })
+    } catch (err: any) {
+      console.error(err.message)
+      toast.error(err.message, {
+        position: 'bottom-center',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'light',
+      })
+    }
+  }
+
   useEffect(() => {
-    console.debug('channelMetadata effect', channelMetadata)
     resetUpdate({ ...channelMetadata })
-  }, [channelMetadata?.name, channelMetadata?.about, channelMetadata?.picture])
+  }, [user?.chatChannelId, channelMetadata?.name, channelMetadata?.about, channelMetadata?.picture])
 
   const onSubmitUpdate = async (data: any) => {
     if (!pubkey || !user?.chatChannelId) return
@@ -127,6 +172,17 @@ export default function Chat() {
 
       console.debug('event id', signedEvent.id)
       nostrClient.publish(signedEvent)
+
+      toast.success('Chat room updated!', {
+        position: 'bottom-center',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'light',
+      })
     } catch (err: any) {
       console.error(err.message)
       toast.error(err.message, {
@@ -152,19 +208,31 @@ export default function Chat() {
 
       <div className="flex flex-col gap-6 divide-y divide-gray-400 rounded border border-gray-500 bg-stone-800 px-6 py-4">
         <div className="flex flex-col gap-4">
+          <h2 className="font-md text-xl">Create Chat Room</h2>
           <div className="flex">
             <div className="flex grow flex-col gap-2">
               <div>
                 <p>Name</p>
-                <Input name={'name'} register={registerCreate} />
+                <Input name={'name'} placeholder="Chad's Live Chat" register={registerCreate} />
               </div>
               <div>
                 <p>About</p>
-                <Input name={'about'} register={registerCreate} rows={1} />
+                <Input
+                  name={'about'}
+                  placeholder="A place for us to chat. Come and kick it!"
+                  register={registerCreate}
+                  rows={1}
+                />
               </div>
               <div>
                 <p>Picture URL</p>
-                <Input name={'picture'} register={registerCreate} />
+                <Input
+                  name={'picture'}
+                  placeholder="https://robohash.org/69"
+                  error={createErrors?.picture ? true : false}
+                  register={registerCreate}
+                />
+                {createErrors?.picture && <p className="italic text-red-600">{createErrors.picture.message}</p>}
               </div>
             </div>
           </div>
@@ -180,43 +248,35 @@ export default function Chat() {
           </div>
         </div>
 
-        {/* <h2 className="font-md text-xl">Saved Chat Room</h2>
-        <div>
-          <h3 className="font-sm text-sm text-gray-400">
-            Your saved chat room ID. If empty, create your first chat room above!
-          </h3>
-          <p>Chat Room ID</p>
-          <CopyValueBar value={user?.chatChannelId} />
-        </div> */}
-
         <div className="flex flex-col gap-1 pt-6">
-          {/* <h3 className="font-md text-xl">Set Chat Room by ID</h3> */}
-          <p>Channel ID</p>
+          <p>Import Chat Room</p>
           <div className="inline-flex w-full gap-4">
-            <Input name={'id'} register={registerCreate} placeholder="Existing chat room ID..." />
+            <Input
+              name={'id'}
+              register={registerId}
+              error={idErrors.id ? true : false}
+              placeholder="Existing kind 40 event ID..."
+            />
             <button
               className="inline-flex w-32 shrink-0 items-center justify-center rounded bg-primary py-1 px-2 text-sm font-semibold text-white"
               // disabled={refreshStreamKeyMutation.isLoading}
-              // onClick={onSubmitRefreshStreamKey}
+              onClick={handleSubmitId(onSubmitById)}
             >
               Save
             </button>
           </div>
+          {idErrors?.id && <p className="italic text-red-600">{idErrors.id.message}</p>}
           <h3 className="font-sm text-sm text-gray-400">
             Chat rooms are based on nostr and can be created and imported from anywhere.
           </h3>
         </div>
 
-        {/* TODO: Show existing chat channel */}
         {user?.chatChannelId && (
           <div className="flex flex-col gap-4 pt-6">
-            <div>
-              <p>Channel ID</p>
-              <CopyValueBar value={user.chatChannelId} />
-            </div>
+            <h2 className="font-md text-xl">Your Chat Room</h2>
+
             <div className="flex flex-col gap-4">
               <div className="flex gap-4">
-                {/* <div className="h-52 w-52 bg-gray-50" /> */}
                 <img
                   className="h-52 w-52"
                   src={channelMetadata?.picture ?? undefined}
@@ -233,7 +293,8 @@ export default function Chat() {
                   </div>
                   <div>
                     <p>Picture URL</p>
-                    <Input name={'picture'} register={registerUpdate} />
+                    <Input name={'picture'} error={updateErrors?.picture ? true : false} register={registerUpdate} />
+                    {updateErrors?.picture && <p className="italic text-red-600">{updateErrors.picture.message}</p>}
                   </div>
                 </div>
               </div>
@@ -247,6 +308,10 @@ export default function Chat() {
                   Update
                 </button>
               </div>
+            </div>
+            <div>
+              <p>Channel ID</p>
+              <CopyValueBar value={user.chatChannelId} />
             </div>
           </div>
         )}
