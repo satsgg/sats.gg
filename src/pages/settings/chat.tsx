@@ -74,6 +74,7 @@ export default function Chat() {
 
   const onSubmitCreate = async (data: any) => {
     if (!pubkey) return
+    // if (!confirm('You already have a channel!')) return
 
     const event = createChannelEvent(pubkey, data.name, data.about, data.picture)
 
