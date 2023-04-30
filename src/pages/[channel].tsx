@@ -79,18 +79,13 @@ export default function Channel() {
           id="streamWrapper"
           className="aspect-video max-h-[calc(100vh-9rem)] sm:border-b sm:border-solid sm:border-gray-500"
         >
-          {userLoading ? <StreamSkeleton /> : <Stream channelPubkey={channelPubkey} />}
+          {userLoading ? <StreamSkeleton /> : <Stream channelUser={channelUser} />}
         </div>
         <StreamBio channelPubkey={channelPubkey} />
       </div>
 
       <div className="flex h-full w-full sm:w-80 md:shrink-0">
-        {userLoading ? (
-          <ChatSkeleton />
-        ) : (
-          // <Chat channelPubkey={channelPubkey} chatChannelId={channelUser.chatChannelId} />
-          <Chat channelPubkey={channelPubkey} channelUser={channelUser} />
-        )}
+        {userLoading ? <ChatSkeleton /> : <Chat channelPubkey={channelPubkey} channelUser={channelUser} />}
       </div>
     </>
   )

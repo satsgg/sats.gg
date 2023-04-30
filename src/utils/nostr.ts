@@ -1,4 +1,5 @@
-import { getEventHash, signEvent, verifySignature, Event as NostrEvent } from 'nostr-tools'
+import { getEventHash, signEvent, verifySignature, Event as NostrEvent, nip19 } from 'nostr-tools'
+import { UserMetadata } from '~/nostr/NostrClient'
 
 // export const unique = <T extends { [key: string]: unknown }>(arr: T[], key: string): T[] => [   ...new Map(arr.map((item: T) => [item[key], item])).values() ];
 export const uniqBy = <T>(arr: T[], key: keyof T): T[] => {
@@ -92,4 +93,16 @@ export const signAuthEvent = async (pubkey: string, challenge: string) => {
   }
 
   return await window.nostr.signEvent(event)
+}
+
+export const displayName = (pubkey: string, profile: UserMetadata | undefined) => {
+  if (false) {
+    return ''
+  } else if (profile?.name) {
+    return profile.name
+  } else if (profile?.display_name) {
+    return profile.display_name
+  } else {
+    return nip19.npubEncode(pubkey)
+  }
 }

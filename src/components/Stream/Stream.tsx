@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react'
 // import MuxPlayer from '@mux/mux-player-react/lazy'
 import MuxPlayer from '@mux/mux-player-react'
+import { inferProcedureOutput } from '@trpc/server'
+import { AppRouter } from '~/server/routers/_app'
 
 // NOTE: Bug or something with lazy mux loader
 // placeholder (btwn DOM/placeholder and actual video loading) doesn't respect
@@ -10,7 +12,9 @@ import MuxPlayer from '@mux/mux-player-react'
 // want lazy loader because it makes the DOM content load wayyy faster...
 // just have the issue with the placeholder
 
-export const Stream = ({ channelPubkey }: { channelPubkey: string }) => {
+type GetUserOutput = inferProcedureOutput<AppRouter['user']['getUser']>
+
+export const Stream = ({ channelUser }: { channelUser: GetUserOutput | undefined }) => {
   const videoEl = useRef(null)
 
   // console.log('playbackid', channelUser?.playbackId)
@@ -65,8 +69,8 @@ export const Stream = ({ channelPubkey }: { channelPubkey: string }) => {
   return (
     <MuxPlayer
       streamType="ll-live"
-      // playbackId={channelUser?.playbackId}
-      playbackId="v69RSHhFelSm4701snP22dYz2jICy4E4FUyk02rW4gxRM"
+      playbackId={channelUser?.playbackId}
+      // playbackId="v69RSHhFelSm4701snP22dYz2jICy4E4FUyk02rW4gxRM"
       // title="hi"
       // debug
       envKey="06ap5jkfhpso2kfdumgvn5ml9"
