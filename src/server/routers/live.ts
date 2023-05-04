@@ -12,6 +12,7 @@ export const liveRouter = t.router({
         },
         select: {
           publicKey: true,
+          playbackId: true,
         },
       })
       .catch((error) => {

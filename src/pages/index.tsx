@@ -3,6 +3,7 @@ import { trpc } from '~/utils/trpc'
 import { displayName } from '~/utils/nostr'
 import ProfileImg from '~/components/ProfileImg'
 import Link from 'next/link'
+import { useQuery } from '@tanstack/react-query'
 
 // i like bg-stone-600...
 const DummyStreamCard = () => {
@@ -23,18 +24,35 @@ const DummyStreamCard = () => {
   )
 }
 
-const dummyLiveChannels = []
-
-const StreamCard = ({ pubkey }: { pubkey: string }) => {
+const StreamCard = ({ pubkey, playbackId }: { pubkey: string; playbackId: string }) => {
   const { profile, isLoading } = useProfile(pubkey)
+
+  const {
+    isLoading: thumbnailIsLoading,
+    error: thumbnailError,
+    data: thumbnailData,
+  } = useQuery({
+    queryKey: ['thumbnail'],
+    queryFn: async () => {
+      const response = await fetch(`https://image.mux.com/${playbackId}/thumbnail.jpg?height=347`)
+      if (!response.ok) {
+        throw new Error('Network response was not ok')
+      }
+      const imageBlob = await response.blob()
+      return URL.createObjectURL(imageBlob)
+    },
+  })
 
   if (isLoading) return <DummyStreamCard />
 
   return (
     <div className="flex flex-col gap-2">
-      {/* TODO: Thumbnail */}
       <Link className="aspect-video h-full w-full" href={`/${pubkey}`} legacyBehavior={false}>
-        <div className="aspect-video h-full w-full rounded bg-stone-800"></div>
+        {thumbnailIsLoading ? (
+          <div className="aspect-video h-full w-full rounded bg-stone-800"></div>
+        ) : (
+          <img className="h-full w-full" src={thumbnailData} alt={`thumbnail of ${pubkey}`} />
+        )}
       </Link>
 
       <div className="flex h-16 w-full gap-2 ">
@@ -65,20 +83,26 @@ export default function IndexPage() {
         {streams && (
           <>
             {streams.map((stream) => (
-              <StreamCard pubkey={stream.publicKey} />
+              <StreamCard pubkey={stream.publicKey} playbackId={stream.playbackId} />
             ))}
           </>
         )}
 
-        <StreamCard pubkey={'3bf0c63fcb93463407af97a5e5ee64fa883d107ef9e558472c4eb9aaaefa459d'} />
-        {true && (
+        {/* {isLoading && (
           <>
             {[...Array(32)].map((e, i) => (
               <DummyStreamCard key={i} />
             ))}
           </>
-        )}
+        )} */}
       </div>
+
+      {!isLoading && streams?.length === 0 && (
+        <>
+          <p>Welcome to sats.gg!</p>
+          <p>Nobody is streaming at the moment... Be the first!</p>
+        </>
+      )}
     </div>
   )
 }

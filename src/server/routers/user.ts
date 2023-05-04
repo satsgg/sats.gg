@@ -63,7 +63,8 @@ export const userRouter = t.router({
     .input(
       z.object({
         type: z.string(),
-        id: z.string().uuid(),
+        // id: z.string().uuid(),
+        id: z.string(),
         data: z.any(),
         // data: z.object({ id: z.string().uuid() })
         // data: z.object({
