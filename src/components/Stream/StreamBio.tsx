@@ -6,9 +6,11 @@ import ProfileImg from '../ProfileImg'
 export const StreamBio = ({
   channelPubkey,
   streamTitle,
+  streamStatus,
 }: {
   channelPubkey: string
   streamTitle: string | null | undefined
+  streamStatus: string | undefined
 }) => {
   const { profile, isLoading } = useProfile(channelPubkey)
 
@@ -25,7 +27,12 @@ export const StreamBio = ({
     <div id="streamBioWrapper" className="flex grow flex-col gap-4 px-4 py-2 md:px-6 md:py-4">
       <div id="profile" className="flex gap-2">
         <div className="h-12 w-12 shrink-0 md:h-16 md:w-16">
-          <ProfileImg pubkey={channelPubkey} isLoading={isLoading} picture={profile?.picture} />
+          <ProfileImg
+            pubkey={channelPubkey}
+            isLoading={isLoading}
+            picture={profile?.picture}
+            streamStatus={streamStatus}
+          />
         </div>
 
         <div className="flex w-full min-w-0 justify-between">
