@@ -22,7 +22,7 @@ model User {
   playbackId    String       @unique
   streamId      String       @unique
   streamStatus  StreamStatus @default(IDLE)
-  // streamTitle   String?
+  streamTitle   String?
   chatChannelId String?      @unique
 }
 

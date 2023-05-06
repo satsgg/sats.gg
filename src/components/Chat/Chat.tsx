@@ -152,7 +152,9 @@ export const Chat = ({
           }}
         />
       ) : (
-        <div className="flex h-full w-full items-center justify-center">User has not set a chat channel!</div>
+        <div className="flex h-full w-full items-center justify-center text-center">
+          User has not set a chat channel!
+        </div>
       )}
 
       {channelUser?.chatChannelId && showBottomButton && (

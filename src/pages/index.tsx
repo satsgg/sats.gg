@@ -24,7 +24,15 @@ const DummyStreamCard = () => {
   )
 }
 
-const StreamCard = ({ pubkey, playbackId }: { pubkey: string; playbackId: string }) => {
+const StreamCard = ({
+  pubkey,
+  playbackId,
+  streamTitle,
+}: {
+  pubkey: string
+  playbackId: string
+  streamTitle: string | null
+}) => {
   const { profile, isLoading } = useProfile(pubkey)
 
   const {
@@ -64,10 +72,14 @@ const StreamCard = ({ pubkey, playbackId }: { pubkey: string; playbackId: string
           </div>
         </div>
         <div className="flex min-w-0 flex-col">
+          {streamTitle && (
+            <Link href={`/${pubkey}`} legacyBehavior={false}>
+              <h3 className="truncate font-bold">{streamTitle}</h3>
+            </Link>
+          )}
           <Link href={`/${pubkey}`} legacyBehavior={false}>
-            <h3 className="truncate font-bold">Placeholder title plz lol test hahahhahahhehehehehehe</h3>
+            <p className="truncate">{displayName(pubkey, profile)}</p>
           </Link>
-          <p className="truncate">{displayName(pubkey, profile)}</p>
         </div>
       </div>
     </div>
@@ -83,11 +95,15 @@ export default function IndexPage() {
         {streams && (
           <>
             {streams.map((stream) => (
-              <StreamCard pubkey={stream.publicKey} playbackId={stream.playbackId} />
+              <StreamCard pubkey={stream.publicKey} playbackId={stream.playbackId} streamTitle={stream.streamTitle} />
             ))}
           </>
         )}
-
+        {/* <StreamCard
+          pubkey={'5b6bfd0b8b1b2107e247d1750519ef30c142d5e6da8503cd28293ee22446c43b'}
+          playbackId="123"
+          streamTitle="yoooooooooooookjashflkjasdhfljhaskljfhasdjkhfljaksdhflkjasdhfkjh"
+        /> */}
         {/* {isLoading && (
           <>
             {[...Array(32)].map((e, i) => (

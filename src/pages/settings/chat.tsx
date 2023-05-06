@@ -201,7 +201,7 @@ export default function Chat() {
 
   return (
     <div className="flex w-3/5 flex-col gap-4">
-      <h2 className="font-md text-xl">Chat Room</h2>
+      <h2 className="font-md text-2xl">Chat Room</h2>
       <h3 className="font-sm text-sm text-gray-400">
         Create or configure your channel chat room. Chat rooms are based on Nostr nip-28. Sats.gg only saves your chat
         room ID. Chat room name, about, and picture can be updated after creation.

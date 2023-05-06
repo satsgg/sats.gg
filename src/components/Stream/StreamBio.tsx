@@ -3,7 +3,13 @@ import FollowButton from './FollowButton'
 import { nip19 } from 'nostr-tools'
 import ProfileImg from '../ProfileImg'
 
-export const StreamBio = ({ channelPubkey }: { channelPubkey: string }) => {
+export const StreamBio = ({
+  channelPubkey,
+  streamTitle,
+}: {
+  channelPubkey: string
+  streamTitle: string | null | undefined
+}) => {
   const { profile, isLoading } = useProfile(channelPubkey)
 
   const getProfileName = () => {
@@ -23,7 +29,14 @@ export const StreamBio = ({ channelPubkey }: { channelPubkey: string }) => {
         </div>
 
         <div className="flex w-full min-w-0 justify-between">
-          <span className="font-semi min-h-0 truncate text-lg text-white">{getProfileName()}</span>
+          <div className="flex min-w-0 flex-col">
+            <span className="min-h-0 truncate text-lg font-bold text-white">{getProfileName()}</span>
+            {streamTitle && (
+              <span className="min-h-0 truncate break-words text-lg text-white xl:whitespace-normal">
+                {streamTitle}
+              </span>
+            )}
+          </div>
           <FollowButton pubkey={channelPubkey} />
         </div>
       </div>

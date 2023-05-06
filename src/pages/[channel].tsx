@@ -81,7 +81,7 @@ export default function Channel() {
         >
           {userLoading ? <StreamSkeleton /> : <Stream channelUser={channelUser} />}
         </div>
-        <StreamBio channelPubkey={channelPubkey} />
+        <StreamBio channelPubkey={channelPubkey} streamTitle={channelUser?.streamTitle} />
       </div>
 
       <div className="flex h-full w-full sm:w-80 md:shrink-0">

@@ -22,6 +22,7 @@ export const userRouter = t.router({
             playbackId: true,
             streamStatus: true,
             chatChannelId: true,
+            streamTitle: true,
           },
         })
         .catch((error) => {
@@ -107,6 +108,21 @@ export const userRouter = t.router({
         })
         .catch((error) => {
           console.debug('setChatChannelId error', error)
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
+        })
+    }),
+
+  updateStreamTitle: t.procedure
+    .use(isAuthed)
+    .input(z.object({ streamTitle: z.string().max(128) }))
+    .mutation(async ({ input, ctx }) => {
+      return await prisma.user
+        .update({
+          where: { publicKey: ctx.user.publicKey },
+          data: { streamTitle: input.streamTitle },
+        })
+        .catch((error) => {
+          console.debug('updateStreamTitle error', error)
           throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
         })
     }),
