@@ -30,7 +30,8 @@ const ProfileImg = ({
         className={`
           ${imgLoaded ? '' : 'hidden'} 
           ${streamStatus === 'ACTIVE' && 'border-2 border-primary p-1'} 
-          h-full w-full rounded-[50%]
+          h-full
+          w-full rounded-[50%]
         `}
         // src={profile?.picture || `https://robohash.org/${channelPubkey}.png`}
         // src={profile?.picture}

@@ -2,6 +2,7 @@ import { useProfile } from '~/hooks/useProfile'
 import FollowButton from './FollowButton'
 import { nip19 } from 'nostr-tools'
 import ProfileImg from '../ProfileImg'
+import { displayName } from '~/utils/nostr'
 
 export const StreamBio = ({
   channelPubkey,
@@ -13,15 +14,6 @@ export const StreamBio = ({
   streamStatus: string | undefined
 }) => {
   const { profile, isLoading } = useProfile(channelPubkey)
-
-  const getProfileName = () => {
-    if (isLoading) return ''
-    else if (profile?.name) {
-      return profile.name
-    } else {
-      return nip19.npubEncode(channelPubkey)
-    }
-  }
 
   return (
     <div id="streamBioWrapper" className="flex grow flex-col gap-4 px-4 py-2 md:px-6 md:py-4">
@@ -37,7 +29,7 @@ export const StreamBio = ({
 
         <div className="flex w-full min-w-0 justify-between">
           <div className="flex min-w-0 flex-col">
-            <span className="min-h-0 truncate text-lg font-bold text-white">{getProfileName()}</span>
+            <span className="min-h-0 truncate text-lg font-bold text-white">{displayName(channelPubkey, profile)}</span>
             {streamTitle && (
               <span className="min-h-0 truncate break-words text-lg text-white xl:whitespace-normal">
                 {streamTitle}

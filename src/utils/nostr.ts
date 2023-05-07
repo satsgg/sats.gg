@@ -96,9 +96,7 @@ export const signAuthEvent = async (pubkey: string, challenge: string) => {
 }
 
 export const displayName = (pubkey: string, profile: UserMetadata | undefined) => {
-  if (false) {
-    return ''
-  } else if (profile?.name) {
+  if (profile?.name) {
     return profile.name
   } else if (profile?.display_name) {
     return profile.display_name
