@@ -3,15 +3,18 @@ import { useProfile } from '~/hooks/useProfile'
 import LiveSVG from '~/svgs/live.svg'
 import { nip19 } from 'nostr-tools'
 import ProfileImg from './ProfileImg'
+import { StreamStatus } from '@prisma/client'
 
 export const FollowedChannelSingle = ({
   pubkey,
   userCollapse,
   autoCollapse,
+  status,
 }: {
   pubkey: string
   userCollapse: boolean
   autoCollapse: boolean
+  status: StreamStatus
 }) => {
   const { profile, isLoading } = useProfile(pubkey)
 
@@ -48,7 +51,7 @@ export const FollowedChannelSingle = ({
 
         {/* TODO: live viewer count */}
         <div className={`${userCollapse || autoCollapse ? 'hidden' : 'align-right'}`}>
-          {false ? (
+          {status === StreamStatus.ACTIVE ? (
             <LiveSVG width={20} height={20} className="fill-red-600" />
           ) : (
             <p className="text-sm font-light text-white">Offline</p>

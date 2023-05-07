@@ -10,7 +10,7 @@ const ProfileImg = ({
   pubkey: string
   isLoading: boolean
   picture: string | undefined
-  streamStatus: string | null | undefined
+  streamStatus?: string | null | undefined
 }) => {
   const [imgLoaded, setImgLoaded] = useState(false)
   const getImgUrl = () => {

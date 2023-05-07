@@ -4,6 +4,8 @@ import useAuthStore from '~/hooks/useAuthStore'
 import { FollowedChannelSingle } from './FollowedChannelSingle'
 import OpenRightSVG from '~/svgs/open-right.svg'
 import OpenLeftSVG from '~/svgs/open-left.svg'
+import { trpc } from '~/utils/trpc'
+import { StreamStatus } from '@prisma/client'
 
 export const FollowedChannelList = ({
   autoCollapse,
@@ -16,6 +18,27 @@ export const FollowedChannelList = ({
 }) => {
   const pubkey = useAuthStore((state) => state.pubkey)
   const follows = useFollows(pubkey)
+
+  const { data: streams, isLoading, isError } = trpc.live.getLiveStreams.useQuery(undefined, { refetchInterval: 15000 })
+
+  // short term way to handle which pubkeys are live...
+  // will need to sort again once view count is added...
+  // live status should eventually be based off a nostr note
+  // TODO: Run less often
+  const liveFollows = () => {
+    let liveFollows: { pubkey: string; streamStatus: StreamStatus }[] = []
+    let allFollows = follows.slice()
+    if (allFollows.length > 0 && streams && streams.length > 0) {
+      for (let stream of streams) {
+        let index = allFollows.indexOf(stream.publicKey)
+        if (index > 0) {
+          liveFollows.push({ pubkey: stream.publicKey, streamStatus: StreamStatus.ACTIVE })
+          allFollows.splice(index, 1)
+        }
+      }
+    }
+    return liveFollows.concat(allFollows.map((f) => ({ pubkey: f, streamStatus: StreamStatus.IDLE })))
+  }
 
   return (
     <>
@@ -39,11 +62,17 @@ export const FollowedChannelList = ({
         </button>
       </div>
       <Virtuoso
-        data={follows}
+        data={liveFollows()}
         className="no-scrollbar"
         itemContent={(index, user) => {
           return (
-            <FollowedChannelSingle key={index} pubkey={user} userCollapse={userCollapse} autoCollapse={autoCollapse} />
+            <FollowedChannelSingle
+              key={index}
+              pubkey={user.pubkey}
+              userCollapse={userCollapse}
+              autoCollapse={autoCollapse}
+              status={user.streamStatus}
+            />
           )
         }}
       />
