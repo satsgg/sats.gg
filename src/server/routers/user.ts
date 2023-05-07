@@ -79,10 +79,10 @@ export const userRouter = t.router({
     )
     .output(z.any())
     .query(async ({ input }) => {
-      console.log('mux webook input', input)
+      console.debug('mux webook input', input)
       if (input.type == 'video.live_stream.active' || input.type == 'video.live_stream.idle') {
         // update user stream status
-        const status: StreamStatus = input.type === 'video.live_stream.active' ? 'ACTIVE' : 'IDLE'
+        const status: StreamStatus = input.type === 'video.live_stream.active' ? StreamStatus.ACTIVE : StreamStatus.IDLE
 
         await prisma.user
           .update({
