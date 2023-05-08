@@ -67,7 +67,11 @@ const StreamCard = ({
         <div className="">
           <div className="h-10 w-10">
             <Link href={`/${pubkey}`} legacyBehavior={false}>
-              <ProfileImg pubkey={pubkey} isLoading={isLoading} picture={profile?.picture} />
+              {isLoading ? (
+                <div className="h-full w-full rounded-[50%] bg-gray-600" />
+              ) : (
+                <ProfileImg pubkey={pubkey} picture={profile?.picture} />
+              )}
             </Link>
           </div>
         </div>

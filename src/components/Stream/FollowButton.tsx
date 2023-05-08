@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Event as NostrEvent } from 'nostr-tools'
+import { UnsignedEvent } from 'nostr-tools'
 import useSettingsStore from '~/hooks/useSettingsStore'
 import FollowHeartSVG from '~/svgs/follow-heart.svg'
 import { verifySignature, validateEvent } from 'nostr-tools'
@@ -28,7 +28,7 @@ export default function FollowButton({ pubkey }: { pubkey: string }) {
 
     let tags = newFollows.map((f) => ['p', f])
 
-    const event: NostrEvent = {
+    const event: UnsignedEvent = {
       kind: 3,
       pubkey: myPubkey,
       created_at: Math.floor(Date.now() / 1000),

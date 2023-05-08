@@ -7,6 +7,7 @@ import StreamSkeleton from '~/components/Stream/StreamSkeleton'
 import { StreamBio } from '~/components/Stream/StreamBio'
 import { Spinner } from '~/components/Spinner'
 import { trpc } from '~/utils/trpc'
+import { useProfile } from '~/hooks/useProfile'
 
 const getChannelPubkey = (channel: string, isReady: boolean) => {
   if (channel.startsWith('npub1')) {
@@ -63,6 +64,8 @@ export default function Channel() {
     )
   }
 
+  const { profile: channelProfile, isLoading: channelProfileIsLoading } = useProfile(channelPubkey)
+
   const {
     data: channelUser,
     isLoading: userLoading,
@@ -83,6 +86,8 @@ export default function Channel() {
         </div>
         <StreamBio
           channelPubkey={channelPubkey}
+          channelProfile={channelProfile}
+          channelProfileIsLoading={channelProfileIsLoading}
           streamTitle={channelUser?.streamTitle}
           streamStatus={channelUser?.streamStatus}
         />

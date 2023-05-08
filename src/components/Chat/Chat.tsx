@@ -2,7 +2,7 @@ import { useRef, useState, useEffect } from 'react'
 import { Virtuoso, LogLevel, VirtuosoHandle } from 'react-virtuoso'
 import { inferProcedureOutput } from '@trpc/server'
 // import { useNostr } from '~/context/nostr'
-import { Filter, Event as NostrEvent } from 'nostr-tools'
+import { Filter, UnsignedEvent, verifySignature, validateEvent } from 'nostr-tools'
 import { createEvent, uniqBy } from '~/utils/nostr'
 import MessageInput from './MessageInput'
 import ChatUser from './ChatUser'
@@ -10,7 +10,6 @@ import Message from './Message'
 import { useSubscription } from '~/hooks/useSubscription'
 import { usePopper } from 'react-popper'
 import useCanSign from '~/hooks/useCanSign'
-import { verifySignature, validateEvent } from 'nostr-tools'
 import { toast } from 'react-toastify'
 import { nostrClient } from '~/nostr/NostrClient'
 import useAuthStore from '~/hooks/useAuthStore'
@@ -30,7 +29,6 @@ export const Chat = ({
   channelPubkey: string
   channelUser: GetUserOutput | undefined
 }) => {
-  // const { publish } = useNostr()
   const pubkey = useAuthStore((state) => state.pubkey)
   const [message, setMessage] = useState<string>('')
   const canSign = useCanSign()
@@ -65,7 +63,7 @@ export const Chat = ({
     const formattedMessage = message.trim()
     if (formattedMessage === '') return
 
-    const event: NostrEvent = createEvent(pubkey, formattedMessage, channelUser.chatChannelId)
+    const event: UnsignedEvent = createEvent(pubkey, formattedMessage, channelUser.chatChannelId)
     // error handling here? What if none of the relays accepted our message...
     try {
       const signedEvent = await window.nostr.signEvent(event)
@@ -143,9 +141,7 @@ export const Chat = ({
             return (
               <div className="break-words px-3">
                 <ChatUser pubkey={note.pubkey} />
-                {/* <span>{note.pubkey.slice(0,12)}</span> */}
                 <span className="text-sm text-white">: </span>
-                {/* <span className="text-sm ">{note.content}</span> */}
                 <Message content={note.content} />
               </div>
             )

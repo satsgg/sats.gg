@@ -1,4 +1,4 @@
-import { getEventHash, signEvent, verifySignature, Event as NostrEvent, nip19 } from 'nostr-tools'
+import { UnsignedEvent, nip19 } from 'nostr-tools'
 import { UserMetadata } from '~/nostr/NostrClient'
 
 // export const unique = <T extends { [key: string]: unknown }>(arr: T[], key: string): T[] => [   ...new Map(arr.map((item: T) => [item[key], item])).values() ];
@@ -16,9 +16,9 @@ export const uniqBy = <T>(arr: T[], key: keyof T): T[] => {
 
 // TODO: Make all of these functions better and more consistent
 
-export const createEvent = (pubkey: string, content: string, channelId: string): NostrEvent => {
+export const createEvent = (pubkey: string, content: string, channelId: string): UnsignedEvent => {
   // Can generalize later... (if kind 42, add e channelID tag etc)
-  const event: NostrEvent = {
+  const event: UnsignedEvent = {
     kind: 42,
     // kind: 1,
     pubkey: pubkey,
@@ -41,7 +41,7 @@ export const createChannelEvent = (pubkey: string, name: string, about: string, 
     picture: picture,
   })
 
-  const event: NostrEvent = {
+  const event: UnsignedEvent = {
     kind: 40,
     pubkey: pubkey,
     created_at: Math.floor(Date.now() / 1000),
@@ -67,7 +67,7 @@ export const updateChannelEvent = (
     picture: picture,
   })
 
-  const event: NostrEvent = {
+  const event: UnsignedEvent = {
     kind: 41,
     pubkey: pubkey,
     created_at: Math.floor(Date.now() / 1000),
@@ -84,7 +84,7 @@ export const signAuthEvent = async (pubkey: string, challenge: string) => {
     challenge: challenge,
     message: 'Sign this event to authenticate with sats.gg. This event will not be published.',
   }
-  const event: NostrEvent = {
+  const event: UnsignedEvent = {
     kind: -1,
     pubkey: pubkey,
     created_at: Math.floor(Date.now() / 1000),

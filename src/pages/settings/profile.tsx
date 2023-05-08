@@ -5,7 +5,7 @@ import { z } from 'zod'
 import { useEffect } from 'react'
 import Input from '~/components/Settings/Input'
 import useCanSign from '~/hooks/useCanSign'
-import { getEventHash, signEvent, Event as NostrEvent } from 'nostr-tools'
+import { getEventHash, signEvent, UnsignedEvent } from 'nostr-tools'
 import { verifySignature, validateEvent } from 'nostr-tools'
 import { toast } from 'react-toastify'
 import { nostrClient } from '~/nostr/NostrClient'
@@ -58,7 +58,7 @@ export default function Profile() {
     if (!pubkey) return
     // TODO: filter out any empty values ('') for event
     // don't need to populate a bunch of empty strings...
-    const event: NostrEvent = {
+    const event: UnsignedEvent = {
       kind: 0,
       pubkey: pubkey,
       created_at: Math.floor(Date.now() / 1000),

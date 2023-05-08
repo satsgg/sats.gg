@@ -24,7 +24,11 @@ export const FollowedChannelSingle = ({
       <div className="flex justify-between gap-2 py-2 px-2 hover:cursor-pointer hover:bg-stone-700/25">
         <div className="flex min-w-0">
           <div className={`${userCollapse ? '' : 'mr-2'} h-8 w-8 shrink-0`}>
-            <ProfileImg pubkey={pubkey} isLoading={isLoading} picture={profile?.picture} />
+            {isLoading ? (
+              <div className="h-full w-full rounded-[50%] bg-gray-600" />
+            ) : (
+              <ProfileImg pubkey={pubkey} picture={profile?.picture} />
+            )}
           </div>
           {/* next/Image won't work b/c each image src has to be configured in next.config.js 
               We could set it to **... 
