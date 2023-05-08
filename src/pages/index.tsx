@@ -82,7 +82,7 @@ const StreamCard = ({
             </Link>
           )}
           <Link href={`/${pubkey}`} legacyBehavior={false}>
-            <p className="truncate">{displayName(pubkey, profile)}</p>
+            <p className="truncate">{!isLoading && displayName(pubkey, profile)}</p>
           </Link>
         </div>
       </div>

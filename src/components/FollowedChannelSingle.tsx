@@ -40,7 +40,7 @@ export const FollowedChannelSingle = ({
             fallbackSrc={NostrichImg} 
           /> */}
           <div className={`${userCollapse || autoCollapse ? 'hidden' : 'flex flex-col'} min-w-0`}>
-            <p className="truncate text-sm font-semibold text-white">{displayName(pubkey, profile)}</p>
+            <p className="truncate text-sm font-semibold text-white">{!isLoading && displayName(pubkey, profile)}</p>
             {/* TODO: Live stream category */}
           </div>
         </div>

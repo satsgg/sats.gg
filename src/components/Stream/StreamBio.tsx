@@ -63,7 +63,7 @@ export const StreamBio = ({
         <div className="flex w-full min-w-0 justify-between">
           <div className="flex min-w-0 flex-col">
             <span className="min-h-0 truncate text-lg font-bold text-white">
-              {displayName(channelPubkey, channelProfile)}
+              {!channelProfileIsLoading && displayName(channelPubkey, channelProfile)}
             </span>
             {streamTitle && (
               <span className="min-h-0 truncate break-words text-lg text-white xl:whitespace-normal">
