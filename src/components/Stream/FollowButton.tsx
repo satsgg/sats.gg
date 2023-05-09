@@ -39,6 +39,7 @@ export default function FollowButton({ pubkey }: { pubkey: string }) {
     try {
       const signedEvent = await window.nostr.signEvent(event)
       console.debug('signedEvent', signedEvent)
+
       let ok = validateEvent(signedEvent)
       if (!ok) throw new Error('Invalid event')
       let veryOk = verifySignature(signedEvent)

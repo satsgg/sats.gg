@@ -2,8 +2,8 @@ import Dexie, { Table } from 'dexie'
 
 export interface UserMetadataStore {
   name?: string
-  pubkey?: string
-  npub?: string
+  pubkey: string
+  npub: string
   display_name?: string
   picture?: string
   about?: string

@@ -76,8 +76,8 @@ export default class RelayPool {
       this.listeners.forEach((listener) => listener(this.connectedRelays))
     })
 
-    relay.on('error', (error: string) => {
-      console.error(relay.url, ' error connecting: ', error)
+    relay.on('error', () => {
+      console.error(`failed to connect to ${relay.url}`)
     })
 
     relay.on('notice', () => {
@@ -128,15 +128,13 @@ export default class RelayPool {
   publish(event: Event) {
     for (const cr of this.connectedRelays) {
       const r = this.relays.get(cr)
+      if (!r) continue
       let pub = r.publish(event)
 
       pub.on('ok', () => {
         console.log(`${r.url} has accepted our event`)
       })
-      pub.on('seen', () => {
-        console.log(`we saw the event on ${r.url}`)
-      })
-      pub.on('failed', (reason) => {
+      pub.on('failed', (reason: string) => {
         console.log(`failed to publish to ${r.url}: ${reason}`)
       })
     }
