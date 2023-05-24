@@ -14,10 +14,11 @@ const CopyValueBar = ({ value }: { value: string | undefined }) => {
   }
 
   return (
-    <div className="flex w-full">
+      <div className="flex w-full min-w-0 max-w-full">
       <input
         type="button"
-        className="w-full min-w-0 rounded-l border-2 border-r-0 border-gray-500 bg-stone-700 p-1 focus:border-primary focus:bg-slate-900"
+
+        className="grow overflow-x-auto rounded-l border-2 border-r-0 border-gray-500 bg-stone-700 p-1 focus:border-primary focus:bg-slate-900"
         onClick={handleClick}
         value={value}
       />
