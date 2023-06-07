@@ -63,6 +63,15 @@ module.exports = getConfig({
     ]
   },
 
+  async rewrites() {
+    return [
+      {
+        source: '/.well-known/nostr.json',
+        destination: '/api/.well-known/nostr.json',
+      },
+    ]
+  },
+
   async headers() {
     return [
       {
