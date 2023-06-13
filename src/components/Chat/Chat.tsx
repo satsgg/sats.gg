@@ -1,7 +1,6 @@
 import { useRef, useState, useEffect } from 'react'
 import { Virtuoso, LogLevel, VirtuosoHandle } from 'react-virtuoso'
 import { inferProcedureOutput } from '@trpc/server'
-// import { useNostr } from '~/context/nostr'
 import { Filter, UnsignedEvent, verifySignature, validateEvent } from 'nostr-tools'
 import { createEvent, uniqBy } from '~/utils/nostr'
 import MessageInput from './MessageInput'
@@ -11,9 +10,11 @@ import { useSubscription } from '~/hooks/useSubscription'
 import { usePopper } from 'react-popper'
 import useCanSign from '~/hooks/useCanSign'
 import { toast } from 'react-toastify'
-import { nostrClient } from '~/nostr/NostrClient'
+import { UserMetadataStore, nostrClient } from '~/nostr/NostrClient'
 import useAuthStore from '~/hooks/useAuthStore'
 import { AppRouter } from '~/server/routers/_app'
+import ZapChatButton from '~/components/ZapChatButton'
+import LightningBolt from '~/svgs/lightning-bolt.svg'
 
 const eventOrder = {
   created_at: null,
@@ -24,9 +25,11 @@ type GetUserOutput = inferProcedureOutput<AppRouter['user']['getUser']>
 
 export const Chat = ({
   channelPubkey,
+  channelProfile,
   channelUser,
 }: {
   channelPubkey: string
+  channelProfile: UserMetadataStore | undefined
   channelUser: GetUserOutput | undefined
 }) => {
   const pubkey = useAuthStore((state) => state.pubkey)
@@ -43,6 +46,10 @@ export const Chat = ({
   const [showBottomButton, setShowBottomButton] = useState(false)
   const [atBottom, setAtBottom] = useState(false)
   const showButtonTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const [zapInvoice, setZapInvoice] = useState<string | null>(null)
+  const [showZapModule, setShowZapModule] = useState(false)
+  const [showZapChat, setShowZapChat] = useState(false)
 
   const now = useRef(Math.floor(Date.now() / 1000)) // Make sure current time isn't re-rendered
 
@@ -170,16 +177,49 @@ export const Chat = ({
           setMessage={setMessage}
           handleSubmitMessage={handleSubmitMessage}
           disabled={!canSign || !channelUser?.chatChannelId}
+          placeholder={`Send a ${showZapChat ? 'zap message' : 'message'}`}
+          showZapChat={showZapChat}
         />
-        <div className="flex justify-end">
-          <button
-            className="inline-flex items-center rounded bg-primary px-3 py-2 text-sm font-semibold uppercase shadow-md transition duration-150 ease-in-out hover:bg-primary/80 hover:shadow-lg focus:bg-primary focus:shadow-lg focus:outline-none focus:ring-0 active:bg-primary active:shadow-lg disabled:cursor-not-allowed disabled:bg-gray-500"
-            // disabled={showTip}
-            disabled={!canSign || !channelUser?.chatChannelId}
-            onClick={(e) => handleSubmitMessage(e)}
-          >
-            Chat
-          </button>
+        <div className="flex justify-between">
+          <div className="flex gap-2">
+            <ZapChatButton
+              channelProfile={channelProfile}
+              chatChannelId={channelUser?.chatChannelId}
+              showZapChat={showZapChat}
+              setShowZapChat={setShowZapChat}
+            />
+            {showZapChat && (
+              <>
+                <input
+                  type="text"
+                  autoComplete="off"
+                  spellCheck={false}
+                  placeholder="1000"
+                  className={`focus:shadow-outline h-8 w-24 resize-none appearance-none rounded border border-gray-500 bg-stone-700 py-2 px-3 leading-tight text-white shadow placeholder:italic focus:border-primary focus:bg-slate-900 focus:outline-none`}
+                />
+                {/* <p className="text-md align-center text-center italic">sats</p> */}
+              </>
+            )}
+          </div>
+          {showZapChat ? (
+            <button
+              className="inline-flex h-8 items-center gap-1 rounded bg-primary px-3 py-2 text-sm font-semibold capitalize shadow-md transition duration-150 ease-in-out hover:bg-primary/80 hover:shadow-lg focus:bg-primary focus:shadow-lg focus:outline-none focus:ring-0 active:bg-primary active:shadow-lg disabled:cursor-not-allowed disabled:bg-gray-500"
+              disabled={!canSign || !channelUser?.chatChannelId}
+              onClick={(e) => handleSubmitMessage(e)}
+            >
+              <LightningBolt height={20} width={20} strokeWidth={1.5} />
+              Chat
+            </button>
+          ) : (
+            <button
+              className="inline-flex h-8 items-center rounded bg-primary px-3 py-2 text-sm font-semibold capitalize shadow-md transition duration-150 ease-in-out hover:bg-primary/80 hover:shadow-lg focus:bg-primary focus:shadow-lg focus:outline-none focus:ring-0 active:bg-primary active:shadow-lg disabled:cursor-not-allowed disabled:bg-gray-500"
+              // disabled={showTip}
+              disabled={!canSign || !channelUser?.chatChannelId}
+              onClick={(e) => handleSubmitMessage(e)}
+            >
+              Chat
+            </button>
+          )}
         </div>
       </div>
     </div>

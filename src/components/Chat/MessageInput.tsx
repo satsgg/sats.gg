@@ -5,11 +5,20 @@ interface MessageInputProps {
   setMessage: (e: any) => void
   handleSubmitMessage: (e: any) => void
   disabled: boolean
+  placeholder: string
+  showZapChat: boolean
 }
 
 // TODO: use react-hook-form
 
-const MessageInput = ({ message, setMessage, handleSubmitMessage, disabled }: MessageInputProps) => {
+const MessageInput = ({
+  message,
+  setMessage,
+  handleSubmitMessage,
+  disabled,
+  placeholder,
+  showZapChat,
+}: MessageInputProps) => {
   // TODO: Autogrow textarea...
   // const textAreaRef = useRef<HTMLTextAreaElement | null>(null)
 
@@ -38,9 +47,13 @@ const MessageInput = ({ message, setMessage, handleSubmitMessage, disabled }: Me
       // }}
     >
       <textarea
-        className="focus:shadow-outline w-full resize-none appearance-none rounded border border-gray-500 bg-stone-700 py-2 px-3 leading-tight text-white shadow focus:border-primary focus:bg-slate-900 focus:outline-none"
+        className={`${
+          // showZapChat ? 'bg-primary opacity-25' : 'bg-stone-700'
+          // showZapChat ? 'bg-primary ' : 'bg-stone-700'
+          showZapChat ? 'bg-stone-700 ' : 'bg-stone-700'
+        } focus:shadow-outline w-full resize-none appearance-none rounded border border-gray-500 bg-stone-700 py-2 px-3 leading-tight text-white shadow focus:border-primary focus:bg-slate-900 focus:outline-none`}
         id="chatMessage"
-        placeholder="Send a message"
+        placeholder={placeholder}
         autoComplete="off"
         value={message}
         rows={1}

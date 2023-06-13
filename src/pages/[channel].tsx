@@ -108,7 +108,11 @@ export default function Channel() {
       </div>
 
       <div className="flex h-full w-full sm:w-80 md:shrink-0">
-        {userLoading ? <ChatSkeleton /> : <Chat channelPubkey={channelPubkey} channelUser={channelUser} />}
+        {userLoading ? (
+          <ChatSkeleton />
+        ) : (
+          <Chat channelPubkey={channelPubkey} channelProfile={channelProfile} channelUser={channelUser} />
+        )}
       </div>
     </>
   )
