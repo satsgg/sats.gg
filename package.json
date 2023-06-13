@@ -54,6 +54,7 @@
         "dexie": "^3.2.3",
         "dexie-react-hooks": "^1.1.1",
         "jsonwebtoken": "^8.5.1",
+        "light-bolt11-decoder": "^3.0.0",
         "lightning": "^6.2.3",
         "next": "^12.3.1",
         "nextjs-cors": "^2.1.1",

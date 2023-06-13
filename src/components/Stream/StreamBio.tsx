@@ -1,4 +1,3 @@
-import { useProfile } from '~/hooks/useProfile'
 import FollowButton from './FollowButton'
 import LightningBolt from '~/svgs/lightning-bolt.svg'
 import LightningBoltDisabled from '~/svgs/lightning-bolt-disabled.svg'
@@ -11,37 +10,94 @@ import { getZapEndpoint } from '~/utils/nostr'
 // zap related libs
 import { nip57, validateEvent, verifySignature } from 'nostr-tools'
 import useSettingsStore from '~/hooks/useSettingsStore'
+import { useState, useEffect } from 'react'
+import { useFetchZap } from '~/hooks/useFetchZap'
+import { toast } from 'react-toastify'
+import useWebln from '~/hooks/useWebLn'
 
 const ZapButton = ({
   channelProfile,
   channelProfileIsLoading,
+  zapInvoice,
+  setZapInvoice,
+  setShowZapModule,
 }: {
   channelProfile: UserMetadataStore | undefined
   channelProfileIsLoading: boolean
+  zapInvoice: string | null
+  setZapInvoice: (invoice: string | null) => void
+  setShowZapModule: (show: boolean) => void
 }) => {
   const relays = useSettingsStore((state) => state.relays)
+  const [zapLoading, setZapLoading] = useState(false)
+  const { available: weblnAvailable, weblnPay } = useWebln()
+
+  const zap = useFetchZap(channelProfile?.pubkey, zapInvoice, () => setShowZapModule(false))
+
+  useEffect(() => {
+    if (zap) {
+      setZapInvoice(null)
+      console.debug('Zap successful, toasting!')
+      toast.success('Zap successful!', {
+        position: 'bottom-center',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'light',
+      })
+    }
+  }, [zap])
+
   const disabled = () => {
     // TODO: have to be able to sign to zap...
     // could add option to just send sats via standard lnurl w/out zap
     return channelProfileIsLoading || !channelProfile || (!channelProfile.lud06 && !channelProfile.lud16)
   }
+
+  const waiting = () => {
+    return zapLoading || zapInvoice
+  }
+
+  const buttonState = () => {
+    if (disabled()) return 'disabled'
+    else if (waiting()) return 'waiting'
+    else return 'ready'
+  }
+
   const handleZapClick = async () => {
     console.debug('channelProfile', channelProfile)
     if (!channelProfile) return
+    if (!zapLoading && zapInvoice) {
+      setZapInvoice(null)
+      setShowZapModule(false)
+      return
+    }
+    setZapLoading(true)
     // TODO: Store zap endpoint callback url, min sendable, max sendable in user profile metadata (see spec)
     const zapInfo = await getZapEndpoint(channelProfile)
     if (!zapInfo) {
       // toast error
       console.debug('NO ZAP ENDPOINT')
+      setZapLoading(false)
       return
     }
 
-    console.debug('zap endpeoint', zapInfo)
+    console.debug('zap endpoint', zapInfo)
+    // setZapNostrPubkey(zapInfo.nostrPubkey)
+    // TODO: Store zap endpoint nostrPubkey for later verification...
+    // this pubkey will be the pubkey of the 9735 receipt later
     const zapRequestArgs = {
       profile: channelProfile.pubkey,
       event: null, // event and comment will be added in chat zap
+      // if we don't include the event, won't be able to tell if zap was via their chatroom/livestream...
+      // TODO: Default amount configurable in settings
+      // overrideable here? idea is quick zaps...
+      // maybe long press configure amount later
       amount: 1000,
-      comment: '',
+      comment: 'test comment',
       relays: relays,
     }
 
@@ -71,10 +127,25 @@ const ZapButton = ({
       const { pr: invoice } = resObj
 
       console.log('Success! Invoice: ', invoice)
+
+      // Before setting zap invoice... should try to pay it with webLN?
+      setZapInvoice(invoice)
+      if (weblnAvailable && (await weblnPay(invoice))) {
+        console.log('Invoice paid via WebLN!')
+        setZapLoading(false)
+        return
+      }
+      // TODO: Should verify invoice before showing anything...
+      // and display error toast if bad invoice
+      console.debug('setting show zap module')
+      setShowZapModule(true)
     } catch (e: any) {
+      setZapLoading(false)
       console.error('Failed to create zap request', e)
       return
     }
+
+    setZapLoading(false)
   }
 
   return (
@@ -84,11 +155,14 @@ const ZapButton = ({
       disabled={disabled()}
       onClick={handleZapClick}
     >
-      {disabled() ? (
-        <LightningBoltDisabled height={20} widht={20} strokeWidth={1.5} />
-      ) : (
-        <LightningBolt height={20} width={20} strokeWidth={1.5} />
-      )}
+      {
+        {
+          disabled: <LightningBoltDisabled height={20} width={20} strokeWidth={1.5} />,
+          waiting: <LightningBolt className="animate-zap" height={20} width={20} strokeWidth={1.5} />,
+          ready: <LightningBolt height={20} width={20} strokeWidth={1.5} />,
+        }[buttonState()]
+      }
+      <p className="text-sm font-semibold capitalize">zap</p>
     </button>
   )
 }
@@ -99,12 +173,18 @@ export const StreamBio = ({
   channelProfileIsLoading,
   streamTitle,
   streamStatus,
+  zapInvoice,
+  setZapInvoice,
+  setShowZapModule,
 }: {
   channelPubkey: string
   channelProfile: UserMetadataStore | undefined
   channelProfileIsLoading: boolean
   streamTitle: string | null | undefined
   streamStatus: string | undefined
+  zapInvoice: string | null
+  setZapInvoice: (invoice: string | null) => void
+  setShowZapModule: (show: boolean) => void
 }) => {
   return (
     <div id="streamBioWrapper" className="flex grow flex-col gap-4 px-4 py-2 md:px-6 md:py-4">
@@ -135,7 +215,13 @@ export const StreamBio = ({
 
           <div className="flex gap-2">
             <FollowButton pubkey={channelPubkey} />
-            <ZapButton channelProfile={channelProfile} channelProfileIsLoading={channelProfileIsLoading} />
+            <ZapButton
+              channelProfile={channelProfile}
+              channelProfileIsLoading={channelProfileIsLoading}
+              zapInvoice={zapInvoice}
+              setZapInvoice={setZapInvoice}
+              setShowZapModule={setShowZapModule}
+            />
           </div>
         </div>
       </div>
