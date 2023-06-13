@@ -68,24 +68,22 @@ const ZapButton = ({
   }
 
   const handleZapClick = async () => {
-    console.debug('channelProfile', channelProfile)
-    if (!channelProfile) return
+    if (!channelProfile || zapLoading) return
+
     if (!zapLoading && zapInvoice) {
       setZapInvoice(null)
       setShowZapModule(false)
       return
     }
+
     setZapLoading(true)
     // TODO: Store zap endpoint callback url, min sendable, max sendable in user profile metadata (see spec)
     const zapInfo = await getZapEndpoint(channelProfile)
     if (!zapInfo) {
       // toast error
-      console.debug('NO ZAP ENDPOINT')
       setZapLoading(false)
       return
     }
-
-    console.debug('zap endpoint', zapInfo)
     // setZapNostrPubkey(zapInfo.nostrPubkey)
     // TODO: Store zap endpoint nostrPubkey for later verification...
     // this pubkey will be the pubkey of the 9735 receipt later
@@ -131,13 +129,12 @@ const ZapButton = ({
       // Before setting zap invoice... should try to pay it with webLN?
       setZapInvoice(invoice)
       if (weblnAvailable && (await weblnPay(invoice))) {
-        console.log('Invoice paid via WebLN!')
+        console.debug('Invoice paid via WebLN!')
         setZapLoading(false)
         return
       }
       // TODO: Should verify invoice before showing anything...
       // and display error toast if bad invoice
-      console.debug('setting show zap module')
       setShowZapModule(true)
     } catch (e: any) {
       setZapLoading(false)

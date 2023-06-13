@@ -27,11 +27,12 @@ const useWebln = () => {
       // really can't handle it then
     }
   }
-  // state handled externally by extension?
-  // would it just auto fail an attempted webln payment if user blocks app?
+
   const enableWebln = async () => {
     try {
+      console.debug('WAITING FOR WEBLN ENABLE...')
       await window.webln.enable()
+      console.debug('WEBLN ENABLED!')
     } catch (e) {
       console.error('User disabled webln')
       setEnabled(false)
@@ -48,12 +49,21 @@ const useWebln = () => {
 
     try {
       await window.webln.sendPayment(invoice)
-    } catch (e) {
-      console.error('WebLn payment failed', e)
+    } catch (e: any) {
+      // TODO: Set user preference here... if they declined to use ext to pay,
+      // they most likely are using an external LN wallet to pay
+      // want to just auto open the invoice then.
+      // NOTE: Not seeing any debug logs anywhere in this hook...
       return false
     }
     return true
   }
+
+  // window.webln: {
+  //     "enabled": true,
+  //     "isEnabled": true,
+  //     "executing": false
+  // }
 
   useEffect(() => {
     if (window.webln) {
