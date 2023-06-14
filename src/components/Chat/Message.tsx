@@ -8,7 +8,7 @@ const Message = ({ content }: { content: string }) => {
     }
     return content
   }
-  return <span className="text-sm text-gray-300">{fmtMsg(content)}</span>
+  return <span className="text-sm text-white">{fmtMsg(content)}</span>
 }
 
 export default Message

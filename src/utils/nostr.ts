@@ -1,5 +1,5 @@
 import { bech32 } from '@scure/base'
-import { UnsignedEvent, nip19, utils } from 'nostr-tools'
+import { UnsignedEvent, Event as NostrEvent, nip19, nip57, utils, validateEvent, verifySignature } from 'nostr-tools'
 import { utf8Decoder } from 'nostr-tools/lib/utils'
 import { UserMetadata } from '~/nostr/NostrClient'
 import { UserMetadataStore } from '~/store/db'
@@ -82,6 +82,7 @@ export const updateChannelEvent = (
   return event
 }
 
+// TODO: Nip 42 kind 22242
 export const signAuthEvent = async (pubkey: string, challenge: string) => {
   const content = {
     challenge: challenge,
@@ -142,6 +143,61 @@ export async function getZapEndpoint(
     }
   } catch (err) {
     /*-*/
+  }
+
+  return null
+}
+
+type ZapRequestArgs = {
+  profile: string
+  event: string | null
+  amount: number
+  comment: string
+  relays: string[]
+}
+
+export async function createZapEvent(zapRequestArgs: ZapRequestArgs) {
+  try {
+    const zapRequestEvent = nip57.makeZapRequest(zapRequestArgs)
+    const signedZapRequestEvent: NostrEvent = await window.nostr.signEvent(zapRequestEvent)
+
+    let ok = validateEvent(signedZapRequestEvent)
+    if (!ok) throw new Error('Invalid event')
+
+    console.debug('signedZapRequestEvent', signedZapRequestEvent)
+    let veryOk = verifySignature(signedZapRequestEvent)
+    if (!veryOk) throw new Error('Invalid signature')
+
+    return signedZapRequestEvent
+  } catch (e: any) {
+    console.error(e)
+  }
+
+  return null
+}
+
+export async function requestZapInvoice(
+  signedZapRequestEvent: NostrEvent,
+  amount: number,
+  callback: string,
+  lnurl: string,
+) {
+  try {
+    const encodedZapRequest = encodeURI(JSON.stringify(signedZapRequestEvent))
+    const zapRequestHttp = `${callback}?amount=${amount}&nostr=${encodedZapRequest}&lnurl=${lnurl}`
+    console.debug('zapRequestHttp', zapRequestHttp)
+
+    const resObj = await fetch(zapRequestHttp).then((res) => res.json())
+
+    console.debug('resObj', resObj)
+    if (resObj.status === 'ERROR') throw new Error(resObj.reason)
+
+    const { pr: invoice } = resObj
+    console.log('Success! Invoice: ', invoice)
+
+    return invoice
+  } catch (e: any) {
+    console.error(e)
   }
 
   return null

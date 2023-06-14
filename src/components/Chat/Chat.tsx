@@ -1,11 +1,9 @@
 import { useRef, useState, useEffect } from 'react'
 import { Virtuoso, LogLevel, VirtuosoHandle } from 'react-virtuoso'
 import { inferProcedureOutput } from '@trpc/server'
-import { Filter, UnsignedEvent, verifySignature, validateEvent } from 'nostr-tools'
-import { createEvent, uniqBy } from '~/utils/nostr'
+import { Event as NostrEvent, Filter, UnsignedEvent, verifySignature, validateEvent } from 'nostr-tools'
+import { createEvent, createZapEvent, getZapEndpoint, requestZapInvoice, uniqBy } from '~/utils/nostr'
 import MessageInput from './MessageInput'
-import ChatUser from './ChatUser'
-import Message from './Message'
 import { useSubscription } from '~/hooks/useSubscription'
 import { usePopper } from 'react-popper'
 import useCanSign from '~/hooks/useCanSign'
@@ -17,6 +15,11 @@ import ZapChatButton from '~/components/ZapChatButton'
 import LightningBolt from '~/svgs/lightning-bolt.svg'
 import { useZodForm } from '~/utils/useZodForm'
 import { z } from 'zod'
+import useSettingsStore from '~/hooks/useSettingsStore'
+import useWebln from '~/hooks/useWebLn'
+import { useFetchZap } from '~/hooks/useFetchZap'
+import ChatMessage from './ChatMessage'
+import ZapChatMessage from './ZapChatMessage'
 
 const eventOrder = {
   created_at: null,
@@ -35,7 +38,6 @@ export const Chat = ({
   channelUser: GetUserOutput | undefined
 }) => {
   const pubkey = useAuthStore((state) => state.pubkey)
-  // const [message, setMessage] = useState<string>('')
   const canSign = useCanSign()
 
   const virtuosoRef = useRef<VirtuosoHandle>(null)
@@ -49,21 +51,42 @@ export const Chat = ({
   const [atBottom, setAtBottom] = useState(false)
   const showButtonTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  const relays = useSettingsStore((state) => state.relays)
   const [zapInvoice, setZapInvoice] = useState<string | null>(null)
   const [showZapModule, setShowZapModule] = useState(false)
   const [showZapChat, setShowZapChat] = useState(false)
+  const [zapLoading, setZapLoading] = useState(false)
+  const { available: weblnAvailable, weblnPay } = useWebln()
 
   const now = useRef(Math.floor(Date.now() / 1000)) // Make sure current time isn't re-rendered
 
   const filters: Filter[] = [
     {
-      kinds: [42],
+      kinds: [42, 9735],
       since: now.current - 1000 * 60 * 60 * 24, // one day ago
       limit: 25,
       '#e': [channelUser?.chatChannelId || ''],
     },
   ]
   const notes = useSubscription(channelPubkey, filters, 250)
+  const zap = useFetchZap(channelProfile?.pubkey, zapInvoice, () => setShowZapModule(false))
+
+  useEffect(() => {
+    if (zap) {
+      setZapInvoice(null)
+      console.debug('Zap successful, toasting!')
+      toast.success('Zap successful!', {
+        position: 'bottom-center',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'light',
+      })
+    }
+  }, [zap])
 
   const {
     register,
@@ -86,6 +109,7 @@ export const Chat = ({
   useEffect(() => {
     reset({
       message: '',
+      // TODO: Set default value to user preference
       amount: 1,
     })
   }, [])
@@ -97,34 +121,69 @@ export const Chat = ({
     const formattedMessage = data.message.trim()
     if (!showZapChat && formattedMessage === '') return
 
-    const event: UnsignedEvent = createEvent(pubkey, formattedMessage, channelUser.chatChannelId)
-    // error handling here? What if none of the relays accepted our message...
-    try {
-      const signedEvent = await window.nostr.signEvent(event)
-      console.debug('signedEvent', signedEvent)
-      let ok = validateEvent(signedEvent)
-      if (!ok) throw new Error('Invalid event')
-      let veryOk = verifySignature(signedEvent)
-      if (!veryOk) throw new Error('Invalid signature')
+    if (showZapChat) {
+      if (!channelProfile || zapLoading) return
+      const zapInfo = await getZapEndpoint(channelProfile)
+      if (!zapInfo) {
+        // toast error
+        setZapLoading(false)
+        return
+      }
 
-      console.debug('event id', signedEvent.id)
-      nostrClient.publish(signedEvent)
-    } catch (err: any) {
-      console.error(err.message)
-      toast.error(err.message, {
-        position: 'bottom-center',
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: 'light',
-      })
+      const amountMilliSats = data.amount * 1000
+
+      const zapRequestArgs = {
+        profile: channelProfile.pubkey,
+        event: channelUser.chatChannelId,
+        amount: amountMilliSats,
+        comment: data.message,
+        relays: relays,
+      }
+
+      const signedZapRequestEvent = await createZapEvent(zapRequestArgs)
+      if (!signedZapRequestEvent) throw new Error('Failed to created signed zap event')
+
+      const invoice = await requestZapInvoice(signedZapRequestEvent, amountMilliSats, zapInfo.callback, zapInfo.lnurl)
+      if (!invoice) throw new Error('Failed to fetch zap invoice')
+
+      setZapInvoice(invoice)
+      if (weblnAvailable && (await weblnPay(invoice))) {
+        console.debug('Invoice paid via WebLN!')
+        setZapLoading(false)
+        return
+      }
+
+      setShowZapModule(true)
+    } else {
+      const event: UnsignedEvent = createEvent(pubkey, formattedMessage, channelUser.chatChannelId)
+      // error handling here? What if none of the relays accepted our message...
+      try {
+        const signedEvent = await window.nostr.signEvent(event)
+        console.debug('signedEvent', signedEvent)
+        let ok = validateEvent(signedEvent)
+        if (!ok) throw new Error('Invalid event')
+        let veryOk = verifySignature(signedEvent)
+        if (!veryOk) throw new Error('Invalid signature')
+
+        console.debug('event id', signedEvent.id)
+        nostrClient.publish(signedEvent)
+      } catch (err: any) {
+        console.error(err.message)
+        toast.error(err.message, {
+          position: 'bottom-center',
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: 'light',
+        })
+      }
+
+      reset()
+      return
     }
-
-    reset()
-    return
   }
 
   useEffect(() => {
@@ -145,6 +204,17 @@ export const Chat = ({
       setShowBottomButton(false)
     }
   }, [atBottom, setShowBottomButton])
+
+  const renderNote = (note: NostrEvent) => {
+    switch (note.kind) {
+      case 42:
+        return <ChatMessage note={note} />
+      case 9735:
+        return <ZapChatMessage note={note} />
+      default:
+        return null
+    }
+  }
 
   // const uniqEvents = events.length > 0 ? uniqBy(events, 'id') : []
 
@@ -172,13 +242,7 @@ export const Chat = ({
             setAtBottom(bottom)
           }}
           itemContent={(index, note) => {
-            return (
-              <div className="break-words px-3">
-                <ChatUser pubkey={note.pubkey} />
-                <span className="text-sm text-white">: </span>
-                <Message content={note.content} />
-              </div>
-            )
+            return renderNote(note)
           }}
         />
       ) : (
@@ -239,7 +303,12 @@ export const Chat = ({
               disabled={!canSign || !channelUser?.chatChannelId || !isValid}
               onClick={handleSubmit(onSubmitMessage)}
             >
-              <LightningBolt height={20} width={20} strokeWidth={1.5} />
+              <LightningBolt
+                className={`${(zapInvoice || zapLoading) && 'animate-zap'}`}
+                height={20}
+                width={20}
+                strokeWidth={1.5}
+              />
               Chat
             </button>
           ) : (
