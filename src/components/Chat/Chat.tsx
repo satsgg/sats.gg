@@ -96,6 +96,7 @@ export const Chat = ({
     getValues,
     watch,
     reset,
+    setFocus,
     formState: { errors, isValid },
   } = useZodForm({
     mode: 'onChange',
@@ -277,6 +278,8 @@ export const Chat = ({
               chatChannelId={channelUser?.chatChannelId}
               showZapChat={showZapChat}
               setShowZapChat={setShowZapChat}
+              setFocus={setFocus}
+              getValues={getValues}
             />
             {showZapChat && (
               <div className="relative">

@@ -9,11 +9,15 @@ const ZapChatButton = ({
   chatChannelId,
   showZapChat,
   setShowZapChat,
+  setFocus,
+  getValues,
 }: {
   channelProfile: UserMetadataStore | undefined
   chatChannelId: string | undefined | null
   showZapChat: boolean
   setShowZapChat: Dispatch<SetStateAction<boolean>>
+  setFocus: Function
+  getValues: Function
 }) => {
   const disabled = () => {
     // TODO: have to be able to sign to zap...
@@ -27,12 +31,19 @@ const ZapChatButton = ({
     else return 'ready'
   }
 
+  const handleOnClick = () => {
+    if (!showZapChat && getValues('message') === '') {
+      setFocus('message')
+    }
+    setShowZapChat((show) => !show)
+  }
+
   return (
     <button
       className={`${disabled() || showZapChat ? 'bg-stone-700' : 'bg-primary'}
       inline-flex h-8 items-center space-x-1 rounded px-3 py-1`}
       disabled={disabled()}
-      onClick={() => setShowZapChat((show) => !show)}
+      onClick={handleOnClick}
     >
       {
         {
