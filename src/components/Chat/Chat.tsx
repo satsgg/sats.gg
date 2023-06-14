@@ -15,6 +15,8 @@ import useAuthStore from '~/hooks/useAuthStore'
 import { AppRouter } from '~/server/routers/_app'
 import ZapChatButton from '~/components/ZapChatButton'
 import LightningBolt from '~/svgs/lightning-bolt.svg'
+import { useZodForm } from '~/utils/useZodForm'
+import { z } from 'zod'
 
 const eventOrder = {
   created_at: null,
@@ -33,7 +35,7 @@ export const Chat = ({
   channelUser: GetUserOutput | undefined
 }) => {
   const pubkey = useAuthStore((state) => state.pubkey)
-  const [message, setMessage] = useState<string>('')
+  // const [message, setMessage] = useState<string>('')
   const canSign = useCanSign()
 
   const virtuosoRef = useRef<VirtuosoHandle>(null)
@@ -63,12 +65,37 @@ export const Chat = ({
   ]
   const notes = useSubscription(channelPubkey, filters, 250)
 
-  const handleSubmitMessage = async (e: any) => {
-    e.preventDefault()
+  const {
+    register,
+    handleSubmit,
+    setError,
+    setValue,
+    getValues,
+    watch,
+    reset,
+    formState: { errors, isValid },
+  } = useZodForm({
+    mode: 'onChange',
+    schema: z.object({
+      message: z.string(),
+      // TODO: Min set to minimum from LNURL
+      amount: z.number().min(1).optional(),
+    }),
+  })
+
+  useEffect(() => {
+    reset({
+      message: '',
+      amount: 1,
+    })
+  }, [])
+
+  const onSubmitMessage = async (data: any) => {
+    console.debug('data', data)
     if (!pubkey || !channelUser?.chatChannelId) return
 
-    const formattedMessage = message.trim()
-    if (formattedMessage === '') return
+    const formattedMessage = data.message.trim()
+    if (!showZapChat && formattedMessage === '') return
 
     const event: UnsignedEvent = createEvent(pubkey, formattedMessage, channelUser.chatChannelId)
     // error handling here? What if none of the relays accepted our message...
@@ -96,7 +123,7 @@ export const Chat = ({
       })
     }
 
-    setMessage('')
+    reset()
     return
   }
 
@@ -124,7 +151,7 @@ export const Chat = ({
   return (
     <div className="flex w-full flex-col bg-stone-800 sm:border-l sm:border-solid sm:border-gray-500">
       <div className="hidden justify-center border-b border-solid border-gray-500 sm:flex">
-        <p className="py-2 px-4 font-normal text-white">CHAT</p>
+        <p className="py-2 px-4 font-normal uppercase text-white">chat</p>
       </div>
       {channelUser?.chatChannelId ? (
         <Virtuoso
@@ -173,12 +200,11 @@ export const Chat = ({
 
       <div ref={setChatRef} className="flex w-full flex-row gap-1 py-3 px-3 sm:flex-col">
         <MessageInput
-          message={message}
-          setMessage={setMessage}
-          handleSubmitMessage={handleSubmitMessage}
+          handleSubmitMessage={handleSubmit(onSubmitMessage)}
           disabled={!canSign || !channelUser?.chatChannelId}
           placeholder={`Send a ${showZapChat ? 'zap message' : 'message'}`}
           showZapChat={showZapChat}
+          register={register}
         />
         <div className="flex justify-between">
           <div className="flex gap-2">
@@ -189,23 +215,29 @@ export const Chat = ({
               setShowZapChat={setShowZapChat}
             />
             {showZapChat && (
-              <>
+              <div className="relative">
+                <div className="absolute top-2/4 right-3 grid -translate-y-2/4 ">
+                  <span className="text-gray-400">sats</span>
+                </div>
                 <input
-                  type="text"
+                  type="number"
                   autoComplete="off"
                   spellCheck={false}
                   placeholder="1000"
-                  className={`focus:shadow-outline h-8 w-24 resize-none appearance-none rounded border border-gray-500 bg-stone-700 py-2 px-3 leading-tight text-white shadow placeholder:italic focus:border-primary focus:bg-slate-900 focus:outline-none`}
+                  min={1}
+                  className={`focus:shadow-outline h-8 w-32 resize-none appearance-none rounded border border-gray-500 bg-stone-700 py-2 px-3 leading-tight text-white shadow placeholder:italic focus:border-primary focus:bg-slate-900 focus:outline-none`}
+                  {...register('amount', {
+                    valueAsNumber: true,
+                  })}
                 />
-                {/* <p className="text-md align-center text-center italic">sats</p> */}
-              </>
+              </div>
             )}
           </div>
           {showZapChat ? (
             <button
               className="inline-flex h-8 items-center gap-1 rounded bg-primary px-3 py-2 text-sm font-semibold capitalize shadow-md transition duration-150 ease-in-out hover:bg-primary/80 hover:shadow-lg focus:bg-primary focus:shadow-lg focus:outline-none focus:ring-0 active:bg-primary active:shadow-lg disabled:cursor-not-allowed disabled:bg-gray-500"
-              disabled={!canSign || !channelUser?.chatChannelId}
-              onClick={(e) => handleSubmitMessage(e)}
+              disabled={!canSign || !channelUser?.chatChannelId || !isValid}
+              onClick={handleSubmit(onSubmitMessage)}
             >
               <LightningBolt height={20} width={20} strokeWidth={1.5} />
               Chat
@@ -213,9 +245,8 @@ export const Chat = ({
           ) : (
             <button
               className="inline-flex h-8 items-center rounded bg-primary px-3 py-2 text-sm font-semibold capitalize shadow-md transition duration-150 ease-in-out hover:bg-primary/80 hover:shadow-lg focus:bg-primary focus:shadow-lg focus:outline-none focus:ring-0 active:bg-primary active:shadow-lg disabled:cursor-not-allowed disabled:bg-gray-500"
-              // disabled={showTip}
               disabled={!canSign || !channelUser?.chatChannelId}
-              onClick={(e) => handleSubmitMessage(e)}
+              onClick={handleSubmit(onSubmitMessage)}
             >
               Chat
             </button>

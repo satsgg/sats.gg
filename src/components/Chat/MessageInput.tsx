@@ -1,24 +1,14 @@
 import React, { useEffect, useRef } from 'react'
 
 interface MessageInputProps {
-  message: string
-  setMessage: (e: any) => void
   handleSubmitMessage: (e: any) => void
   disabled: boolean
   placeholder: string
   showZapChat: boolean
+  register: Function
 }
 
-// TODO: use react-hook-form
-
-const MessageInput = ({
-  message,
-  setMessage,
-  handleSubmitMessage,
-  disabled,
-  placeholder,
-  showZapChat,
-}: MessageInputProps) => {
+const MessageInput = ({ handleSubmitMessage, disabled, placeholder, showZapChat, register }: MessageInputProps) => {
   // TODO: Autogrow textarea...
   // const textAreaRef = useRef<HTMLTextAreaElement | null>(null)
 
@@ -31,42 +21,22 @@ const MessageInput = ({
   // }, [textAreaRef])
 
   return (
-    <form
-      className="w-full"
-      spellCheck={false}
-      onSubmit={handleSubmitMessage}
-      // onKeyDown={(e) => {
-      //   // console.log("e.code", e.code, "e.shiftKey", e.shiftKey)
-      //   if (e.code === 'Enter' && !e.shiftKey) {
-      //     console.log('yes submit')
-      //     handleSubmitMessage(e)
-      //   } else {
-      //     console.log('standard')
-      //     e.preventDefault()
-      //   }
-      // }}
-    >
+    <form className="w-full" spellCheck={false} onSubmit={handleSubmitMessage}>
       <textarea
         className={`${
-          // showZapChat ? 'bg-primary opacity-25' : 'bg-stone-700'
-          // showZapChat ? 'bg-primary ' : 'bg-stone-700'
           showZapChat ? 'bg-stone-700 ' : 'bg-stone-700'
         } focus:shadow-outline w-full resize-none appearance-none rounded border border-gray-500 bg-stone-700 py-2 px-3 leading-tight text-white shadow focus:border-primary focus:bg-slate-900 focus:outline-none`}
         id="chatMessage"
         placeholder={placeholder}
         autoComplete="off"
-        value={message}
         rows={1}
-        // ref={textAreaRef}
         disabled={disabled}
-        onChange={(e) => {
-          setMessage(e.target.value)
-        }}
         onKeyDown={(e) => {
           if (e.code === 'Enter' && !e.shiftKey) {
             handleSubmitMessage(e)
           }
         }}
+        {...register('message')}
       />
     </form>
   )
