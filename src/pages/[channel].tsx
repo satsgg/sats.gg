@@ -89,8 +89,7 @@ export default function Channel() {
         >
           {userLoading ? <StreamSkeleton /> : <Stream channelUser={channelUser} />}
           {zapInvoice && showZapModule && (
-            <div className="absolute right-0 bottom-0 z-[101] max-w-full shrink">
-              {/* <div className="absolute right-0 bottom-0 overflow-auto"> */}
+            <div className="absolute right-0 bottom-0 z-[101] flex max-h-full w-80 max-w-[66%] shrink overflow-y-scroll">
               <ZapInvoiceModule invoice={zapInvoice} type="stream" />
             </div>
           )}

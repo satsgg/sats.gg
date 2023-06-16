@@ -9,19 +9,18 @@ const ZapInvoiceModule = ({ invoice, type }: { invoice: string; type: string }) 
   return (
     <div
       className={`
-      ${type === 'chat' ? 'w-full rounded' : ''} 
-      ${type === 'stream' ? 'w-80 rounded-l border-t border-l border-gray-500' : ''} 
-      flex h-full min-w-0 flex-col items-center gap-4 overflow-auto bg-stone-900 p-4
+        ${type === 'chat' ? 'w-full rounded' : ''} 
+        ${type === 'stream' ? 'w-full rounded-l border-t border-l border-gray-500' : ''} 
+        flex h-full min-w-0 flex-col items-center gap-4 overflow-y-auto bg-stone-900 p-4
       `}
     >
       <h1 className="text-center text-xl font-bold">Zap Invoice</h1>
-      <a href={`lightning:${invoice}`}>
-        {/* TODO next-qr-code? */}
-        {/* TODO: QR code component? */}
+      <a href={`lightning:${invoice}`} className="w-full">
         <QRCodeSVG
           value={invoice}
           level={'Q'}
-          size={288}
+          height={'auto'}
+          width={'100%'}
           includeMargin
           className="rounded border-8 border-primary"
           // imageSettings={{

@@ -12,6 +12,7 @@
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
   }
+
   .max-h-600 {
     height: 600px;
   }

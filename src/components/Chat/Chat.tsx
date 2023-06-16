@@ -258,7 +258,7 @@ export const Chat = ({
             }}
           />
           {zapInvoice && showZapModule && (
-            <div className="absolute bottom-0 z-50 flex max-h-[calc(100vh-12.5rem)] w-full flex-col overflow-y-auto px-2 pt-2">
+            <div className="absolute bottom-0 z-50 h-full max-h-[calc(100vh-12.5rem)] w-full overflow-x-hidden px-2 pt-2">
               <ZapInvoiceModule invoice={zapInvoice} type="chat" />
             </div>
           )}
