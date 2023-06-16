@@ -142,10 +142,16 @@ export const Chat = ({
       }
 
       const signedZapRequestEvent = await createZapEvent(zapRequestArgs)
-      if (!signedZapRequestEvent) throw new Error('Failed to created signed zap event')
+      if (!signedZapRequestEvent) {
+        setZapLoading(false)
+        return
+      }
 
       const invoice = await requestZapInvoice(signedZapRequestEvent, amountMilliSats, zapInfo.callback, zapInfo.lnurl)
-      if (!invoice) throw new Error('Failed to fetch zap invoice')
+      if (!invoice) {
+        setZapLoading(false)
+        return
+      }
 
       setZapInvoice(invoice)
       if (weblnAvailable && (await weblnPay(invoice))) {
@@ -307,7 +313,7 @@ export const Chat = ({
               onClick={handleSubmit(onSubmitMessage)}
             >
               <LightningBolt
-                className={`${(zapInvoice || zapLoading) && 'animate-zap'}`}
+                className={`${zapInvoice || zapLoading ? 'animate-pulse' : 'animate-flash'}`}
                 height={20}
                 width={20}
                 strokeWidth={1.5}
