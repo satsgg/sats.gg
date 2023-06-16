@@ -20,6 +20,7 @@ import useWebln from '~/hooks/useWebLn'
 import { useFetchZap } from '~/hooks/useFetchZap'
 import ChatMessage from './ChatMessage'
 import ZapChatMessage from './ZapChatMessage'
+import ZapInvoiceModule from '../ZapInvoiceModule'
 
 const eventOrder = {
   created_at: null,
@@ -115,6 +116,8 @@ export const Chat = ({
     })
   }, [])
 
+  // TODO: useEffect scroll to bottom with 1 second delay on page load
+
   const onSubmitMessage = async (data: any) => {
     console.debug('data', data)
     if (!pubkey || !channelUser?.chatChannelId) return
@@ -127,6 +130,7 @@ export const Chat = ({
       const zapInfo = await getZapEndpoint(channelProfile)
       if (!zapInfo) {
         // toast error
+        console.debug('zap info error!')
         setZapLoading(false)
         return
       }
@@ -231,27 +235,34 @@ export const Chat = ({
         <p className="py-2 px-4 font-normal uppercase text-white">chat</p>
       </div>
       {channelUser?.chatChannelId ? (
-        <Virtuoso
-          // logLevel={LogLevel.DEBUG}
-          data={notes}
-          followOutput
-          // followOutput={'smooth'}
-          ref={virtuosoRef}
-          className={'max-h-[calc(100vh-12.5rem)]'}
-          // not sure on these pixel calcs, but 1000px bottom seems to have *improved*
-          // the scrollToBottom issue as recommended by virtuoso guy.
-          increaseViewportBy={{
-            top: 200,
-            bottom: 2000,
-          }}
-          atBottomStateChange={(bottom) => {
-            if (!bottom) console.warn('NOT AT BOTTOM')
-            setAtBottom(bottom)
-          }}
-          itemContent={(index, note) => {
-            return renderNote(note)
-          }}
-        />
+        <div className="relative h-full">
+          <Virtuoso
+            // logLevel={LogLevel.DEBUG}
+            data={notes}
+            followOutput
+            // followOutput={'smooth'}
+            ref={virtuosoRef}
+            className={'max-h-[calc(100vh-12.5rem)]'}
+            // not sure on these pixel calcs, but 1000px bottom seems to have *improved*
+            // the scrollToBottom issue as recommended by virtuoso guy.
+            increaseViewportBy={{
+              top: 200,
+              bottom: 2000,
+            }}
+            atBottomStateChange={(bottom) => {
+              if (!bottom) console.warn('NOT AT BOTTOM')
+              setAtBottom(bottom)
+            }}
+            itemContent={(index, note) => {
+              return renderNote(note)
+            }}
+          />
+          {zapInvoice && showZapModule && (
+            <div className="absolute bottom-0 z-50 flex max-h-[calc(100vh-12.5rem)] w-full flex-col overflow-y-auto px-2 pt-2">
+              <ZapInvoiceModule invoice={zapInvoice} type="chat" />
+            </div>
+          )}
+        </div>
       ) : (
         <div className="flex h-full w-full items-center justify-center text-center">
           User has not set a chat channel!
@@ -286,6 +297,8 @@ export const Chat = ({
               setShowZapChat={setShowZapChat}
               setFocus={setFocus}
               getValues={getValues}
+              setZapInvoice={setZapInvoice}
+              setShowZapModule={setShowZapModule}
             />
             {showZapChat && (
               <div className="relative">

@@ -11,6 +11,8 @@ const ZapChatButton = ({
   setShowZapChat,
   setFocus,
   getValues,
+  setZapInvoice,
+  setShowZapModule,
 }: {
   channelProfile: UserMetadataStore | undefined
   chatChannelId: string | undefined | null
@@ -18,6 +20,8 @@ const ZapChatButton = ({
   setShowZapChat: Dispatch<SetStateAction<boolean>>
   setFocus: Function
   getValues: Function
+  setZapInvoice: Function
+  setShowZapModule: Function
 }) => {
   const disabled = () => {
     // TODO: have to be able to sign to zap...
@@ -35,7 +39,15 @@ const ZapChatButton = ({
     if (!showZapChat && getValues('message') === '') {
       setFocus('message')
     }
-    setShowZapChat((show) => !show)
+    // TODO: on close, set loading to false
+    // setShowZapChat((show) => !show)
+    if (showZapChat) {
+      setShowZapChat(false)
+      setShowZapModule(false)
+      setZapInvoice(null)
+      return
+    }
+    setShowZapChat(true)
   }
 
   return (
