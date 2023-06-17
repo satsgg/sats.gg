@@ -9,7 +9,8 @@ import useSettingsStore from '~/hooks/useSettingsStore'
 import { useState, useEffect } from 'react'
 import { useFetchZap } from '~/hooks/useFetchZap'
 import { toast } from 'react-toastify'
-import useWebln from '~/hooks/useWebLn'
+import useWebln from '~/hooks/useWebln'
+import useAuthStore from '~/hooks/useAuthStore'
 
 const ZapButton = ({
   channelProfile,
@@ -24,6 +25,7 @@ const ZapButton = ({
   setZapInvoice: (invoice: string | null) => void
   setShowZapModule: (show: boolean) => void
 }) => {
+  const { user } = useAuthStore()
   const relays = useSettingsStore((state) => state.relays)
   const [zapLoading, setZapLoading] = useState(false)
   const { available: weblnAvailable, weblnPay } = useWebln()
@@ -87,10 +89,9 @@ const ZapButton = ({
       profile: channelProfile.pubkey,
       event: null, // event and comment will be added in chat zap
       // if we don't include the event, won't be able to tell if zap was via their chatroom/livestream...
-      // TODO: Default amount configurable in settings
-      // overrideable here? idea is quick zaps...
+      // TODO: overrideable here? idea is quick zaps...
       // maybe long press configure amount later
-      amount: 1000,
+      amount: (user?.defaultZapAmount || 1000) * 1000,
       comment: 'test comment',
       relays: relays,
     }

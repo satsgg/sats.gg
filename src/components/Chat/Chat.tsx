@@ -16,7 +16,7 @@ import LightningBolt from '~/svgs/lightning-bolt.svg'
 import { useZodForm } from '~/utils/useZodForm'
 import { z } from 'zod'
 import useSettingsStore from '~/hooks/useSettingsStore'
-import useWebln from '~/hooks/useWebLn'
+import useWebln from '~/hooks/useWebln'
 import { useFetchZap } from '~/hooks/useFetchZap'
 import ChatMessage from './ChatMessage'
 import ZapChatMessage from './ZapChatMessage'
@@ -38,6 +38,7 @@ export const Chat = ({
   channelProfile: UserMetadataStore | undefined
   channelUser: GetUserOutput | undefined
 }) => {
+  const { user } = useAuthStore()
   const pubkey = useAuthStore((state) => state.pubkey)
   const canSign = useCanSign()
 
@@ -65,6 +66,7 @@ export const Chat = ({
   const filters: Filter[] = [
     {
       kinds: [42, 9735],
+      // since and limit don't really work well
       since: now.current - 1000 * 60 * 60 * 24, // one day ago
       limit: 25,
       '#e': [channelUser?.chatChannelId || ''],
@@ -104,16 +106,18 @@ export const Chat = ({
     mode: 'onChange',
     schema: z.object({
       message: z.string(),
-      // TODO: Min set to minimum from LNURL
       amount: z.number().min(1).optional(),
     }),
+    // defaultValues: {
+    //   message: '',
+    //   amount: user?.defaultZapAmount || 1000,
+    // },
   })
 
   useEffect(() => {
     reset({
       message: '',
-      // TODO: Set default value to user preference
-      amount: 1,
+      amount: user?.defaultZapAmount || 1000,
     })
   }, [])
 
@@ -300,8 +304,8 @@ export const Chat = ({
           showZapChat={showZapChat}
           register={register}
         />
-        <div className="mt-1 flex justify-between gap-2 sm:mt-0">
-          <div className="hidden sm:flex">
+        <div className="mt-1 flex justify-between sm:mt-0">
+          <div className="hidden gap-x-2 sm:flex">
             <ZapChatButton
               channelProfile={channelProfile}
               chatChannelId={channelUser?.chatChannelId}

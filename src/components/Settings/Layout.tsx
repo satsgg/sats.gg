@@ -24,8 +24,10 @@ const SettingsLayout = ({ children }: { children: ReactNode }) => {
   const router = useRouter()
   const status = useAuthStore((state) => state.status)
 
-  let tabs = ['profile', 'chat', 'relays']
+  let tabs = ['profile', 'relays']
   status === 'authenticated' && tabs.push('stream')
+  status === 'authenticated' && tabs.push('chat')
+  status === 'authenticated' && tabs.push('zaps')
 
   // useEffect(() => {
   //   const logRelaysNostr = async () => {

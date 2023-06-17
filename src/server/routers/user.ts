@@ -23,6 +23,7 @@ export const userRouter = t.router({
             streamStatus: true,
             chatChannelId: true,
             streamTitle: true,
+            defaultZapAmount: true,
           },
         })
         .catch((error) => {
@@ -123,6 +124,21 @@ export const userRouter = t.router({
         })
         .catch((error) => {
           console.debug('updateStreamTitle error', error)
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
+        })
+    }),
+
+  setDefaultZapAmount: t.procedure
+    .use(isAuthed)
+    .input(z.object({ defaultZapAmount: z.number().positive().max(2100000000) })) // idk max 21 BTC ha
+    .mutation(async ({ input, ctx }) => {
+      return await prisma.user
+        .update({
+          where: { publicKey: ctx.user.publicKey },
+          data: { defaultZapAmount: input.defaultZapAmount },
+        })
+        .catch((error) => {
+          console.debug('setDefaultZapAmount error', error)
           throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
         })
     }),
