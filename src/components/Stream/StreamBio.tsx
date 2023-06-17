@@ -25,7 +25,10 @@ export const StreamBio = ({
   setShowZapModule: (show: boolean) => void
 }) => {
   return (
-    <div id="streamBioWrapper" className="flex grow flex-col gap-4 px-4 py-2 md:px-6 md:py-4">
+    <div
+      id="streamBioWrapper"
+      className="flex grow flex-col gap-4 border-b border-gray-500 px-2 py-2 md:border-0 lg:px-4 lg:py-2.5"
+    >
       <div id="profile" className="flex gap-2">
         <div className="h-12 w-12 shrink-0 md:h-16 md:w-16">
           {channelProfileIsLoading ? (
@@ -45,7 +48,7 @@ export const StreamBio = ({
               {!channelProfileIsLoading && displayName(channelPubkey, channelProfile)}
             </span>
             {streamTitle && (
-              <span className="min-h-0 truncate break-words text-lg text-white xl:whitespace-normal">
+              <span className="text-md min-h-0 truncate break-words text-white xl:whitespace-normal">
                 {streamTitle}
               </span>
             )}

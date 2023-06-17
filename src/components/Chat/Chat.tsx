@@ -230,7 +230,7 @@ export const Chat = ({
   // const uniqEvents = events.length > 0 ? uniqBy(events, 'id') : []
 
   return (
-    <div className="flex w-full flex-col bg-stone-800 sm:border-l sm:border-solid sm:border-gray-500">
+    <div className="flex w-full flex-col sm:border-l sm:border-solid sm:border-gray-500 sm:bg-stone-800">
       <div className="hidden justify-center border-b border-solid border-gray-500 sm:flex">
         <p className="py-2 px-4 font-normal uppercase text-white">chat</p>
       </div>
@@ -288,8 +288,8 @@ export const Chat = ({
           showZapChat={showZapChat}
           register={register}
         />
-        <div className="flex justify-between">
-          <div className="flex gap-2">
+        <div className="mt-1 flex justify-between gap-2 sm:mt-0">
+          <div className="hidden sm:flex">
             <ZapChatButton
               channelProfile={channelProfile}
               chatChannelId={channelUser?.chatChannelId}

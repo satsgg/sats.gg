@@ -144,7 +144,7 @@ const ZapButton = ({
   return (
     <button
       className={`${disabled() ? 'bg-stone-700' : 'bg-primary'}
-      inline-flex h-8 items-center space-x-1 rounded px-3 py-1`}
+      hidden h-8 items-center space-x-1 rounded px-3 py-1 sm:inline-flex`}
       disabled={disabled()}
       onClick={handleZapClick}
     >
