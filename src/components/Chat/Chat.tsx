@@ -51,6 +51,7 @@ export const Chat = ({
   const [showBottomButton, setShowBottomButton] = useState(false)
   const [atBottom, setAtBottom] = useState(false)
   const showButtonTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [onLoadScrollToBottom, setOnLoadScrollToBottom] = useState(false)
 
   const relays = useSettingsStore((state) => state.relays)
   const [zapInvoice, setZapInvoice] = useState<string | null>(null)
@@ -116,7 +117,18 @@ export const Chat = ({
     })
   }, [])
 
-  // TODO: useEffect scroll to bottom with 1 second delay on page load
+  // Hacky patch to get the chat to scroll to bottom after mounting...
+  useEffect(() => {
+    if (!onLoadScrollToBottom) return
+    virtuosoRef.current?.scrollToIndex({ index: notes.length - 1, behavior: 'auto' })
+    setOnLoadScrollToBottom(false)
+  }, [notes])
+
+  useEffect(() => {
+    setTimeout(() => {
+      setOnLoadScrollToBottom(true)
+    }, 2000)
+  }, [])
 
   const onSubmitMessage = async (data: any) => {
     console.debug('data', data)
