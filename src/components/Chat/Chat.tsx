@@ -21,6 +21,7 @@ import { useFetchZap } from '~/hooks/useFetchZap'
 import ChatMessage from './ChatMessage'
 import ZapChatMessage from './ZapChatMessage'
 import ZapInvoiceModule from '../ZapInvoiceModule'
+import useMediaQuery from '~/hooks/useMediaQuery'
 
 const eventOrder = {
   created_at: null,
@@ -120,6 +121,18 @@ export const Chat = ({
       amount: user?.defaultZapAmount || 1000,
     })
   }, [])
+
+  // True when < 640px (tailwind sm)
+  const resetZapInfo = !useMediaQuery('(min-width: 640px)')
+  useEffect(() => {
+    console.debug('resetZapInfo', resetZapInfo)
+    if (resetZapInfo) {
+      setZapInvoice(null)
+      setZapLoading(false)
+      setShowZapChat(false)
+      setShowZapModule(false)
+    }
+  }, [resetZapInfo])
 
   // Hacky patch to get the chat to scroll to bottom after mounting...
   useEffect(() => {
@@ -274,7 +287,7 @@ export const Chat = ({
             }}
           />
           {zapInvoice && showZapModule && (
-            <div className="absolute bottom-0 z-50 h-full max-h-[calc(100vh-12.5rem)] w-full overflow-x-hidden px-2 pt-2">
+            <div className="absolute bottom-0 z-50 hidden max-h-[calc(100vh-12.5rem)] w-full overflow-x-hidden px-2 pt-2 sm:block">
               <ZapInvoiceModule invoice={zapInvoice} type="chat" />
             </div>
           )}

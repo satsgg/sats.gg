@@ -8,8 +8,9 @@ import { StreamBio } from '~/components/Stream/StreamBio'
 import { Spinner } from '~/components/Spinner'
 import { trpc } from '~/utils/trpc'
 import { useProfile } from '~/hooks/useProfile'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import ZapInvoiceModule from '~/components/ZapInvoiceModule'
+import useMediaQuery from '~/hooks/useMediaQuery'
 
 const getChannelPubkey = (channel: string, isReady: boolean) => {
   if (channel.startsWith('npub1')) {
@@ -76,6 +77,15 @@ export default function Channel() {
 
   const [zapInvoice, setZapInvoice] = useState<string | null>(null)
   const [showZapModule, setShowZapModule] = useState(false)
+
+  // True when < 640px (tailwind sm)
+  const resetZapInfo = !useMediaQuery('(min-width: 640px)')
+  useEffect(() => {
+    if (resetZapInfo) {
+      setZapInvoice(null)
+      setShowZapModule(false)
+    }
+  }, [resetZapInfo])
 
   return (
     <>

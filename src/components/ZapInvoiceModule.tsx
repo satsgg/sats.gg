@@ -19,7 +19,7 @@ const ZapInvoiceModule = ({ invoice, type }: { invoice: string; type: string }) 
         <QRCodeSVG
           value={invoice}
           level={'Q'}
-          height={'auto'}
+          height={'100%'}
           width={'100%'}
           includeMargin
           className="rounded border-8 border-primary"
