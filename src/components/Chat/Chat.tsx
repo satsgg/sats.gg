@@ -79,6 +79,8 @@ export const Chat = ({
   useEffect(() => {
     if (zap) {
       setZapInvoice(null)
+      setShowZapModule(false) // NOTE: in useFetchZap callback??
+      setShowZapChat(false)
       console.debug('Zap successful, toasting!')
       toast.success('Zap successful!', {
         position: 'bottom-center',

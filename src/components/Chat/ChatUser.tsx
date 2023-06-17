@@ -1,4 +1,5 @@
 import { useProfile } from '~/hooks/useProfile'
+import { nip19 } from 'nostr-tools'
 
 // TODO: Need to filter out emojis from names
 // Use display names? names?
@@ -20,7 +21,7 @@ const ChatUser = ({ pubkey }: { pubkey: string }) => {
     return <span className="text-sm text-orange-300">{fmtName(profile.name.slice(0, 15))}</span>
   }
 
-  return <span className="text-sm">{pubkey.slice(0, 12)}</span>
+  return <span className="text-sm text-orange-300">{nip19.npubEncode(pubkey).slice(0, 12)}</span>
 }
 
 export default ChatUser
