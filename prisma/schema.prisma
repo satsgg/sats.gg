@@ -13,17 +13,18 @@ generator client {
 }
 
 model User {
-  id            String       @id @default(uuid())
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-  lastLogin     DateTime?
-  publicKey     String       @unique
-  streamKey     String       @unique
-  playbackId    String       @unique
-  streamId      String       @unique
-  streamStatus  StreamStatus @default(IDLE)
-  streamTitle   String?
-  chatChannelId String?      @unique
+  id               String       @id @default(uuid())
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  lastLogin        DateTime?
+  publicKey        String       @unique
+  streamKey        String       @unique
+  playbackId       String       @unique
+  streamId         String       @unique
+  streamStatus     StreamStatus @default(IDLE)
+  streamTitle      String?
+  chatChannelId    String?      @unique
+  defaultZapAmount Int          @default(1000)
 }
 
 model UserAuth {
