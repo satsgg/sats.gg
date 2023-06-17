@@ -80,10 +80,13 @@ export default function Channel() {
 
   // True when < 640px (tailwind sm)
   const resetZapInfo = !useMediaQuery('(min-width: 640px)')
+  const closeZap = () => {
+    setZapInvoice(null)
+    setShowZapModule(false)
+  }
   useEffect(() => {
     if (resetZapInfo) {
-      setZapInvoice(null)
-      setShowZapModule(false)
+      closeZap()
     }
   }, [resetZapInfo])
 
@@ -100,7 +103,7 @@ export default function Channel() {
           {userLoading ? <StreamSkeleton /> : <Stream channelUser={channelUser} />}
           {zapInvoice && showZapModule && (
             <div className="absolute right-0 bottom-0 z-[101] flex max-h-full w-80 max-w-[66%] shrink overflow-y-scroll">
-              <ZapInvoiceModule invoice={zapInvoice} type="stream" />
+              <ZapInvoiceModule invoice={zapInvoice} type="stream" close={closeZap} />
             </div>
           )}
         </div>

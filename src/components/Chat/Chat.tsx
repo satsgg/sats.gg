@@ -59,6 +59,7 @@ export const Chat = ({
   const [zapInvoice, setZapInvoice] = useState<string | null>(null)
   const [showZapModule, setShowZapModule] = useState(false)
   const [showZapChat, setShowZapChat] = useState(false)
+  // TODO: zapLoading unused? Need to clean up and double check closeZap()
   const [zapLoading, setZapLoading] = useState(false)
   const { available: weblnAvailable, weblnPay } = useWebln()
 
@@ -74,13 +75,19 @@ export const Chat = ({
     },
   ]
   const notes = useSubscription(channelPubkey, filters, 250)
-  const zap = useFetchZap(channelProfile?.pubkey, zapInvoice, () => setShowZapModule(false))
+  const zap = useFetchZap(channelProfile?.pubkey, zapInvoice, () => setShowZapModule(false)) // closeZap?
+
+  // need to either do this in the useEffect or pass to useFetchZap callback...
+  const closeZap = () => {
+    setZapInvoice(null)
+    setZapLoading(false)
+    setShowZapModule(false)
+    setShowZapChat(false)
+  }
 
   useEffect(() => {
     if (zap) {
-      setZapInvoice(null)
-      setShowZapModule(false) // NOTE: in useFetchZap callback??
-      setShowZapChat(false)
+      closeZap()
       console.debug('Zap successful, toasting!')
       toast.success('Zap successful!', {
         position: 'bottom-center',
@@ -290,7 +297,7 @@ export const Chat = ({
           />
           {zapInvoice && showZapModule && (
             <div className="absolute bottom-0 z-50 hidden max-h-[calc(100vh-12.5rem)] w-full overflow-x-hidden px-2 pt-2 sm:block">
-              <ZapInvoiceModule invoice={zapInvoice} type="chat" />
+              <ZapInvoiceModule invoice={zapInvoice} type="chat" close={closeZap} />
             </div>
           )}
         </div>

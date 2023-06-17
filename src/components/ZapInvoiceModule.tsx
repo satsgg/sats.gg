@@ -2,8 +2,9 @@ import { useMemo } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
 import CopyValueBar from './Settings/CopyBar'
 import { decodeInvoice } from '~/utils/util'
+import Exit from '~/svgs/x.svg'
 
-const ZapInvoiceModule = ({ invoice, type }: { invoice: string; type: string }) => {
+const ZapInvoiceModule = ({ invoice, type, close }: { invoice: string; type: string; close: () => void }) => {
   const invoiceDecoded = useMemo(() => decodeInvoice(invoice), [invoice])
 
   return (
@@ -14,7 +15,15 @@ const ZapInvoiceModule = ({ invoice, type }: { invoice: string; type: string }) 
         flex h-full min-w-0 flex-col items-center gap-4 overflow-y-auto bg-stone-900 p-4
       `}
     >
-      <h1 className="text-center text-xl font-bold">Zap Invoice</h1>
+      <div className="flex w-full items-center">
+        <div className="w-1/12"></div>
+        <h1 className="w-10/12 text-center text-xl font-bold">Zap Invoice</h1>
+        <div className="w-1/12">
+          <button onClick={() => close()}>
+            <Exit height={25} width={25} strokeWidth={2.5} />
+          </button>
+        </div>
+      </div>
       <a href={`lightning:${invoice}`} className="w-full">
         <QRCodeSVG
           value={invoice}
