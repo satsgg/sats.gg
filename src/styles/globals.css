@@ -52,3 +52,75 @@ input[type='number'] {
   -moz-appearance: textfield;
   appearance: textfield;
 }
+
+[data-tooltip] {
+  @apply font-semibold text-black before:invisible before:absolute
+    before:z-[101]
+    before:flex before:max-w-lg before:justify-center before:whitespace-nowrap
+    before:rounded before:bg-white before:px-1.5 before:py-1 before:text-sm
+    before:opacity-0 before:transition 
+    before:duration-200 before:ease-in-out before:content-[attr(data-tooltip)];
+
+  &[data-delay] {
+    @apply before:delay-200;
+  }
+
+  &:not([data-trigger='click']) {
+    @apply hover:before:visible hover:before:opacity-100;
+  }
+
+  &[data-trigger='click'] {
+    @apply focus:before:visible focus:before:opacity-100;
+  }
+
+  &[data-arrow] {
+    @apply after:invisible after:absolute after:z-10
+      after:border-[6px] after:border-transparent
+      after:opacity-0 after:transition after:duration-200
+      after:ease-in-out after:content-[''];
+
+    &[data-delay] {
+      @apply after:delay-200;
+    }
+
+    &:not([data-trigger='click']) {
+      @apply hover:after:visible hover:after:opacity-100;
+    }
+
+    &[data-trigger='click'] {
+      @apply focus:after:visible focus:after:opacity-100;
+    }
+  }
+
+  &:not([data-position='bottom']):not([data-position='right']):not([data-position='left']) {
+    @apply before:left-1/2 before:bottom-full before:mb-2 before:-translate-x-[50%];
+
+    &[data-arrow] {
+      @apply after:left-1/2 after:bottom-full after:-mb-0.5 after:-translate-x-[50%] after:border-t-white;
+    }
+  }
+
+  &[data-position='bottom'] {
+    @apply before:left-1/2 before:top-full before:mt-2 before:-translate-x-[50%];
+
+    &[data-arrow] {
+      @apply after:left-1/2 after:top-full after:-mt-0.5 after:-translate-x-[50%] after:border-b-white;
+    }
+  }
+
+  &[data-position='right'] {
+    @apply before:top-1/2 before:left-full before:ml-2 before:-translate-y-[50%];
+
+    &[data-arrow] {
+      @apply after:top-1/2 after:left-full after:-ml-0.5 after:-translate-y-[50%] after:border-r-white;
+    }
+  }
+
+  &[data-position='left'] {
+    @apply before:top-1/2 before:right-full before:mr-2 before:-translate-y-[50%];
+
+    &[data-arrow] {
+      @apply after:top-1/2 after:right-full after:-mr-0.5 after:-translate-y-[50%] after:border-l-white;
+    }
+  }
+}

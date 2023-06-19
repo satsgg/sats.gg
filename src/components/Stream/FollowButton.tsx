@@ -68,19 +68,24 @@ export default function FollowButton({ pubkey }: { pubkey: string }) {
       className={`
         ${followsUser && !followAnimation ? 'bg-stone-700' : 'bg-primary'} 
         ${myself && 'hidden'}
-        inline-flex h-8 items-center space-x-1 rounded px-3 py-1
+        relative inline-flex h-8 items-center space-x-1 rounded px-3 py-1
       `}
       onClick={handleFollowClick}
       onAnimationEnd={() => setFollowAnimation(false)}
+      data-tooltip={followsUser && !followAnimation ? 'Unfollow' : null}
+      data-position="top"
+      data-arrow
     >
       <FollowHeartSVG
         height={20}
         width={20}
         strokeWidth={2.0}
-        fill={followsUser ? 'white ' : 'none'}
-        className={`${followAnimation && 'animate-wiggle'}`}
+        fill={followsUser ? 'white' : 'none'}
+        className={`${followAnimation && 'animate-wiggle'} stroke-white`}
       />
-      <span className={`${followsUser && !followAnimation && 'hidden'} text-sm font-semibold capitalize`}>follow</span>
+      <span className={`${followsUser && !followAnimation && 'hidden'} text-sm font-semibold capitalize text-white`}>
+        follow
+      </span>
     </button>
   )
 }

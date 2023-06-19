@@ -53,15 +53,19 @@ const ZapChatButton = ({
   return (
     <button
       className={`${disabled() || showZapChat ? 'bg-stone-700' : 'bg-primary'}
-      inline-flex h-8 items-center space-x-1 rounded px-3 py-1`}
+      relative inline-flex h-8 items-center space-x-1 rounded px-3 py-1`}
       disabled={disabled()}
       onClick={handleOnClick}
+      data-tooltip={buttonState() === 'ready' ? 'Zap Chat' : null}
+      data-position="right"
+      data-delay
+      data-arrow
     >
       {
         {
-          disabled: <LightningBoltDisabled height={20} width={20} strokeWidth={1.5} />,
-          waiting: <Exit height={20} width={20} strokeWidth={2.5} />,
-          ready: <LightningBolt height={20} width={20} strokeWidth={1.5} />,
+          disabled: <LightningBoltDisabled height={20} width={20} strokeWidth={1.5} fill="white" />,
+          waiting: <Exit height={20} width={20} strokeWidth={2.5} className="stroke-white" />,
+          ready: <LightningBolt height={20} width={20} strokeWidth={1.5} fill="white" />,
         }[buttonState()]
       }
     </button>
