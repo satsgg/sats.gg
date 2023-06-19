@@ -3,8 +3,6 @@ import ClickAwayListener from 'react-click-away-listener'
 import Link from 'next/link'
 import ChannelSVG from '~/svgs/my-channel.svg'
 import LogOutSVG from '~/svgs/log-out.svg'
-import LogInSVG from '~/svgs/log-in.svg'
-import LightningBolt from '~/svgs/lightning-bolt.svg'
 import Key from '~/svgs/key.svg'
 import SettingsSVG from '~/svgs/settings.svg'
 import AccountSVG from '~/svgs/account.svg'
@@ -13,6 +11,7 @@ import useSettingsStore from '~/hooks/useSettingsStore'
 import { useProfile } from '~/hooks/useProfile'
 import useAuthStore from '~/hooks/useAuthStore'
 import Button from './Button'
+import { getVerifiedChannelLink } from '~/utils/nostr'
 
 interface HeaderProps {
   openAuthenticate: () => void
@@ -87,7 +86,7 @@ export const Navbar = ({ openAuthenticate }: HeaderProps) => {
                     <hr className="my-2 rounded border-t border-gray-500"></hr>
                     <li>
                       <Link
-                        href={`/${npub}`}
+                        href={getVerifiedChannelLink(profile) || `/${npub}`}
                         legacyBehavior={false}
                         onClick={() => setShowAccountMenu(false)}
                         className="inline-flex w-full whitespace-nowrap rounded bg-transparent py-1 px-1 text-sm font-normal text-white hover:bg-stone-700"

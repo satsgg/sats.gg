@@ -4,7 +4,7 @@ import LiveSVG from '~/svgs/live.svg'
 import { nip19 } from 'nostr-tools'
 import ProfileImg from './ProfileImg'
 import { StreamStatus } from '@prisma/client'
-import { displayName } from '~/utils/nostr'
+import { displayName, getVerifiedChannelLink } from '~/utils/nostr'
 
 export const FollowedChannelSingle = ({
   pubkey,
@@ -20,7 +20,7 @@ export const FollowedChannelSingle = ({
   const { profile, isLoading } = useProfile(pubkey)
 
   return (
-    <Link href={`/${nip19.npubEncode(pubkey)}`}>
+    <Link href={getVerifiedChannelLink(profile) || `/${nip19.npubEncode(pubkey)}`}>
       <div className="flex justify-between gap-2 py-2 px-2 hover:cursor-pointer hover:bg-stone-700/25">
         <div className="flex min-w-0">
           <div className={`${userCollapse ? '' : 'mr-2'} h-8 w-8 shrink-0`}>

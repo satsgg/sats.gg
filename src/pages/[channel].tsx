@@ -13,6 +13,13 @@ import ZapInvoiceModule from '~/components/ZapInvoiceModule'
 import useMediaQuery from '~/hooks/useMediaQuery'
 
 const getChannelPubkey = (channel: string, isReady: boolean) => {
+  if (channel === 'chad') {
+    return 'e9038e10916d910869db66f3c9a1f41535967308b47ce3136c98f1a6a22a6150'
+  }
+  if (channel === 'satbox') {
+    return '8756779be69455fee07957ae409a7485914b06a747ff0b105721dcf1538697e1'
+  }
+
   if (channel.startsWith('npub1')) {
     try {
       let { type, data: nipData } = nip19.decode(channel)
@@ -22,7 +29,6 @@ const getChannelPubkey = (channel: string, isReady: boolean) => {
         return null
       }
     } catch (error) {
-      console.error(error)
       return null
     }
   }
@@ -30,11 +36,12 @@ const getChannelPubkey = (channel: string, isReady: boolean) => {
   // might be hex format
   try {
     // try npub encode to validate hex public key
-    nip19.npubEncode(channel)
-    return channel
+    let npub = nip19.npubEncode(channel)
+    let { type, data: nipData } = nip19.decode(npub)
+    if (type === 'npub') {
+      return nipData as string
+    }
   } catch (error) {
-    console.error(error)
-    // TODO: Check backend if verified user url i.e. sats.gg/chad
     return null
   }
 }

@@ -202,3 +202,14 @@ export async function requestZapInvoice(
 
   return null
 }
+
+export const getVerifiedChannelLink = (profile: UserMetadataStore | undefined) => {
+  if (profile?.nip05) {
+    const match = profile.nip05.match(/^(?:([\w.+-]+)@)?([\w.-]+)$/)
+    if (!match) return null
+    const [_, name = '_', domain] = match
+    if (domain === 'sats.gg') return `/${name}`
+  }
+
+  return null
+}
