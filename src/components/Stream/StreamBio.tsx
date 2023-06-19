@@ -1,9 +1,9 @@
 import FollowButton from './FollowButton'
 import ZapButton from '~/components/ZapButton'
-import ProfileImg from '../ProfileImg'
 import { displayName } from '~/utils/nostr'
 import { UserMetadataStore } from '~/store/db'
 import { StreamStatus } from '@prisma/client'
+import HaloProfileImg from '../HaloProfileImg'
 
 export const StreamBio = ({
   channelPubkey,
@@ -30,11 +30,11 @@ export const StreamBio = ({
       className="flex grow flex-col gap-4 border-b border-gray-500 px-2 py-2 md:border-0 lg:px-5 lg:py-2.5"
     >
       <div id="profile" className="flex gap-2">
-        <div className="h-12 w-12 shrink-0 md:h-16 md:w-16">
+        <div className="h-14 w-14 shrink-0 md:mt-2 md:h-[4.5rem] md:w-[4.5rem]">
           {channelProfileIsLoading ? (
             <div className="h-full w-full rounded-[50%] bg-gray-600" />
           ) : (
-            <ProfileImg
+            <HaloProfileImg
               pubkey={channelPubkey}
               picture={channelProfile?.picture}
               liveBorder={streamStatus === StreamStatus.ACTIVE}
@@ -43,7 +43,7 @@ export const StreamBio = ({
         </div>
 
         <div className="flex w-full min-w-0 justify-between">
-          <div className="flex min-w-0 flex-col">
+          <div className="flex min-w-0 flex-col md:mt-2">
             <span className="min-h-0 truncate text-lg font-bold text-white">
               {!channelProfileIsLoading && displayName(channelPubkey, channelProfile)}
             </span>
@@ -72,7 +72,7 @@ export const StreamBio = ({
         <p className="font-semi text-lg text-white">{channelProfile?.about}</p>
       </div>
 
-      <div className="hidden h-screen w-full border-4 border-cyan-500 sm:block" />
+      {/* <div className="hidden h-screen w-full border-4 border-cyan-500 sm:block" /> */}
     </div>
   )
 }

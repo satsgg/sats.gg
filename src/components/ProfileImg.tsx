@@ -1,15 +1,7 @@
 import { useState } from 'react'
 import NostrichImg from '~/assets/nostrich.jpeg'
 
-const ProfileImg = ({
-  pubkey,
-  picture,
-  liveBorder = false,
-}: {
-  pubkey: string
-  picture: string | undefined
-  liveBorder?: boolean
-}) => {
+const ProfileImg = ({ pubkey, picture }: { pubkey: string; picture: string | undefined }) => {
   const [imgLoaded, setImgLoaded] = useState(false)
   const getImgUrl = () => {
     if (picture) {
@@ -23,12 +15,7 @@ const ProfileImg = ({
     <>
       {!imgLoaded ? <div className="h-full w-full rounded-[50%] bg-gray-600"></div> : null}
       <img
-        className={`
-          ${imgLoaded ? '' : 'hidden'} 
-          ${liveBorder && 'border-2 border-primary p-1'} 
-          h-full
-          w-full rounded-[50%]
-        `}
+        className={`${imgLoaded ? '' : 'hidden'} h-full w-full rounded-[50%]`}
         // src={profile?.picture || `https://robohash.org/${channelPubkey}.png`}
         // src={profile?.picture}
         src={getImgUrl()}
