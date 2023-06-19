@@ -7,6 +7,7 @@ import { verifySignature } from 'nostr-tools'
 import { trpc } from '~/utils/trpc'
 import { toast } from 'react-toastify'
 import useAuthStore from '~/hooks/useAuthStore'
+import Button from './Button'
 
 declare global {
   interface Window {
@@ -71,7 +72,7 @@ const PubkeyForm = ({ close }: { close: () => void }) => {
       <form className="grow " spellCheck={false} onSubmit={handleSubmit(onSubmit)}>
         <input
           className={`${
-            errors.pubkey && 'border-red-500'
+            errors.pubkey && 'border-red-500 focus:border-red-500'
           } focus:shadow-outline w-full min-w-[20ch] resize-none appearance-none rounded border border-gray-500 bg-stone-700 py-2 px-3 leading-tight text-white shadow placeholder:italic focus:border-primary focus:bg-slate-900 focus:outline-none`}
           type="text"
           placeholder="hex public key / npub..."
@@ -80,15 +81,9 @@ const PubkeyForm = ({ close }: { close: () => void }) => {
         />
         {errors.pubkey && <p className="text-sm ">{errors.pubkey.message}</p>}
       </form>
-      <button
-        className={`${
-          isDirty ? 'bg-primary hover:bg-primary/80' : 'bg-gray-500'
-        } w-full items-center rounded px-3 py-2 text-center text-sm font-semibold uppercase shadow-md transition duration-150 ease-in-out hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0 active:shadow-lg`}
-        disabled={!isDirty}
-        onClick={handleSubmit(onSubmit)}
-      >
+      <Button disabled={!isDirty} onClick={handleSubmit(onSubmit)}>
         Log in with public key
-      </button>
+      </Button>
     </div>
   )
 }
@@ -154,15 +149,9 @@ const Nip07Login = ({ challenge, close }: { challenge: string | undefined; close
     <div className="flex flex-col gap-y-2">
       <h2 className="text-lg font-semibold">Recommended</h2>
       {window.nostr && (
-        <button
-          className={`${
-            !waiting ? 'bg-primary hover:bg-primary/80' : 'bg-gray-500'
-          } w-full items-center rounded px-3 py-2 text-center text-sm font-semibold uppercase shadow-md transition duration-150 ease-in-out hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0 active:shadow-lg`}
-          onClick={() => onClick()}
-        >
-          {!waiting && 'Log in with extension (NIP07)'}
-          {waiting && 'Waiting for extension...'}
-        </button>
+        <Button disabled={waiting} onClick={onClick}>
+          {!waiting ? 'Log in with extension (NIP07)' : 'Waiting for extension...'}
+        </Button>
       )}
       {!window.nostr && (
         <div>
