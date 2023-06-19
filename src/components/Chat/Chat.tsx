@@ -22,6 +22,7 @@ import ChatMessage from './ChatMessage'
 import ZapChatMessage from './ZapChatMessage'
 import ZapInvoiceModule from '../ZapInvoiceModule'
 import useMediaQuery from '~/hooks/useMediaQuery'
+import Button from '../Button'
 
 const eventOrder = {
   created_at: null,
@@ -358,27 +359,24 @@ export const Chat = ({
             )}
           </div>
           {showZapChat ? (
-            <button
-              className="inline-flex h-8 items-center gap-1 rounded bg-primary px-3 py-2 text-sm font-semibold capitalize shadow-md transition duration-150 ease-in-out hover:bg-primary/80 hover:shadow-lg focus:bg-primary focus:shadow-lg focus:outline-none focus:ring-0 active:bg-primary active:shadow-lg disabled:cursor-not-allowed disabled:bg-gray-500"
+            <Button
+              onClick={handleSubmit(onSubmitMessage)}
               disabled={!canSign || !channelUser?.chatChannelId || !isValid}
-              onClick={handleSubmit(onSubmitMessage)}
+              icon={
+                <LightningBolt
+                  className={`${zapInvoice || zapLoading ? 'animate-pulse' : 'animate-flash'}`}
+                  height={20}
+                  width={20}
+                  strokeWidth={1.5}
+                />
+              }
             >
-              <LightningBolt
-                className={`${zapInvoice || zapLoading ? 'animate-pulse' : 'animate-flash'}`}
-                height={20}
-                width={20}
-                strokeWidth={1.5}
-              />
-              Chat
-            </button>
+              <span>chat</span>
+            </Button>
           ) : (
-            <button
-              className="inline-flex h-8 items-center rounded bg-primary px-3 py-2 text-sm font-semibold capitalize shadow-md transition duration-150 ease-in-out hover:bg-primary/80 hover:shadow-lg focus:bg-primary focus:shadow-lg focus:outline-none focus:ring-0 active:bg-primary active:shadow-lg disabled:cursor-not-allowed disabled:bg-gray-500"
-              disabled={!canSign || !channelUser?.chatChannelId}
-              onClick={handleSubmit(onSubmitMessage)}
-            >
-              Chat
-            </button>
+            <Button disabled={!canSign || !channelUser?.chatChannelId} onClick={handleSubmit(onSubmitMessage)}>
+              <span>chat</span>
+            </Button>
           )}
         </div>
       </div>

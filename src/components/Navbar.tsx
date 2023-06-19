@@ -4,12 +4,15 @@ import Link from 'next/link'
 import ChannelSVG from '~/svgs/my-channel.svg'
 import LogOutSVG from '~/svgs/log-out.svg'
 import LogInSVG from '~/svgs/log-in.svg'
+import LightningBolt from '~/svgs/lightning-bolt.svg'
+import Key from '~/svgs/key.svg'
 import SettingsSVG from '~/svgs/settings.svg'
 import AccountSVG from '~/svgs/account.svg'
 import useConnectedRelays from '~/hooks/useConnectedRelays'
 import useSettingsStore from '~/hooks/useSettingsStore'
 import { useProfile } from '~/hooks/useProfile'
 import useAuthStore from '~/hooks/useAuthStore'
+import Button from './Button'
 
 interface HeaderProps {
   openAuthenticate: () => void
@@ -51,7 +54,7 @@ export const Navbar = ({ openAuthenticate }: HeaderProps) => {
                   aria-expanded="false"
                   onClick={() => setShowAccountMenu((showAccountMenu) => !showAccountMenu)}
                 >
-                  <AccountSVG width={34} height={34} />
+                  <AccountSVG width={32} height={32} />
                 </a>
                 {showAccountMenu && (
                   <ul
@@ -122,14 +125,9 @@ export const Navbar = ({ openAuthenticate }: HeaderProps) => {
             </ClickAwayListener>
           )}
           {status === 'unauthenticated' && (
-            <button
-              type="button"
-              onClick={openAuthenticate}
-              className="font-semi inline-flex items-center rounded bg-primary px-3 py-2 text-sm uppercase text-black shadow-md transition duration-150 ease-in-out hover:bg-primary/80 hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0 active:shadow-lg"
-            >
-              <LogInSVG width={20} height={20} className="mr-1.5 h-4" />
+            <Button onClick={openAuthenticate} icon={<Key height={20} width={20} strokeWidth={1.5} />}>
               <span>Log In</span>
-            </button>
+            </Button>
           )}
         </div>
       </div>

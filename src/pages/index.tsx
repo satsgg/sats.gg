@@ -119,7 +119,7 @@ export default function IndexPage() {
 
       {!isLoading && streams?.length === 0 && (
         <>
-          <p>Welcome to sats.gg!</p>
+          <p>Welcome to SATS.GG!</p>
           <p>Nobody is streaming at the moment... Be the first!</p>
         </>
       )}
