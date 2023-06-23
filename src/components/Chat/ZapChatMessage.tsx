@@ -1,7 +1,6 @@
 import { Event as NostrEvent } from 'nostr-tools'
 import ChatUser from './ChatUser'
 import Message from './Message'
-import { useRef } from 'react'
 import LightningBolt from '~/svgs/lightning-bolt.svg'
 
 const parseZapRequest = (note: NostrEvent) => {
@@ -14,9 +13,9 @@ const parseZapRequest = (note: NostrEvent) => {
 }
 
 const ZapChatMessage = ({ note }: { note: NostrEvent }) => {
-  const zapRequest = useRef(parseZapRequest(note))
+  const zapRequest = parseZapRequest(note)
 
-  if (!zapRequest.current) return null
+  if (!zapRequest) return null
 
   return (
     <div className="break-words px-2 py-1">
@@ -25,11 +24,11 @@ const ZapChatMessage = ({ note }: { note: NostrEvent }) => {
           <LightningBolt className="inline-flex" height={15} width={15} strokeWidth={1.5} />
         </div>
         <p className="pl-1 leading-none">
-          <ChatUser pubkey={zapRequest.current.pubkey} />
+          <ChatUser pubkey={zapRequest.pubkey} />
           <span className="text-sm text-white">
             {' '}
-            zapped {zapRequest.current.tags[1][1] / 1000} sats! <br />
-            <Message content={zapRequest.current.content} />
+            zapped {zapRequest.tags[1][1] / 1000} sats! <br />
+            <Message content={zapRequest.content} />
           </span>
         </p>
       </div>

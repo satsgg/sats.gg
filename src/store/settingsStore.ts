@@ -15,7 +15,7 @@ type Actions = {
   unsetFollows: () => void
 }
 
-const DEFAULT_RELAYS = [
+export const DEFAULT_RELAYS = [
   'wss://brb.io',
   'wss://relay.damus.io',
   'wss://nostr.fmt.wiz.biz',

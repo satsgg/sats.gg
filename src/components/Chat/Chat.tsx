@@ -68,6 +68,7 @@ export const Chat = ({
 
   const filters: Filter[] = [
     {
+      // TODO: separate filter for zaps with pubkey equal to channelUser pubkey
       kinds: [42, 9735],
       // since and limit don't really work well
       since: now.current - 1000 * 60 * 60 * 24, // one day ago
@@ -166,6 +167,7 @@ export const Chat = ({
 
     if (showZapChat) {
       if (!channelProfile || zapLoading) return
+      setZapLoading(true)
       const zapInfo = await getZapEndpoint(channelProfile)
       if (!zapInfo) {
         // toast error
