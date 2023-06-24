@@ -100,12 +100,12 @@ const Notification = ({ event }: { event: NostrEvent }) => {
   const { profile, isLoading } = useProfile(event.pubkey)
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col sm:w-2/3 lg:w-1/3">
       <p className="text-3xl">
-        <span className="font-bold text-primary">{displayName(event.pubkey, profile)}</span> zapped{' '}
+        <span className="font-bold text-primary">{displayName(event.pubkey, profile).slice(0, 18)}</span> zapped{' '}
         {event.tags[1][1] / 1000} sats!
       </p>
-      <p className="text-2xl">{fmtMsg(event.content)}</p>
+      <p className="break-words text-2xl">{fmtMsg(event.content)}</p>
     </div>
   )
 }
