@@ -19,6 +19,8 @@ export const useFetchZap = (pubkey: string | undefined, invoice: string | null, 
     const pk = event.tags.find((t) => t[0] == 'p')
     if (pk && pk[1] !== pubkey) return
 
+    // TODO: verify invoice amount === zap request amount
+
     const bolt11 = event.tags.find((t) => t[0] == 'bolt11')
     if (bolt11 && bolt11[1] == invoice) {
       setZap(event)

@@ -1,0 +1,26 @@
+{
+  "id": "2150abe2bdd9aa96207a442da9c483ddc3d60dd58fb42a920036980704670180",
+  "pubkey": "e75da451e9e743b43cfb9a0d7f30c4df7272e7e53b03e999e17cedc7b8eb40b8",
+  "created_at": 1679362415,
+  "kind": 9734,
+  "tags": [
+    ["p", "82341f882b6eabcd2ba7f1ef90aad961cf074af15b9ef44a09f9d2a8fbfbe6a2"],
+    [
+      "relays",
+      "wss://relay.stoner.com",
+      "wss://relay.ryzizub.com",
+      "wss://relay.snort.social",
+      "wss://relay.plebstr.com",
+      " wss://nostr-relay.wlvs.space ",
+      "wss://relay.damus.io",
+      "wss://relay.nostr.scot",
+      "wss://relay.nostr.info",
+      "wss://nostr.zebedee.cloud",
+      "wss://nostr.onsats.org	",
+      "wss://nostr-relay.wlvs.space	"
+    ],
+    ["e", "73729d04780df08252217981faaa184c28de6519b24761a0726ebf81edd411e0"]
+  ],
+  "content": "",
+  "sig": "4461a4305deebbecd62c6010e4c39310c734e014a43446695f47af732e3e4746f2d0e347a3e5e432e09259a75b34bda533c2df1ef339d9a5f0c07bdb01bd0566"
+}

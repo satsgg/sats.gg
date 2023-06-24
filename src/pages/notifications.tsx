@@ -7,21 +7,161 @@ import { Event as NostrEvent, Filter } from 'nostr-tools'
 import Button from '~/components/Button'
 import { nostrClient } from '~/nostr/NostrClient'
 import { useSubscription } from '~/hooks/useSubscription'
+import { useProfile } from '~/hooks/useProfile'
+import { displayName, parseZapRequest, validHexKey, validNpubKey } from '~/utils/nostr'
+import { fmtMsg } from '~/utils/util'
+import { useZodForm } from '~/utils/useZodForm'
+import { z } from 'zod'
+import { nip19 } from 'nostr-tools'
 
-export default function Notifications() {
-  const { init: initSettingsStore } = useSettingsStore()
+const ConfigureRelays = () => {
   const relays = useSettingsStore((state) => state.relays)
-  const removeRelay = useSettingsStore((state) => state.removeRelay)
   const connectedRelays = useConnectedRelays()
+  const removeRelay = useSettingsStore((state) => state.removeRelay)
+
+  return (
+    <div className="flex w-full flex-col gap-2">
+      <h2 className="font-md text-2xl">Relays</h2>
+      <h3 className="font-sm text-sm text-white">
+        Add or remove nostr relays to control where you receive notifications!
+      </h3>
+
+      {Array.from(relays).map((relay) => {
+        return (
+          <RemoveableRelay key={relay} relay={relay} connected={connectedRelays.has(relay)} removeRelay={removeRelay} />
+        )
+      })}
+
+      {relays && relays.length === 0 && <p>Add some relays to get started!</p>}
+
+      <AddRelayForm relays={relays} />
+    </div>
+  )
+}
+
+const NotificationsHandler = ({ notes }: { notes: NostrEvent[] }) => {
+  const [notiQueue, setNotiQueue] = useState<NostrEvent[]>([])
+  const [notiVisible, setNotiVisible] = useState(false)
+  const [noti, setNoti] = useState<NostrEvent | null>(null)
+
+  useEffect(() => {
+    if (notes.length > 0 && notes[0]) {
+      const noti = parseZapRequest(notes[0])
+      if (noti) {
+        setNotiQueue((prev) => {
+          return [...prev, noti]
+        })
+      }
+      if (!notiVisible) {
+        setNotiVisible(true)
+      }
+    }
+  }, [notes])
+
+  useEffect(() => {
+    const currentNoti = notiQueue[0]
+    if (!currentNoti) {
+      return
+    }
+    setNoti(currentNoti)
+
+    if (!notiVisible) {
+      setNotiVisible(true)
+    }
+  }, [notiVisible])
+
+  return (
+    <>
+      {notiVisible && (
+        <div
+          className="flex h-full animate-alert items-center justify-center text-white"
+          onAnimationStart={() => {
+            console.debug('queue', notiQueue)
+            console.debug('now display', noti)
+            setNotiQueue((prev) => {
+              return [...prev.slice(1)]
+            })
+          }}
+          onAnimationEnd={() => {
+            setNoti(null)
+            setNotiVisible(false)
+          }}
+        >
+          {noti && <Notification event={noti} />}
+        </div>
+      )}
+    </>
+  )
+}
+
+const Notification = ({ event }: { event: NostrEvent }) => {
+  const { profile, isLoading } = useProfile(event.pubkey)
+
+  return (
+    <div className="flex flex-col">
+      <p className="text-3xl">
+        <span className="font-bold text-primary">{displayName(event.pubkey, profile)}</span> zapped{' '}
+        {event.tags[1][1] / 1000} sats!
+      </p>
+      <p className="text-2xl">{fmtMsg(event.content)}</p>
+    </div>
+  )
+}
+
+export default function NotificationsWrapper() {
+  const { init: initSettingsStore } = useSettingsStore()
   const [showNotifications, setShowNotifications] = useState(false)
-  // const [pubkey, setPubkey] = useState<string | null>(null)
-  const [pubkey, setPubkey] = useState<string | null>(
-    'e9038e10916d910869db66f3c9a1f41535967308b47ce3136c98f1a6a22a6150',
-  )
-  // const [chatChannelId, setChatChannelId] = useState<string | null>(null)
-  const [chatChannelId, setChatChannelId] = useState<string | null>(
-    '2a1f6a2474be93bda8dd1269edd75501d56d0000b3c9961f66e83afb985bee9d',
-  )
+  const [pubkey, setPubkey] = useState<string>('')
+  const [chatChannelId, setChatChannelId] = useState<string>('')
+
+  const {
+    register,
+    handleSubmit,
+    setError,
+    setValue,
+    getValues,
+    watch,
+    reset,
+    formState: { errors, isDirty },
+  } = useZodForm({
+    mode: 'onSubmit',
+    schema: z.object({
+      pubkey: z.string(),
+      chatChannelId: z.string(),
+    }),
+    defaultValues: {
+      pubkey: '',
+      chatChannelId: '',
+    },
+  })
+
+  const onSubmit = (data: { pubkey: string; chatChannelId: string }) => {
+    if (data.pubkey.startsWith('npub1')) {
+      if (!validNpubKey(data.pubkey)) {
+        setError('pubkey', { message: 'Invalid npub key' })
+        return
+      }
+      let { type, data: nipData } = nip19.decode(data.pubkey)
+      setPubkey(nipData as string)
+    } else if (!validHexKey(data.pubkey)) {
+      setError('pubkey', { message: 'Invalid hex public key' })
+      return
+    } else {
+      setPubkey(data.pubkey)
+    }
+
+    // have good hex pub now
+    if (data.chatChannelId !== '') {
+      console.debug('should validate chat channel id')
+      if (data.chatChannelId.length !== 64) {
+        setError('chatChannelId', { message: 'Invalid chat channel ID' })
+        return
+      }
+      setChatChannelId(data.chatChannelId)
+    }
+
+    setShowNotifications(true)
+  }
 
   useEffect(() => {
     initSettingsStore()
@@ -38,69 +178,69 @@ export default function Notifications() {
 
   const now = useRef(Math.floor(Date.now() / 1000)) // Make sure current time isn't re-rendered
 
-  const filters: Filter[] = [
-    {
+  const getFilters = () => {
+    const filters: Filter[] = []
+    if (pubkey === '') return filters
+    filters.push({
       kinds: [9735],
-      // since and limit don't really work well
-      since: now.current - 1000 * 60 * 60 * 24,
-      // separate filter for chat zap / quick zap?
-      // or multiple #e?
+      since: now.current,
+      // NOTE: If pulling in old events, they can come in out of order
+      // only use to test notification display
+      // since: now.current - 1000 * 60 * 60 * 24,
       '#p': [pubkey || ''],
-      '#e': [chatChannelId || ''],
-    },
-    {
-      kinds: [9735],
-      since: now.current - 1000 * 60 * 60 * 24,
-      '#p': [pubkey || ''],
-    },
-  ]
-  const notes = useSubscription(pubkey || '', filters, 250)
+    })
 
-  const handleNotificationsClick = () => {
-    setShowNotifications(true)
-    document.querySelector('body')!.className = ''
+    if (chatChannelId !== '')
+      filters.push({
+        kinds: [9735],
+        since: now.current,
+        '#p': [pubkey || ''],
+        '#e': [chatChannelId],
+      })
+
+    return filters
   }
 
-  // TODO: pubkey and chat event ID
+  const notes = useSubscription(pubkey || '', getFilters(), true, 100)
 
   return (
-    <>
+    <div className="flex h-full w-full justify-center overflow-y-auto text-white">
       {!showNotifications ? (
-        <div className="flex h-full w-full justify-center overflow-y-auto text-white">
-          <div className="flex w-full flex-col gap-2 sm:w-2/3 lg:w-1/3">
-            <h2 className="font-md text-2xl">Notification Relays</h2>
-            <h3 className="font-sm text-sm text-white">
-              Add or remove nostr relays to control where you receive notifications!
-            </h3>
-
-            {Array.from(relays).map((relay) => {
-              return (
-                <RemoveableRelay
-                  key={relay}
-                  relay={relay}
-                  connected={connectedRelays.has(relay)}
-                  removeRelay={removeRelay}
-                />
-              )
-            })}
-
-            {relays && relays.length === 0 && <p>Add some relays to get started!</p>}
-
-            <AddRelayForm relays={relays} />
-            <Button onClick={handleNotificationsClick}>SHOW NOTIFICATIONS</Button>
-          </div>
+        <div className="flex w-full flex-col gap-2 overflow-y-auto pr-4 sm:w-2/3 lg:w-1/3">
+          <h2 className="font-md text-2xl">Event Query</h2>
+          <form spellCheck={false} onSubmit={handleSubmit(onSubmit)}>
+            <input
+              className={`${
+                errors.pubkey ? 'border-red-500 focus:border-red-500' : 'border-gray-500 focus:border-primary'
+              } focus:shadow-outline w-full min-w-[20ch] resize-none appearance-none rounded border bg-stone-700 py-2 px-3 leading-tight text-white shadow placeholder:italic  focus:bg-slate-900 focus:outline-none`}
+              type="text"
+              placeholder="hex public key / npub..."
+              autoComplete="off"
+              {...register('pubkey')}
+            />
+            {errors.pubkey && <p className="text-sm ">{errors.pubkey.message}</p>}
+          </form>
+          <form spellCheck={false} onSubmit={handleSubmit(onSubmit)}>
+            <input
+              className={`${
+                errors.chatChannelId ? 'border-red-500 focus:border-red-500' : 'border-gray-500 focus:border-primary'
+              } focus:shadow-outline w-full min-w-[20ch] resize-none appearance-none rounded border bg-stone-700 py-2 px-3 leading-tight text-white shadow placeholder:italic  focus:bg-slate-900 focus:outline-none`}
+              type="text"
+              placeholder="chat channel ID (optional)..."
+              autoComplete="off"
+              {...register('chatChannelId')}
+            />
+            {errors.chatChannelId && <p className="text-sm ">{errors.chatChannelId.message}</p>}
+          </form>
+          <Button onClick={handleSubmit(onSubmit)}>SHOW NOTIFICATIONS</Button>
+          <ConfigureRelays />
         </div>
       ) : (
-        <div className="">
-          <p>notes</p>
-          {notes.map((note) => {
-            return <p>{note.id}</p>
-          })}
-        </div>
+        <NotificationsHandler notes={notes} />
       )}
-    </>
+    </div>
   )
 }
-Notifications.getLayout = function () {
-  return <Notifications />
+NotificationsWrapper.getLayout = function () {
+  return <NotificationsWrapper />
 }

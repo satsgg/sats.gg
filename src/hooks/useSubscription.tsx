@@ -3,7 +3,7 @@ import { Filter, Event } from 'nostr-tools'
 import { nostrClient } from '~/nostr/NostrClient'
 import { uniqBy } from '~/utils/nostr'
 
-export const useSubscription = (id: string, filter: Filter[], limit: number = 500) => {
+export const useSubscription = (id: string, filter: Filter[], reverse = false, limit: number = 500) => {
   const [notes, setNotes] = useState<Event[]>([])
 
   const onEventCallback = (event: Event) => {
@@ -18,13 +18,16 @@ export const useSubscription = (id: string, filter: Filter[], limit: number = 50
   }
 
   useEffect(() => {
-    nostrClient.subscribe(id, filter, onEventCallback)
+    if (id && filter.length > 0) {
+      nostrClient.subscribe(id, filter, onEventCallback)
 
-    return () => {
-      nostrClient.unsubscribe(id)
+      return () => {
+        nostrClient.unsubscribe(id)
+      }
     }
   }, [id])
 
   const uniqEvents = notes.length > 0 ? uniqBy(notes, 'id') : []
+  if (reverse) return uniqEvents.sort((b, a) => a.created_at - b.created_at)
   return uniqEvents.sort((b, a) => b.created_at - a.created_at)
 }

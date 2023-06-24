@@ -2,7 +2,7 @@ import { useRef, useState, useEffect } from 'react'
 import { Virtuoso, LogLevel, VirtuosoHandle } from 'react-virtuoso'
 import { inferProcedureOutput } from '@trpc/server'
 import { Event as NostrEvent, Filter, UnsignedEvent, verifySignature, validateEvent } from 'nostr-tools'
-import { createEvent, createZapEvent, getZapEndpoint, requestZapInvoice, uniqBy } from '~/utils/nostr'
+import { createEvent, createZapEvent, getZapEndpoint, requestZapInvoice } from '~/utils/nostr'
 import MessageInput from './MessageInput'
 import { useSubscription } from '~/hooks/useSubscription'
 import { usePopper } from 'react-popper'
@@ -23,6 +23,7 @@ import ZapChatMessage from './ZapChatMessage'
 import ZapInvoiceModule from '../ZapInvoiceModule'
 import useMediaQuery from '~/hooks/useMediaQuery'
 import Button from '../Button'
+import { MAX_MSG_LEN } from '~/utils/util'
 
 const eventOrder = {
   created_at: null,
@@ -76,7 +77,7 @@ export const Chat = ({
       '#e': [channelUser?.chatChannelId || ''],
     },
   ]
-  const notes = useSubscription(channelPubkey, filters, 250)
+  const notes = useSubscription(channelPubkey, filters, true, 250)
   const zap = useFetchZap(channelProfile?.pubkey, zapInvoice, () => setShowZapModule(false)) // closeZap?
 
   // need to either do this in the useEffect or pass to useFetchZap callback...
@@ -117,7 +118,7 @@ export const Chat = ({
   } = useZodForm({
     mode: 'onChange',
     schema: z.object({
-      message: z.string(),
+      message: z.string().max(MAX_MSG_LEN),
       amount: z.number().min(1).optional(),
     }),
     // defaultValues: {

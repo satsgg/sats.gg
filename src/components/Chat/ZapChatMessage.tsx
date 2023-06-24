@@ -2,15 +2,7 @@ import { Event as NostrEvent } from 'nostr-tools'
 import ChatUser from './ChatUser'
 import Message from './Message'
 import LightningBolt from '~/svgs/lightning-bolt.svg'
-
-const parseZapRequest = (note: NostrEvent) => {
-  const zapRequest = note.tags.find((t) => t[0] == 'description')
-  if (zapRequest && zapRequest[1]) {
-    const requestJson = JSON.parse(zapRequest[1])
-    return requestJson
-  }
-  return null
-}
+import { parseZapRequest } from '~/utils/nostr'
 
 const ZapChatMessage = ({ note }: { note: NostrEvent }) => {
   const zapRequest = parseZapRequest(note)
