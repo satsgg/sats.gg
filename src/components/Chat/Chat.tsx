@@ -77,7 +77,7 @@ export const Chat = ({
       '#e': [channelUser?.chatChannelId || ''],
     },
   ]
-  const notes = useSubscription(channelPubkey, filters, true, 250)
+  const notes = useSubscription(channelPubkey, filters, false, 250)
   const zap = useFetchZap(channelProfile?.pubkey, zapInvoice, () => setShowZapModule(false)) // closeZap?
 
   // need to either do this in the useEffect or pass to useFetchZap callback...

@@ -24,11 +24,16 @@ module.exports = {
           '6%': { opacity: '.9' },
           '100%': { opacity: '1' },
         },
+        alert: {
+          '0%,100%': { opacity: '0' },
+          '10%,90%': { opacity: '1' },
+        },
       },
       animation: {
         wiggle: 'wiggle 1s ease-in-out',
         pulse: 'pulse 1.5s ease-in-out infinite',
         flash: 'flash 10s ease-out infinite',
+        alert: 'alert 10s ease-in-out forwards',
       },
     },
   },

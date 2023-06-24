@@ -13,6 +13,8 @@ import { fmtMsg } from '~/utils/util'
 import { useZodForm } from '~/utils/useZodForm'
 import { z } from 'zod'
 import { nip19 } from 'nostr-tools'
+import { useRouter } from 'next/router'
+import { Spinner } from '~/components/Spinner'
 
 const ConfigureRelays = () => {
   const relays = useSettingsStore((state) => state.relays)
@@ -114,6 +116,16 @@ export default function NotificationsWrapper() {
   const [pubkey, setPubkey] = useState<string>('')
   const [chatChannelId, setChatChannelId] = useState<string>('')
 
+  const { query, isReady } = useRouter()
+  // always true?
+  if (!isReady) {
+    return (
+      <div className="flex h-full w-full content-center justify-center">
+        <Spinner height={6} width={6} />
+      </div>
+    )
+  }
+
   const {
     register,
     handleSubmit,
@@ -130,8 +142,8 @@ export default function NotificationsWrapper() {
       chatChannelId: z.string(),
     }),
     defaultValues: {
-      pubkey: '',
-      chatChannelId: '',
+      pubkey: (query.pubkey as string) || '',
+      chatChannelId: (query.id as string) || '',
     },
   })
 
@@ -208,6 +220,12 @@ export default function NotificationsWrapper() {
       {!showNotifications ? (
         <div className="flex w-full flex-col gap-2 overflow-y-auto pr-4 sm:w-2/3 lg:w-1/3">
           <h2 className="font-md text-2xl">Event Query</h2>
+          <h3 className="font-sm text-sm text-white">
+            These values can be populated in OBS Browser Source using URL search params!
+          </h3>
+          <h3 className="font-sm text-sm text-white">
+            ex. https://sats.gg/notifications?pubkey={'[pubkey/npub]'}&id={'[chat channel ID]'}
+          </h3>
           <form spellCheck={false} onSubmit={handleSubmit(onSubmit)}>
             <input
               className={`${

@@ -92,7 +92,7 @@ const ZapButton = ({
       // TODO: overrideable here? idea is quick zaps...
       // maybe long press configure amount later
       amount: (user?.defaultZapAmount || 1000) * 1000,
-      comment: 'test comment',
+      comment: 'zapped on sats.gg!',
       relays: relays,
     }
 
