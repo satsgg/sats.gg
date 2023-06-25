@@ -5,7 +5,6 @@ import { Event as NostrEvent, Filter, UnsignedEvent, verifySignature, validateEv
 import { createEvent, createZapEvent, getZapEndpoint, requestZapInvoice } from '~/utils/nostr'
 import MessageInput from './MessageInput'
 import { useSubscription } from '~/hooks/useSubscription'
-import { usePopper } from 'react-popper'
 import useCanSign from '~/hooks/useCanSign'
 import { toast } from 'react-toastify'
 import { UserMetadataStore, nostrClient } from '~/nostr/NostrClient'
@@ -24,6 +23,7 @@ import ZapInvoiceModule from '../ZapInvoiceModule'
 import useMediaQuery from '~/hooks/useMediaQuery'
 import Button from '../Button'
 import { MAX_MSG_LEN } from '~/utils/util'
+import ScrollToButtomButton from './ScollToBottomButton'
 
 const eventOrder = {
   created_at: null,
@@ -46,11 +46,6 @@ export const Chat = ({
   const canSign = useCanSign()
 
   const virtuosoRef = useRef<VirtuosoHandle>(null)
-  const [chatRef, setChatRef] = useState<HTMLDivElement | null>(null)
-  const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null)
-  const { styles, attributes } = usePopper(chatRef, popperElement, {
-    placement: 'top',
-  })
 
   const [showBottomButton, setShowBottomButton] = useState(false)
   const [atBottom, setAtBottom] = useState(false)
@@ -61,7 +56,7 @@ export const Chat = ({
   const [zapInvoice, setZapInvoice] = useState<string | null>(null)
   const [showZapModule, setShowZapModule] = useState(false)
   const [showZapChat, setShowZapChat] = useState(false)
-  // TODO: zapLoading unused? Need to clean up and double check closeZap()
+  // TODO: Need to clean up zap state and double check closeZap()
   const [zapLoading, setZapLoading] = useState(false)
   const { available: weblnAvailable, weblnPay } = useWebln()
 
@@ -304,6 +299,13 @@ export const Chat = ({
               <ZapInvoiceModule invoice={zapInvoice} type="chat" close={closeZap} />
             </div>
           )}
+          {channelUser?.chatChannelId && showBottomButton && (
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2">
+              <ScrollToButtomButton
+                onClick={() => virtuosoRef.current?.scrollToIndex({ index: notes.length - 1, behavior: 'auto' })}
+              />
+            </div>
+          )}
         </div>
       ) : (
         <div className="flex h-full w-full items-center justify-center text-center">
@@ -311,18 +313,7 @@ export const Chat = ({
         </div>
       )}
 
-      {channelUser?.chatChannelId && showBottomButton && (
-        <div ref={setPopperElement} style={styles.popper} {...attributes.popper}>
-          <button
-            className="bg-slate-600 px-2 py-1"
-            onClick={() => virtuosoRef.current?.scrollToIndex({ index: notes.length - 1, behavior: 'auto' })}
-          >
-            Scroll to bottom
-          </button>
-        </div>
-      )}
-
-      <div ref={setChatRef} className="flex w-full flex-row gap-1 py-3 px-3 sm:flex-col">
+      <div className="flex w-full flex-row gap-1 py-3 px-3 sm:flex-col">
         <MessageInput
           handleSubmitMessage={handleSubmit(onSubmitMessage)}
           disabled={!canSign || !channelUser?.chatChannelId}
