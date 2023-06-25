@@ -134,7 +134,7 @@ const StreamSettings = ({ user, setUser }: { user: User; setUser: (user: User) =
 }
 
 export default function StreamSettingsWrapper({}) {
-  const { user, setUser, view } = useAuthStore()
+  const [user, setUser, view] = useAuthStore((state) => [state.user, state.setUser, state.view])
 
   if (view && view !== 'authenticated') {
     return <p>You must be logged in to view this page</p>

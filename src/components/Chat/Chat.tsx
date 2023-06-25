@@ -41,8 +41,7 @@ export const Chat = ({
   channelProfile: UserMetadataStore | undefined
   channelUser: GetUserOutput | undefined
 }) => {
-  const { user } = useAuthStore()
-  const pubkey = useAuthStore((state) => state.pubkey)
+  const [user, pubkey] = useAuthStore((state) => [state.user, state.pubkey])
   const canSign = useCanSign()
 
   const virtuosoRef = useRef<VirtuosoHandle>(null)

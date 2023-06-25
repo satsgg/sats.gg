@@ -15,8 +15,7 @@ import useChannelMetadata from '~/hooks/useChannelMetadata'
 
 export default function Chat() {
   const canSign = useCanSign()
-  const { user, setUser } = useAuthStore()
-  const pubkey = useAuthStore((state) => state.pubkey)
+  const [user, setUser, pubkey] = useAuthStore((state) => [state.user, state.setUser, state.pubkey])
   const chatChannelMutation = trpc.user.setChatChannelId.useMutation()
   const utils = trpc.useContext()
   const channelMetadata = useChannelMetadata(pubkey, user?.chatChannelId)
