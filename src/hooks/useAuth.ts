@@ -20,7 +20,7 @@ export default function useAuth() {
         .fetch()
         .then((data) => {
           setUser(data)
-          setPubkey(data.publicKey!)
+          setPubkey(data!.publicKey)
           setStatus('authenticated')
         })
         .catch((error) => {

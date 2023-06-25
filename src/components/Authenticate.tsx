@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useZodForm } from '~/utils/useZodForm'
 import { z } from 'zod'
 import { nip19 } from 'nostr-tools'
-import { signAuthEvent } from '~/utils/nostr'
+import { signAuthEvent, validHexKey, validNpubKey } from '~/utils/nostr'
 import { verifySignature } from 'nostr-tools'
 import { trpc } from '~/utils/trpc'
 import { toast } from 'react-toastify'
@@ -37,33 +37,21 @@ const PubkeyForm = ({ close }: { close: () => void }) => {
 
   const onSubmit = (data: { pubkey: string }) => {
     if (data.pubkey.startsWith('npub1')) {
-      try {
-        let { type, data: nipData } = nip19.decode(data.pubkey)
-        if (type === 'npub') {
-          setPubkey(nipData as string)
-          setStatus('view')
-          close()
-          return
-        } else {
-          setError('pubkey', { message: 'Invalid npub key' })
-          return
-        }
-      } catch (error) {
-        console.error(error)
+      if (!validNpubKey(data.pubkey)) {
         setError('pubkey', { message: 'Invalid npub key' })
         return
       }
+      let { type, data: nipData } = nip19.decode(data.pubkey)
+      setPubkey(nipData as string)
+    } else if (!validHexKey(data.pubkey)) {
+      setError('pubkey', { message: 'Invalid hex public key' })
+      return
+    } else {
+      setPubkey(data.pubkey)
     }
 
-    try {
-      // try npub encode to vaildate hex public key
-      nip19.npubEncode(data.pubkey)
-      setPubkey(data.pubkey)
-      close()
-    } catch (error) {
-      console.error(error)
-      setError('pubkey', { message: 'Invalid hex public key' })
-    }
+    setStatus('view')
+    close()
   }
 
   return (
