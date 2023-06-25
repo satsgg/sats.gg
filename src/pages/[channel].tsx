@@ -97,6 +97,12 @@ export default function Channel() {
     }
   }, [resetZapInfo])
 
+  useEffect(() => {
+    return () => {
+      closeZap()
+    }
+  }, [channel])
+
   return (
     <>
       <div
