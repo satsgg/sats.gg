@@ -6,31 +6,34 @@ import SettingsStore from './settingsStore'
 
 type GetMeOutput = inferProcedureOutput<AppRouter['auth']['getMe']>
 
-type AuthStatus = undefined | 'loading' | 'view' | 'authenticated' | 'unauthenticated'
+type AuthView = undefined | 'default' | 'pubkey' | 'authenticated'
 
 interface AuthedUser {
   user: GetMeOutput
   pubkey: string | undefined
+  privkey: string | undefined
   npub: string | undefined
-  status: AuthStatus
+  view: AuthView
   authToken: string | undefined
 
   setUser: (user: GetMeOutput) => void
   unsetUser: () => void
   setPubkey: (pubkey: string) => void
+  setPrivatekey: (privkey: string) => void
+  unsetPrivkey: () => void
   unsetPubkey: () => void
-  setAuthToken: (token: string) => void
-  unsetAuthToken: () => void
-  setStatus: (status: AuthStatus) => void
+  setAuthToken: (token: string | undefined) => void
+  setView: (view: AuthView) => void
   logout: () => void
 }
 
 const authedUserStore = create<AuthedUser>((set) => ({
   user: null,
   pubkey: undefined,
+  privkey: undefined,
   npub: undefined,
-  status: undefined,
-  authToken: '',
+  view: undefined,
+  authToken: undefined,
 
   setUser: (user: GetMeOutput) => {
     set({ user })
@@ -42,36 +45,42 @@ const authedUserStore = create<AuthedUser>((set) => ({
     set({ pubkey, npub: nip19.npubEncode(pubkey) })
     window.localStorage.setItem('pubkey', pubkey)
   },
+  setPrivatekey: (privkey: string) => {
+    set({ privkey })
+    window.localStorage.setItem('privkey', privkey)
+  },
+  unsetPrivkey: () => {
+    set({ privkey: undefined })
+    window.localStorage.removeItem('privkey')
+  },
   unsetPubkey: () => {
     set({ pubkey: undefined })
     window.localStorage.removeItem('pubkey')
   },
-  setAuthToken: (authToken: string) => {
+  setAuthToken: (authToken: string | undefined) => {
     set({ authToken })
-    window.localStorage.setItem('token', authToken)
+    if (authToken) window.localStorage.setItem('token', authToken)
   },
-  unsetAuthToken: () => {
-    set({ authToken: '' })
-  },
-  setStatus: (status: AuthStatus) => {
-    set({ status: status })
+  setView: (view: AuthView) => {
+    set({ view: view })
+    if (view) window.localStorage.setItem('view', view)
   },
   logout: () => {
     set({
       user: null,
+      privkey: undefined,
       pubkey: undefined,
       npub: undefined,
-      status: 'unauthenticated',
-      authToken: '',
+      view: undefined,
+      authToken: undefined,
       // relays: [],
     })
-    SettingsStore.setState({ follows: [] })
 
-    window.localStorage.removeItem('token')
-    window.localStorage.removeItem('pubkey')
+    SettingsStore.setState({ follows: [] })
     window.localStorage.removeItem('follows')
-    // window.localStorage.removeItem('relays')
     window.localStorage.removeItem('token')
+    window.localStorage.removeItem('view')
+    // window.localStorage.removeItem('relays')
   },
 }))
 

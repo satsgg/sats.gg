@@ -16,7 +16,7 @@ declare global {
 }
 
 const PubkeyForm = ({ close }: { close: () => void }) => {
-  const [setPubkey, setStatus] = useAuthStore((state) => [state.setPubkey, state.setStatus])
+  const [setPubkey, setView] = useAuthStore((state) => [state.setPubkey, state.setView])
 
   const {
     register,
@@ -50,7 +50,7 @@ const PubkeyForm = ({ close }: { close: () => void }) => {
       setPubkey(data.pubkey)
     }
 
-    setStatus('view')
+    setView('pubkey')
     close()
   }
 
@@ -92,7 +92,11 @@ const recommendedExtensions = [
 ]
 
 const Nip07Login = ({ challenge, close }: { challenge: string | undefined; close: () => void }) => {
-  const [setAuthToken, setPubkey] = useAuthStore((state) => [state.setAuthToken, state.setPubkey])
+  const [setPubkey, setView, setAuthToken] = useAuthStore((state) => [
+    state.setPubkey,
+    state.setView,
+    state.setAuthToken,
+  ])
   const [waiting, setWaiting] = useState(false)
   const mutation = trpc.auth.login.useMutation()
 
@@ -113,6 +117,7 @@ const Nip07Login = ({ challenge, close }: { challenge: string | undefined; close
       const data = await mutation.mutateAsync(signedEvent)
 
       setPubkey(pubkey)
+      setView('authenticated')
       setAuthToken(data.authToken)
       close()
     } catch (error: any) {

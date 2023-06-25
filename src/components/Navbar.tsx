@@ -20,7 +20,7 @@ interface HeaderProps {
 export const Navbar = ({ openAuthenticate }: HeaderProps) => {
   const [showAccountMenu, setShowAccountMenu] = useState(false)
   const relays = useSettingsStore((state) => state.relays)
-  const [pubkey, npub, status, logout] = useAuthStore((state) => [state.pubkey, state.npub, state.status, state.logout])
+  const [pubkey, npub, view, logout] = useAuthStore((state) => [state.pubkey, state.npub, state.view, state.logout])
   const { profile, isLoading } = useProfile(pubkey)
   const connectedRelays = useConnectedRelays()
 
@@ -37,12 +37,12 @@ export const Navbar = ({ openAuthenticate }: HeaderProps) => {
         </Link>
 
         <div className="flex items-center gap-4">
-          {status && (
+          {view && (
             <Link href={'/settings/relays'} legacyBehavior={false}>
               {connectedRelays.size}/{relays.length}
             </Link>
           )}
-          {pubkey && (
+          {(view === 'pubkey' || view === 'authenticated') && (
             <ClickAwayListener onClickAway={() => setShowAccountMenu(false)}>
               <div className="dropdown relative">
                 <a
@@ -123,7 +123,7 @@ export const Navbar = ({ openAuthenticate }: HeaderProps) => {
               </div>
             </ClickAwayListener>
           )}
-          {status === 'unauthenticated' && (
+          {view === 'default' && (
             <Button onClick={openAuthenticate} icon={<Key height={20} width={20} strokeWidth={1.5} />}>
               <span>Log In</span>
             </Button>

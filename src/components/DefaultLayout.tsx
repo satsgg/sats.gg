@@ -12,7 +12,6 @@ import 'react-toastify/dist/ReactToastify.css'
 import useMediaQuery from '~/hooks/useMediaQuery'
 import useLayoutStore from '~/store/layoutStore'
 import useHasMounted from '~/hooks/useHasMounted'
-import useAuthStore from '~/hooks/useAuthStore'
 import useAuth from '~/hooks/useAuth'
 
 type DefaultLayoutProps = { children: ReactNode }

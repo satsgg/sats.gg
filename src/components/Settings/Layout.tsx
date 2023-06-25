@@ -22,12 +22,12 @@ const TabButton = ({ tab, current = false }: { tab: string; current: boolean }) 
 
 const SettingsLayout = ({ children }: { children: ReactNode }) => {
   const router = useRouter()
-  const status = useAuthStore((state) => state.status)
+  const view = useAuthStore((state) => state.view)
 
   let tabs = ['profile', 'relays']
-  status === 'authenticated' && tabs.push('stream')
-  status === 'authenticated' && tabs.push('chat')
-  status === 'authenticated' && tabs.push('zaps')
+  view === 'authenticated' && tabs.push('stream')
+  view === 'authenticated' && tabs.push('chat')
+  view === 'authenticated' && tabs.push('zaps')
 
   // useEffect(() => {
   //   const logRelaysNostr = async () => {

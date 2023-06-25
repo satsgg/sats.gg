@@ -111,9 +111,9 @@ const Zaps = ({ user, setUser }: { user: User; setUser: (user: User) => void }) 
 }
 
 export default function ZapsSettingsWrapper({}) {
-  const { user, setUser, status: authStatus } = useAuthStore()
+  const { user, setUser, view } = useAuthStore()
 
-  if (authStatus === 'unauthenticated') {
+  if (view && view !== 'authenticated') {
     return <p>You must be logged in to view this page</p>
   }
 
