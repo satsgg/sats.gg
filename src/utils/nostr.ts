@@ -109,8 +109,6 @@ export const signEventPrivkey = (event: EventTemplate, privKey: string | undefin
   return null
 }
 
-export const signEventExt = () => {}
-
 // TODO: Nip 42 kind 22242
 export const signAuthEvent = async (pubkey: string, challenge: string) => {
   const content = {
