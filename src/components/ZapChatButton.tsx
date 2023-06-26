@@ -3,6 +3,7 @@ import LightningBoltDisabled from '~/svgs/lightning-bolt-disabled.svg'
 import Exit from '~/svgs/x.svg'
 import { UserMetadataStore } from '~/store/db'
 import { Dispatch, SetStateAction } from 'react'
+import useCanSign from '~/hooks/useCanSign'
 
 const ZapChatButton = ({
   channelProfile,
@@ -23,10 +24,9 @@ const ZapChatButton = ({
   setZapInvoice: Function
   setShowZapModule: Function
 }) => {
+  const canSign = useCanSign()
   const disabled = () => {
-    // TODO: have to be able to sign to zap...
-    // could add option to just send sats via standard lnurl w/out zap
-    return !chatChannelId || !channelProfile || (!channelProfile.lud06 && !channelProfile.lud16)
+    return !chatChannelId || !channelProfile || (!channelProfile.lud06 && !channelProfile.lud16) || !canSign
   }
 
   const buttonState = () => {

@@ -1,5 +1,18 @@
 import { bech32 } from '@scure/base'
-import { UnsignedEvent, Event as NostrEvent, nip19, nip57, utils, validateEvent, verifySignature } from 'nostr-tools'
+import {
+  UnsignedEvent,
+  Event as NostrEvent,
+  nip19,
+  nip57,
+  utils,
+  validateEvent,
+  verifySignature,
+  getEventHash,
+  // TODO: Update nostr-tools
+  signEvent, // replace with getSignature in newer nostr-tools
+  getPublicKey,
+  EventTemplate,
+} from 'nostr-tools'
 import { utf8Decoder } from 'nostr-tools/lib/utils'
 import { UserMetadata } from '~/nostr/NostrClient'
 import { UserMetadataStore } from '~/store/db'
@@ -19,21 +32,13 @@ export const uniqBy = <T>(arr: T[], key: keyof T): T[] => {
 
 // TODO: Make all of these functions better and more consistent
 
-export const createEvent = (pubkey: string, content: string, channelId: string): UnsignedEvent => {
-  // Can generalize later... (if kind 42, add e channelID tag etc)
-  const event: UnsignedEvent = {
+export const createChatEvent = (content: string, channelId: string): EventTemplate => {
+  const event: EventTemplate = {
     kind: 42,
-    // kind: 1,
-    pubkey: pubkey,
     created_at: Math.floor(Date.now() / 1000),
     tags: [['e', channelId]],
-    // tags: [[]],
     content: content,
   }
-
-  // event.id = getEventHash(event)
-  // event.sig = signEvent(event, privKey)
-
   return event
 }
 
@@ -81,6 +86,30 @@ export const updateChannelEvent = (
   console.debug('updateChannelEvent', event)
   return event
 }
+
+export const signEventPrivkey = (event: EventTemplate, privKey: string | undefined) => {
+  if (!privKey) return null
+  try {
+    const unsignedEvent: UnsignedEvent = {
+      ...event,
+      pubkey: getPublicKey(privKey),
+    }
+
+    const signedEvent = {
+      ...unsignedEvent,
+      id: getEventHash(unsignedEvent),
+      sig: signEvent(unsignedEvent, privKey),
+    }
+
+    return signedEvent
+  } catch (err: any) {
+    console.error(err)
+  }
+
+  return null
+}
+
+export const signEventExt = () => {}
 
 // TODO: Nip 42 kind 22242
 export const signAuthEvent = async (pubkey: string, challenge: string) => {
@@ -156,10 +185,18 @@ type ZapRequestArgs = {
   relays: string[]
 }
 
-export async function createZapEvent(zapRequestArgs: ZapRequestArgs) {
+export async function createZapEvent(zapRequestArgs: ZapRequestArgs, privKey: string | null = null) {
   try {
     const zapRequestEvent = nip57.makeZapRequest(zapRequestArgs)
-    const signedZapRequestEvent: NostrEvent = await window.nostr.signEvent(zapRequestEvent)
+    let signedZapRequestEvent: NostrEvent | null = null
+
+    if (privKey) {
+      signedZapRequestEvent = signEventPrivkey(zapRequestEvent, privKey)
+    } else {
+      signedZapRequestEvent = await window.nostr.signEvent(zapRequestEvent)
+    }
+
+    if (!signedZapRequestEvent) throw new Error('Failed to sign event')
 
     let ok = validateEvent(signedZapRequestEvent)
     if (!ok) throw new Error('Invalid event')

@@ -5,14 +5,15 @@ import { z } from 'zod'
 import { useEffect } from 'react'
 import Input from '~/components/Settings/Input'
 import useCanSign from '~/hooks/useCanSign'
-import { getEventHash, signEvent, UnsignedEvent } from 'nostr-tools'
+import { Event as NostrEvent, UnsignedEvent } from 'nostr-tools'
 import { verifySignature, validateEvent } from 'nostr-tools'
 import { toast } from 'react-toastify'
 import { nostrClient } from '~/nostr/NostrClient'
 import useAuthStore from '~/hooks/useAuthStore'
+import { signEventPrivkey } from '~/utils/nostr'
 
 export default function Profile() {
-  const pubkey = useAuthStore((state) => state.pubkey)
+  const [pubkey, view, privkey] = useAuthStore((state) => [state.pubkey, state.view, state.privkey])
   const { profile, isLoading } = useProfile(pubkey)
   const canSign = useCanSign()
 
@@ -54,7 +55,6 @@ export default function Profile() {
   })
 
   const onSubmit = async (data: any) => {
-    console.log('data', data)
     if (!pubkey) return
     // TODO: filter out any empty values ('') for event
     // don't need to populate a bunch of empty strings...
@@ -67,15 +67,26 @@ export default function Profile() {
     }
 
     try {
-      const signedEvent = await window.nostr.signEvent(event)
-      console.debug('signedEvent', signedEvent)
+      const signedEvent: NostrEvent | null =
+        view === 'default' ? signEventPrivkey(event, privkey) : await window.nostr.signEvent(event)
+      if (!signedEvent) throw new Error('Failed to sign event')
       let ok = validateEvent(signedEvent)
       if (!ok) throw new Error('Invalid event')
       let veryOk = verifySignature(signedEvent)
       if (!veryOk) throw new Error('Invalid signature')
 
-      console.debug('event id', signedEvent.id)
       nostrClient.publish(signedEvent)
+      // TODO: Wait for event to be seen before signalling success
+      toast.success('Zap successful!', {
+        position: 'bottom-center',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'light',
+      })
     } catch (err: any) {
       console.error(err.message)
       toast.error(err.message, {

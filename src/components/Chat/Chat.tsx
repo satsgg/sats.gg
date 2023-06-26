@@ -1,8 +1,8 @@
 import { useRef, useState, useEffect } from 'react'
 import { Virtuoso, LogLevel, VirtuosoHandle } from 'react-virtuoso'
 import { inferProcedureOutput } from '@trpc/server'
-import { Event as NostrEvent, Filter, UnsignedEvent, verifySignature, validateEvent } from 'nostr-tools'
-import { createEvent, createZapEvent, getZapEndpoint, requestZapInvoice } from '~/utils/nostr'
+import { Event as NostrEvent, Filter, UnsignedEvent, verifySignature, validateEvent, EventTemplate } from 'nostr-tools'
+import { createChatEvent, createZapEvent, getZapEndpoint, requestZapInvoice, signEventPrivkey } from '~/utils/nostr'
 import MessageInput from './MessageInput'
 import { useSubscription } from '~/hooks/useSubscription'
 import useCanSign from '~/hooks/useCanSign'
@@ -41,7 +41,7 @@ export const Chat = ({
   channelProfile: UserMetadataStore | undefined
   channelUser: GetUserOutput | undefined
 }) => {
-  const [user, pubkey] = useAuthStore((state) => [state.user, state.pubkey])
+  const [user, pubkey, view, privkey] = useAuthStore((state) => [state.user, state.pubkey, state.view, state.privkey])
   const canSign = useCanSign()
 
   const virtuosoRef = useRef<VirtuosoHandle>(null)
@@ -131,13 +131,7 @@ export const Chat = ({
   // True when < 640px (tailwind sm)
   const resetZapInfo = !useMediaQuery('(min-width: 640px)')
   useEffect(() => {
-    console.debug('resetZapInfo', resetZapInfo)
-    if (resetZapInfo) {
-      setZapInvoice(null)
-      setZapLoading(false)
-      setShowZapChat(false)
-      setShowZapModule(false)
-    }
+    if (resetZapInfo) closeZap()
   }, [resetZapInfo])
 
   // Hacky patch to get the chat to scroll to bottom after mounting...
@@ -154,7 +148,6 @@ export const Chat = ({
   }, [])
 
   const onSubmitMessage = async (data: any) => {
-    console.debug('data', data)
     if (!pubkey || !channelUser?.chatChannelId) return
 
     const formattedMessage = data.message.trim()
@@ -163,56 +156,60 @@ export const Chat = ({
     if (showZapChat) {
       if (!channelProfile || zapLoading) return
       setZapLoading(true)
-      const zapInfo = await getZapEndpoint(channelProfile)
-      if (!zapInfo) {
-        // toast error
-        console.debug('zap info error!')
-        setZapLoading(false)
-        return
+      try {
+        const zapInfo = await getZapEndpoint(channelProfile)
+        if (!zapInfo) throw new Error('Failed to fetch zap endpoint')
+
+        const amountMilliSats = data.amount * 1000
+
+        const zapRequestArgs = {
+          profile: channelProfile.pubkey,
+          event: channelUser.chatChannelId,
+          amount: amountMilliSats,
+          comment: data.message,
+          relays: relays,
+        }
+
+        const defaultPrivKey = view === 'default' ? privkey : null
+        const signedZapRequestEvent = await createZapEvent(zapRequestArgs, defaultPrivKey)
+        if (!signedZapRequestEvent) throw new Error('Failed to sign zap')
+
+        const invoice = await requestZapInvoice(signedZapRequestEvent, amountMilliSats, zapInfo.callback, zapInfo.lnurl)
+        if (!invoice) throw new Error('Failed to fetch zap invoice')
+
+        setZapInvoice(invoice)
+        if (weblnAvailable && (await weblnPay(invoice))) {
+          console.debug('Invoice paid via WebLN!')
+          closeZap()
+          return
+        }
+
+        setShowZapModule(true)
+      } catch (err: any) {
+        console.error(err)
+        closeZap()
+        toast.error(err.message, {
+          position: 'bottom-center',
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: 'light',
+        })
       }
-
-      const amountMilliSats = data.amount * 1000
-
-      const zapRequestArgs = {
-        profile: channelProfile.pubkey,
-        event: channelUser.chatChannelId,
-        amount: amountMilliSats,
-        comment: data.message,
-        relays: relays,
-      }
-
-      const signedZapRequestEvent = await createZapEvent(zapRequestArgs)
-      if (!signedZapRequestEvent) {
-        setZapLoading(false)
-        return
-      }
-
-      const invoice = await requestZapInvoice(signedZapRequestEvent, amountMilliSats, zapInfo.callback, zapInfo.lnurl)
-      if (!invoice) {
-        setZapLoading(false)
-        return
-      }
-
-      setZapInvoice(invoice)
-      if (weblnAvailable && (await weblnPay(invoice))) {
-        console.debug('Invoice paid via WebLN!')
-        setZapLoading(false)
-        return
-      }
-
-      setShowZapModule(true)
     } else {
-      const event: UnsignedEvent = createEvent(pubkey, formattedMessage, channelUser.chatChannelId)
+      const event: EventTemplate = createChatEvent(formattedMessage, channelUser.chatChannelId)
       // error handling here? What if none of the relays accepted our message...
       try {
-        const signedEvent = await window.nostr.signEvent(event)
-        console.debug('signedEvent', signedEvent)
+        const signedEvent: NostrEvent | null =
+          view === 'default' ? signEventPrivkey(event, privkey) : await window.nostr.signEvent(event)
+        if (!signedEvent) throw new Error('Failed to sign message')
         let ok = validateEvent(signedEvent)
         if (!ok) throw new Error('Invalid event')
         let veryOk = verifySignature(signedEvent)
         if (!veryOk) throw new Error('Invalid signature')
-
-        console.debug('event id', signedEvent.id)
         nostrClient.publish(signedEvent)
       } catch (err: any) {
         console.error(err.message)

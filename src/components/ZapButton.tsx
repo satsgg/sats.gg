@@ -1,7 +1,7 @@
 import LightningBolt from '~/svgs/lightning-bolt.svg'
 import LightningBoltDisabled from '~/svgs/lightning-bolt-disabled.svg'
 import { UserMetadataStore } from '~/store/db'
-import { getZapEndpoint } from '~/utils/nostr'
+import { createZapEvent, getZapEndpoint } from '~/utils/nostr'
 
 // zap related libs
 import { nip57, validateEvent, verifySignature } from 'nostr-tools'
@@ -11,6 +11,7 @@ import { useFetchZap } from '~/hooks/useFetchZap'
 import { toast } from 'react-toastify'
 import useWebln from '~/hooks/useWebln'
 import useAuthStore from '~/hooks/useAuthStore'
+import useCanSign from '~/hooks/useCanSign'
 
 const ZapButton = ({
   channelProfile,
@@ -25,7 +26,8 @@ const ZapButton = ({
   setZapInvoice: (invoice: string | null) => void
   setShowZapModule: (show: boolean) => void
 }) => {
-  const { user } = useAuthStore()
+  const [user, view, privkey] = useAuthStore((state) => [state.user, state.view, state.privkey])
+  const canSign = useCanSign()
   const relays = useSettingsStore((state) => state.relays)
   const [zapLoading, setZapLoading] = useState(false)
   const { available: weblnAvailable, weblnPay } = useWebln()
@@ -50,9 +52,8 @@ const ZapButton = ({
   }, [zap])
 
   const disabled = () => {
-    // TODO: have to be able to sign to zap...
-    // could add option to just send sats via standard lnurl w/out zap
-    return channelProfileIsLoading || !channelProfile || (!channelProfile.lud06 && !channelProfile.lud16)
+    // TODO: could add option to just send sats via standard lnurl w/out zap
+    return channelProfileIsLoading || !channelProfile || (!channelProfile.lud06 && !channelProfile.lud16) || !canSign
   }
 
   const waiting = () => {
@@ -75,30 +76,28 @@ const ZapButton = ({
     }
 
     setZapLoading(true)
-    // TODO: Store zap endpoint callback url, min sendable, max sendable in user profile metadata (see spec)
-    const zapInfo = await getZapEndpoint(channelProfile)
-    if (!zapInfo) {
-      // toast error
-      setZapLoading(false)
-      return
-    }
-    // setZapNostrPubkey(zapInfo.nostrPubkey)
-    // TODO: Store zap endpoint nostrPubkey for later verification...
-    // this pubkey will be the pubkey of the 9735 receipt later
-    const zapRequestArgs = {
-      profile: channelProfile.pubkey,
-      event: null, // event and comment will be added in chat zap
-      // if we don't include the event, won't be able to tell if zap was via their chatroom/livestream...
-      // TODO: overrideable here? idea is quick zaps...
-      // maybe long press configure amount later
-      amount: (user?.defaultZapAmount || 1000) * 1000,
-      comment: 'zapped on sats.gg!',
-      relays: relays,
-    }
-
     try {
-      const zapRequestEvent = nip57.makeZapRequest(zapRequestArgs)
-      const signedZapRequestEvent = await window.nostr.signEvent(zapRequestEvent)
+      // TODO: Store zap endpoint callback url, min sendable, max sendable in user profile metadata (see spec)
+      // and use for later verification
+      const zapInfo = await getZapEndpoint(channelProfile)
+      if (!zapInfo) throw new Error('Failed to fetch zap info')
+      // setZapNostrPubkey(zapInfo.nostrPubkey)
+      // this pubkey will be the pubkey of the 9735 receipt later
+      const amountMilliSats = (user?.defaultZapAmount || 1000) * 1000
+      const zapRequestArgs = {
+        profile: channelProfile.pubkey,
+        event: null, // event and comment will be added in chat zap
+        // if we don't include the event, won't be able to tell if zap was via their chatroom/livestream...
+        // TODO: overrideable here? idea is quick zaps...
+        // maybe long press configure amount later
+        amount: amountMilliSats,
+        comment: 'zapped on sats.gg!',
+        relays: relays,
+      }
+
+      const defaultPrivKey = view === 'default' ? privkey : null
+      const signedZapRequestEvent = await createZapEvent(zapRequestArgs, defaultPrivKey)
+      if (!signedZapRequestEvent) throw new Error('Failed to sign zap')
 
       let ok = validateEvent(signedZapRequestEvent)
       if (!ok) throw new Error('Invalid event')
@@ -108,7 +107,7 @@ const ZapButton = ({
       if (!veryOk) throw new Error('Invalid signature')
 
       const encodedZapRequest = encodeURI(JSON.stringify(signedZapRequestEvent))
-      const zapRequestHttp = `${zapInfo.callback}?amount=${zapRequestArgs.amount}&nostr=${encodedZapRequest}&lnurl=${zapInfo.lnurl}`
+      const zapRequestHttp = `${zapInfo.callback}?amount=${amountMilliSats}&nostr=${encodedZapRequest}&lnurl=${zapInfo.lnurl}`
       console.debug('zapRequestHttp', zapRequestHttp)
 
       // separate function for fetching invoice? store invoice?
@@ -133,9 +132,19 @@ const ZapButton = ({
       // TODO: Should verify invoice before showing anything...
       // and display error toast if bad invoice
       setShowZapModule(true)
-    } catch (e: any) {
+    } catch (err: any) {
       setZapLoading(false)
-      console.error('Failed to create zap request', e)
+      console.error('Failed to create zap request', err)
+      toast.error(err.message, {
+        position: 'bottom-center',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'light',
+      })
       return
     }
 

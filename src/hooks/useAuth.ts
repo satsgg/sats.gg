@@ -30,21 +30,6 @@ export default function useAuth() {
     const privkey = localStorage.getItem('privkey')
     const token = localStorage.getItem('token')
     const view = localStorage.getItem('view')
-    // console.debug(
-    //   'useAuth effect',
-    //   'pubkey',
-    //   pubkey,
-    //   'privkey',
-    //   privkey,
-    //   'token',
-    //   token,
-    //   'authToken',
-    //   authToken,
-    //   'view',
-    //   view,
-    //   'storeView',
-    //   storeView,
-    // )
 
     if (!view) {
       const defaultPrivkey = generatePrivateKey()
@@ -53,6 +38,7 @@ export default function useAuth() {
       setView('default')
     } else if (view === 'default') {
       if (!privkey) return reset()
+      setPrivatekey(privkey)
       setPubkey(getPublicKey(privkey))
       setView('default')
     } else if (view === 'pubkey') {
