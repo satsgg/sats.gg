@@ -12,8 +12,9 @@ import useCanSign from '~/hooks/useCanSign'
 import useAuthStore from '~/hooks/useAuthStore'
 import CopyValueBar from '~/components/Settings/CopyBar'
 import useChannelMetadata from '~/hooks/useChannelMetadata'
+import { Spinner } from '~/components/Spinner'
 
-export default function Chat() {
+const ChatSettings = () => {
   const canSign = useCanSign()
   const [user, setUser, pubkey] = useAuthStore((state) => [state.user, state.setUser, state.pubkey])
   const chatChannelMutation = trpc.user.setChatChannelId.useMutation()
@@ -320,4 +321,22 @@ export default function Chat() {
   )
 }
 
-Chat.getLayout = getSettingsLayout
+export default function ChatSettingsWrapper({}) {
+  const [user, view] = useAuthStore((state) => [state.user, state.view])
+
+  if (view && view !== 'authenticated') {
+    return <p>You must be logged in to view this page</p>
+  }
+
+  if (user) {
+    return <ChatSettings />
+  }
+
+  return (
+    <div className={'w-full text-center'}>
+      <Spinner />
+    </div>
+  )
+}
+
+ChatSettingsWrapper.getLayout = getSettingsLayout
