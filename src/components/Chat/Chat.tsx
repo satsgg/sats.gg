@@ -283,7 +283,6 @@ export const Chat = ({
               bottom: 2000,
             }}
             atBottomStateChange={(bottom) => {
-              if (!bottom) console.warn('NOT AT BOTTOM')
               setAtBottom(bottom)
             }}
             itemContent={(index, note) => {

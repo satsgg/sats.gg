@@ -179,12 +179,12 @@ export default function NotificationsWrapper() {
     initSettingsStore()
     nostrClient.connect()
 
-    const timer = setTimeout(() => {
+    const timer = setInterval(() => {
       nostrClient.connect()
     }, 1000 * 60 * 5) // reconnect every 5 minutes
 
     return () => {
-      clearTimeout(timer)
+      clearInterval(timer)
     }
   }, [])
 

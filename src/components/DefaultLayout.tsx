@@ -30,6 +30,13 @@ export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
   useEffect(() => {
     initSettingsStore()
     nostrClient.connect()
+
+    const timer = setInterval(() => {
+      nostrClient.connect()
+    }, 1000 * 60 * 5) // reconnect every 5 minutes
+    return () => {
+      clearInterval(timer)
+    }
   }, [])
 
   const content = () => {
