@@ -22,6 +22,7 @@ export const useSubscription = (id: string, filter: Filter[], reverse = false, l
       nostrClient.subscribe(id, filter, onEventCallback)
 
       return () => {
+        setNotes([])
         nostrClient.unsubscribe(id)
       }
     }
