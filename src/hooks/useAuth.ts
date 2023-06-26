@@ -5,8 +5,17 @@ import { validHexKey } from '~/utils/nostr'
 import useAuthStore from './useAuthStore'
 
 export default function useAuth() {
-  const { setUser, setPubkey, setPrivatekey, unsetPrivkey, view, setView, authToken, setAuthToken, logout } =
-    useAuthStore()
+  const {
+    setUser,
+    setPubkey,
+    setPrivatekey,
+    unsetPrivkey,
+    view: storeView,
+    setView,
+    authToken,
+    setAuthToken,
+    logout,
+  } = useAuthStore()
   const utils = trpc.useContext()
 
   const [shouldReset, setShouldReset] = useState(false)
@@ -21,7 +30,21 @@ export default function useAuth() {
     const privkey = localStorage.getItem('privkey')
     const token = localStorage.getItem('token')
     const view = localStorage.getItem('view')
-    // console.debug('useAuth effect', 'pubkey', pubkey, 'privkey', privkey, 'token', token, 'view', view)
+    // console.debug(
+    //   'useAuth effect',
+    //   'pubkey',
+    //   pubkey,
+    //   'privkey',
+    //   privkey,
+    //   'token',
+    //   token,
+    //   'authToken',
+    //   authToken,
+    //   'view',
+    //   view,
+    //   'storeView',
+    //   storeView,
+    // )
 
     if (!view) {
       const defaultPrivkey = generatePrivateKey()
@@ -43,23 +66,27 @@ export default function useAuth() {
         return setAuthToken(token)
       }
 
-      utils.auth.getMe
-        .fetch()
-        .then((data) => {
-          if (!data) {
-            console.error('auth getMe response was empty')
+      // used for page refresh
+      if (!storeView) {
+        utils.auth.getMe
+          .fetch()
+          .then((data) => {
+            if (!data) {
+              console.error('auth getMe response was empty')
+              return reset()
+            }
+            setUser(data)
+            setPubkey(data.publicKey)
+            setView('authenticated')
+            unsetPrivkey()
+          })
+          .catch((error) => {
+            console.error('Error authenticating', error)
             return reset()
-          }
-          setUser(data)
-          setPubkey(data.publicKey)
-          unsetPrivkey()
-        })
-        .catch((error) => {
-          console.error('Error authenticating', error)
-          return reset()
-        })
+          })
+      }
     } else {
       return reset()
     }
-  }, [authToken, view, shouldReset])
+  }, [authToken, storeView, shouldReset])
 }
