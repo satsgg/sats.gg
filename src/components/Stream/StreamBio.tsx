@@ -75,7 +75,7 @@ export const StreamBio = ({
             {showViewerCount && (
               <div className="mr-2 flex items-center justify-end">
                 <LiveUser className="h-5 w-5 stroke-red-400" strokeWidth={2.5} />
-                <span className="font-semibold text-red-400">{fmtViewerCnt(viewerCount, false)}</span>
+                <span className="font-semibold text-red-400">{fmtViewerCnt(viewerCount!, false)}</span>
               </div>
             )}
           </div>

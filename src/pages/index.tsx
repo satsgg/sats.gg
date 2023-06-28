@@ -4,6 +4,7 @@ import { displayName } from '~/utils/nostr'
 import ProfileImg from '~/components/ProfileImg'
 import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'
+import { fmtViewerCnt } from '~/utils/util'
 
 // i like bg-stone-600...
 const DummyStreamCard = () => {
@@ -28,10 +29,12 @@ const StreamCard = ({
   pubkey,
   playbackId,
   streamTitle,
+  viewerCount,
 }: {
   pubkey: string
   playbackId: string
   streamTitle: string | null
+  viewerCount: number
 }) => {
   const { profile, isLoading } = useProfile(pubkey)
 
@@ -55,12 +58,24 @@ const StreamCard = ({
 
   return (
     <div className="flex flex-col gap-2">
-      <Link className="aspect-video h-full w-full" href={`/${pubkey}`} legacyBehavior={false}>
-        {thumbnailIsLoading ? (
-          <div className="aspect-video h-full w-full rounded bg-stone-800"></div>
-        ) : (
-          <img className="h-full w-full" src={thumbnailData} alt={`thumbnail of ${pubkey}`} />
-        )}
+      <Link href={`/${pubkey}`} legacyBehavior={false}>
+        <div id="cardThumbnailWrapper" className="relative aspect-video">
+          {thumbnailIsLoading || thumbnailError ? (
+            <div className="h-full w-full rounded bg-stone-800"></div>
+          ) : (
+            <img className="h-full w-full" src={thumbnailData} alt={`thumbnail of ${pubkey}`} />
+          )}
+          <div className="absolute top-0 m-2.5">
+            <div className="rounded bg-red-600 px-1 align-baseline">
+              <p className="text-sm font-semibold uppercase">live</p>
+            </div>
+          </div>
+          <div className="absolute bottom-0 m-2.5">
+            <div className="rounded bg-stone-900/80 px-1.5">
+              <p className="text-sm">{fmtViewerCnt(viewerCount, true)} viewers</p>
+            </div>
+          </div>
+        </div>
       </Link>
 
       <div className="flex h-16 w-full gap-2 ">
@@ -104,6 +119,7 @@ export default function IndexPage() {
                 pubkey={stream.publicKey}
                 playbackId={stream.playbackId}
                 streamTitle={stream.streamTitle}
+                viewerCount={stream.viewerCount}
               />
             ))}
           </>
@@ -112,6 +128,7 @@ export default function IndexPage() {
           pubkey={'5b6bfd0b8b1b2107e247d1750519ef30c142d5e6da8503cd28293ee22446c43b'}
           playbackId="123"
           streamTitle="yoooooooooooookjashflkjasdhfljhaskljfhasdjkhfljaksdhflkjasdhfkjh"
+          viewerCount={420000}
         /> */}
         {/* {isLoading && (
           <>
