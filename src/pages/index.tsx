@@ -99,7 +99,12 @@ export default function IndexPage() {
         {streams && (
           <>
             {streams.map((stream) => (
-              <StreamCard pubkey={stream.publicKey} playbackId={stream.playbackId} streamTitle={stream.streamTitle} />
+              <StreamCard
+                key={stream.publicKey}
+                pubkey={stream.publicKey}
+                playbackId={stream.playbackId}
+                streamTitle={stream.streamTitle}
+              />
             ))}
           </>
         )}
