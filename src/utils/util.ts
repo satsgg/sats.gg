@@ -52,3 +52,11 @@ export const fmtMsg = (content: string) => {
   }
   return content
 }
+
+export const fmtViewerCnt = (viewerCount: number, compact: boolean = false) => {
+  const compactNotation = { notation: 'compact' }
+  let notation = undefined
+  if (compact) notation = { notation: 'compact', maximumSignificantDigits: 3 }
+  //@ts-ignore
+  return Intl.NumberFormat('en', notation).format(viewerCount)
+}

@@ -5,6 +5,7 @@ import { UserMetadataStore } from '~/store/db'
 import { StreamStatus } from '@prisma/client'
 import HaloProfileImg from '../HaloProfileImg'
 import LiveUser from '~/svgs/live-user.svg'
+import { fmtViewerCnt } from '~/utils/util'
 
 export const StreamBio = ({
   channelPubkey,
@@ -71,7 +72,7 @@ export const StreamBio = ({
             {viewerCount && streamStatus === StreamStatus.ACTIVE && (
               <div className="mr-2 flex items-center justify-end">
                 <LiveUser className="h-5 w-5 stroke-red-400" strokeWidth={2.5} />
-                <span className="font-semibold text-red-400">{viewerCount}</span>
+                <span className="font-semibold text-red-400">{fmtViewerCnt(viewerCount, false)}</span>
               </div>
             )}
           </div>

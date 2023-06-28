@@ -5,17 +5,20 @@ import { nip19 } from 'nostr-tools'
 import ProfileImg from './ProfileImg'
 import { StreamStatus } from '@prisma/client'
 import { displayName, getVerifiedChannelLink } from '~/utils/nostr'
+import { fmtViewerCnt } from '~/utils/util'
 
 export const FollowedChannelSingle = ({
   pubkey,
   userCollapse,
   autoCollapse,
   status,
+  viewerCount,
 }: {
   pubkey: string
   userCollapse: boolean
   autoCollapse: boolean
   status: StreamStatus
+  viewerCount: number
 }) => {
   const { profile, isLoading } = useProfile(pubkey)
 
@@ -30,25 +33,19 @@ export const FollowedChannelSingle = ({
               <ProfileImg pubkey={pubkey} picture={profile?.picture} />
             )}
           </div>
-          {/* next/Image won't work b/c each image src has to be configured in next.config.js 
-              We could set it to **... 
-          */}
-          {/* <ImageWithFallback 
-            width={20}
-            height={20}
-            src={profile?.picture || `https://robohash.org/${pubkey}`}
-            fallbackSrc={NostrichImg} 
-          /> */}
+
           <div className={`${userCollapse || autoCollapse ? 'hidden' : 'flex flex-col'} min-w-0`}>
             <p className="truncate text-sm font-semibold text-white">{!isLoading && displayName(pubkey, profile)}</p>
             {/* TODO: Live stream category */}
           </div>
         </div>
 
-        {/* TODO: live viewer count */}
         <div className={`${userCollapse || autoCollapse ? 'hidden' : 'align-right'}`}>
           {status === StreamStatus.ACTIVE ? (
-            <LiveSVG width={20} height={20} className="fill-red-600" />
+            <span className="inline-flex gap-1">
+              <LiveSVG width={20} height={20} className="fill-red-600" />
+              <span className="text-sm text-gray-100">{fmtViewerCnt(viewerCount, true)}</span>
+            </span>
           ) : (
             <p className="text-sm font-light text-white">Offline</p>
           )}

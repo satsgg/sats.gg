@@ -26,18 +26,22 @@ export const FollowedChannelList = ({
   // live status should eventually be based off a nostr note
   // TODO: Run less often
   const liveFollows = () => {
-    let liveFollows: { pubkey: string; streamStatus: StreamStatus }[] = []
+    let liveFollows: { pubkey: string; streamStatus: StreamStatus; viewerCount: number }[] = []
     let allFollows = follows.slice()
     if (allFollows.length > 0 && streams && streams.length > 0) {
       for (let stream of streams) {
         let index = allFollows.indexOf(stream.publicKey)
         if (index > 0) {
-          liveFollows.push({ pubkey: stream.publicKey, streamStatus: StreamStatus.ACTIVE })
+          liveFollows.push({
+            pubkey: stream.publicKey,
+            streamStatus: StreamStatus.ACTIVE,
+            viewerCount: stream.viewerCount,
+          })
           allFollows.splice(index, 1)
         }
       }
     }
-    return liveFollows.concat(allFollows.map((f) => ({ pubkey: f, streamStatus: StreamStatus.IDLE })))
+    return liveFollows.concat(allFollows.map((f) => ({ pubkey: f, streamStatus: StreamStatus.IDLE, viewerCount: 0 })))
   }
 
   return (
@@ -72,6 +76,7 @@ export const FollowedChannelList = ({
               userCollapse={userCollapse}
               autoCollapse={autoCollapse}
               status={user.streamStatus}
+              viewerCount={user.viewerCount}
             />
           )
         }}
