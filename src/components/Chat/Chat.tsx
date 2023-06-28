@@ -72,9 +72,7 @@ export const Chat = ({
     },
   ]
   const notes = useSubscription(channelPubkey, filters, false, 250)
-  const zap = useFetchZap(channelProfile?.pubkey, zapInvoice, () => setShowZapModule(false)) // closeZap?
 
-  // need to either do this in the useEffect or pass to useFetchZap callback...
   const closeZap = () => {
     setZapInvoice(null)
     setZapLoading(false)
@@ -82,22 +80,21 @@ export const Chat = ({
     setShowZapChat(false)
   }
 
-  useEffect(() => {
-    if (zap) {
-      closeZap()
-      console.debug('Zap successful, toasting!')
-      toast.success('Zap successful!', {
-        position: 'bottom-center',
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: 'light',
-      })
-    }
-  }, [zap])
+  useFetchZap('chat-zap', channelProfile?.pubkey, zapInvoice, () => {
+    closeZap()
+    reset()
+    console.debug('Zap successful, toasting!')
+    toast.success('Zap successful!', {
+      position: 'bottom-center',
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: 'light',
+    })
+  })
 
   const {
     register,
@@ -180,7 +177,6 @@ export const Chat = ({
         setZapInvoice(invoice)
         if (weblnAvailable && (await weblnPay(invoice))) {
           console.debug('Invoice paid via WebLN!')
-          closeZap()
           return
         }
 

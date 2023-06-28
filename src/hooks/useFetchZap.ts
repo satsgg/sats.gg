@@ -2,10 +2,11 @@ import { useEffect, useRef, useState } from 'react'
 import { Filter, Event } from 'nostr-tools'
 import { nostrClient } from '~/nostr/NostrClient'
 
-export const useFetchZap = (pubkey: string | undefined, invoice: string | null, callback: () => void) => {
-  const [zap, setZap] = useState<Event | null>(null)
-
+// TODO: Need to prevent multiple fire when a new relay connects while
+// fetching zap
+export const useFetchZap = (id: string, pubkey: string | undefined, invoice: string | null, callback: () => void) => {
   const now = useRef(Math.floor(Date.now() / 1000)) // Make sure current time isn't re-rendered
+
   const filters: Filter[] = [
     {
       kinds: [9735],
@@ -23,7 +24,6 @@ export const useFetchZap = (pubkey: string | undefined, invoice: string | null, 
 
     const bolt11 = event.tags.find((t) => t[0] == 'bolt11')
     if (bolt11 && bolt11[1] == invoice) {
-      setZap(event)
       callback()
     }
   }
@@ -36,6 +36,4 @@ export const useFetchZap = (pubkey: string | undefined, invoice: string | null, 
       }
     }
   }, [pubkey, invoice])
-
-  return zap
 }

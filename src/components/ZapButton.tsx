@@ -32,24 +32,21 @@ const ZapButton = ({
   const [zapLoading, setZapLoading] = useState(false)
   const { available: weblnAvailable, weblnPay } = useWebln()
 
-  const zap = useFetchZap(channelProfile?.pubkey, zapInvoice, () => setShowZapModule(false))
-
-  useEffect(() => {
-    if (zap) {
-      setZapInvoice(null)
-      console.debug('Zap successful, toasting!')
-      toast.success('Zap successful!', {
-        position: 'bottom-center',
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: 'light',
-      })
-    }
-  }, [zap])
+  useFetchZap('quick-zap', channelProfile?.pubkey, zapInvoice, () => {
+    setShowZapModule(false)
+    setZapInvoice(null)
+    console.debug('Zap successful, toasting!')
+    toast.success('Zap successful!', {
+      position: 'bottom-center',
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: 'light',
+    })
+  })
 
   const disabled = () => {
     // TODO: could add option to just send sats via standard lnurl w/out zap
