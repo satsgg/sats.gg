@@ -4,6 +4,7 @@ import { displayName } from '~/utils/nostr'
 import { UserMetadataStore } from '~/store/db'
 import { StreamStatus } from '@prisma/client'
 import HaloProfileImg from '../HaloProfileImg'
+import LiveUser from '~/svgs/live-user.svg'
 
 export const StreamBio = ({
   channelPubkey,
@@ -14,6 +15,7 @@ export const StreamBio = ({
   zapInvoice,
   setZapInvoice,
   setShowZapModule,
+  viewerCount,
 }: {
   channelPubkey: string
   channelProfile: UserMetadataStore | undefined
@@ -23,6 +25,7 @@ export const StreamBio = ({
   zapInvoice: string | null
   setZapInvoice: (invoice: string | null) => void
   setShowZapModule: (show: boolean) => void
+  viewerCount: number | null | undefined
 }) => {
   return (
     <div
@@ -54,15 +57,23 @@ export const StreamBio = ({
             )}
           </div>
 
-          <div className="flex gap-2">
-            <FollowButton pubkey={channelPubkey} />
-            <ZapButton
-              channelProfile={channelProfile}
-              channelProfileIsLoading={channelProfileIsLoading}
-              zapInvoice={zapInvoice}
-              setZapInvoice={setZapInvoice}
-              setShowZapModule={setShowZapModule}
-            />
+          <div className="flex flex-col gap-1">
+            <div className="flex gap-2">
+              <FollowButton pubkey={channelPubkey} />
+              <ZapButton
+                channelProfile={channelProfile}
+                channelProfileIsLoading={channelProfileIsLoading}
+                zapInvoice={zapInvoice}
+                setZapInvoice={setZapInvoice}
+                setShowZapModule={setShowZapModule}
+              />
+            </div>
+            {viewerCount && streamStatus === StreamStatus.ACTIVE && (
+              <div className="mr-2 flex items-center justify-end">
+                <LiveUser className="h-5 w-5 stroke-red-400" strokeWidth={2.5} />
+                <span className="font-semibold text-red-400">{viewerCount}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -129,6 +129,7 @@ export default function Channel() {
           zapInvoice={zapInvoice}
           setZapInvoice={setZapInvoice}
           setShowZapModule={setShowZapModule}
+          viewerCount={channelUser?.viewerCount}
         />
       </div>
 
