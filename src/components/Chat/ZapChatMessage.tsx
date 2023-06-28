@@ -15,7 +15,7 @@ const ZapChatMessage = ({ note }: { note: NostrEvent }) => {
         <div className="text-sm text-white">
           <LightningBolt className="inline-flex" height={15} width={15} strokeWidth={1.5} />
         </div>
-        <p className="pl-1 leading-none">
+        <p className="min-w-0 pl-1 leading-none">
           <ChatUser pubkey={zapRequest.pubkey} />
           <span className="text-sm text-white">
             {' '}

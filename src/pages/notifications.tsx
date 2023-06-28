@@ -76,7 +76,7 @@ const NotificationsHandler = ({ notes }: { notes: NostrEvent[] }) => {
     <>
       {notiVisible && (
         <div
-          className="flex h-full animate-alert items-center justify-center text-white"
+          className="flex animate-alert items-center text-white sm:w-2/3 lg:w-1/3"
           onAnimationStart={() => {
             console.debug('queue', notiQueue)
             console.debug('now display', noti)
@@ -100,7 +100,7 @@ const Notification = ({ event }: { event: NostrEvent }) => {
   const { profile, isLoading } = useProfile(event.pubkey)
 
   return (
-    <div className="flex flex-col sm:w-2/3 lg:w-1/3">
+    <div className="inline-flex min-w-0 flex-col">
       <p className="text-3xl">
         <span className="font-bold text-primary">{displayName(event.pubkey, profile).slice(0, 18)}</span> zapped{' '}
         {event.tags[1][1] / 1000} sats!
