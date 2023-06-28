@@ -4,6 +4,10 @@ import { prisma } from '~/server/prisma'
 import { TRPCError } from '@trpc/server'
 import { isAuthed } from '~/server/middlewares/authed'
 import { StreamStatus } from '@prisma/client'
+import jwt, { SignOptions } from 'jsonwebtoken'
+
+const JWT_EXPIRE_TIME_SECONDS = 60 * 60 * 6 // 6 hour
+const VIEWER_COUNT_EXPIRE_TIME_SECONDS = 15
 
 export const userRouter = t.router({
   getUser: t.procedure
@@ -13,14 +17,19 @@ export const userRouter = t.router({
       }),
     )
     .query(async ({ input }) => {
-      return await prisma.user
+      const user = await prisma.user
         .findUnique({
           where: {
             publicKey: input.pubkey,
           },
           select: {
+            streamId: true,
             playbackId: true,
             streamStatus: true,
+            muxJwt: true,
+            muxJwtCreatedAt: true,
+            viewerCount: true,
+            viewerCountUpdatedAt: true,
             chatChannelId: true,
             streamTitle: true,
             defaultZapAmount: true,
@@ -30,6 +39,88 @@ export const userRouter = t.router({
           console.log(error)
           throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
         })
+      if (!user) return null
+
+      const now = new Date()
+      const expTime = user.muxJwtCreatedAt
+      expTime.setSeconds(expTime.getSeconds() + JWT_EXPIRE_TIME_SECONDS)
+
+      let newJwtToken: string | null = null
+
+      if (!user.muxJwt || now > expTime) {
+        const jwtData = {
+          sub: user.streamId,
+          aud: 'live_stream_id',
+          exp: Math.floor(now.getTime() / 1000) + JWT_EXPIRE_TIME_SECONDS,
+        }
+        if (!process.env.MUX_SIGNING_KEY_ID)
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Missing MUX_SIGNING_KEY_ID' })
+        if (!process.env.MUX_SIGNING_KEY_BASE64)
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Missing MUX_SIGNING_KEY_BASE64' })
+
+        const privatekey = Buffer.from(process.env.MUX_SIGNING_KEY_BASE64, 'base64')
+
+        const jwtOptions: SignOptions = {
+          algorithm: 'RS256',
+          header: {
+            alg: 'RS256',
+            kid: process.env.MUX_SIGNING_KEY_ID,
+          },
+        }
+
+        newJwtToken = jwt.sign(jwtData, privatekey, jwtOptions)
+      }
+
+      let newViewerCount: number | null = null
+      if (user.streamStatus === StreamStatus.ACTIVE) {
+        const viewerCountExpTime = user.viewerCountUpdatedAt
+        viewerCountExpTime.setSeconds(viewerCountExpTime.getSeconds() + VIEWER_COUNT_EXPIRE_TIME_SECONDS)
+
+        if (now > viewerCountExpTime) {
+          newViewerCount = await fetch(`https://stats.mux.com/counts?token=${newJwtToken ? newJwtToken : user.muxJwt}`)
+            .then((r) => r.json())
+            .then((r) => r.data[0].viewers)
+            .catch((error) => {
+              console.error('Failed to get viewer count', error)
+              newViewerCount = null
+              // throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
+            })
+        }
+      }
+
+      if (newJwtToken || newViewerCount) {
+        return await prisma.user
+          .update({
+            where: { publicKey: input.pubkey },
+            data: {
+              ...(newJwtToken ? { muxJwt: newJwtToken } : {}),
+              ...(newJwtToken ? { muxJwtCreatedAt: now } : {}),
+              ...(newViewerCount ? { viewerCount: newViewerCount } : {}),
+              ...(newViewerCount ? { viewerCountUpdatedAt: now } : {}),
+            },
+            select: {
+              streamId: true,
+              playbackId: true,
+              streamStatus: true,
+              viewerCount: true,
+              chatChannelId: true,
+              streamTitle: true,
+            },
+          })
+          .catch((error) => {
+            console.error('Update user jwt / viewer count error', error)
+            throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
+          })
+      }
+
+      return {
+        streamId: user.streamId,
+        playbackId: user.playbackId,
+        streamStatus: user.streamStatus,
+        viewerCount: user.viewerCount,
+        chatChannelId: user.chatChannelId,
+        streamTitle: user.streamTitle,
+      }
     }),
 
   refreshStreamKey: t.procedure.use(isAuthed).mutation(async ({ ctx }) => {
@@ -47,7 +138,6 @@ export const userRouter = t.router({
         console.log(error)
         throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
       })
-    console.log('refreshStreamKey response', muxResponse)
 
     return await prisma.user
       .update({

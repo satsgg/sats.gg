@@ -14,6 +14,7 @@ export const liveRouter = t.router({
           publicKey: true,
           playbackId: true,
           streamTitle: true,
+          viewerCount: true,
         },
       })
       .catch((error) => {

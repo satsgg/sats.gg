@@ -103,7 +103,6 @@ export default function Profile() {
   }
 
   useEffect(() => {
-    console.debug('effect', profile)
     // TODO: Last/slowest relay to return profile can reset our input...
     // i.e. brb.io connects, receives the profile sub (which should be deleted already...)
     // then updates way late...

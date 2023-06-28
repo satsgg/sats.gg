@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'react'
 import MuxPlayer from '@mux/mux-player-react'
 import { inferProcedureOutput } from '@trpc/server'
 import { AppRouter } from '~/server/routers/_app'
+import useAuthStore from '~/hooks/useAuthStore'
 
 // NOTE: Bug or something with lazy mux loader
 // placeholder (btwn DOM/placeholder and actual video loading) doesn't respect
@@ -15,10 +16,9 @@ import { AppRouter } from '~/server/routers/_app'
 type GetUserOutput = inferProcedureOutput<AppRouter['user']['getUser']>
 
 export const Stream = ({ channelUser }: { channelUser: GetUserOutput | undefined }) => {
+  const viewerPubkey = useAuthStore((state) => state.pubkey)
   const videoEl = useRef(null)
 
-  // console.log('playbackid', channelUser?.playbackId)
-  // console.log('channelUser', channelUser)
   const attemptPlay = () => {
     // videoEl &&
     //   videoEl.current &&
@@ -89,7 +89,7 @@ export const Stream = ({ channelUser }: { channelUser: GetUserOutput | undefined
       metadata={{
         video_id: 'video-id-54321',
         video_title: 'Test video title',
-        // viewer_user_id: "chad1",
+        viewer_user_id: viewerPubkey,
       }}
     />
   )

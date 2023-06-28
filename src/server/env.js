@@ -12,6 +12,8 @@ const envSchema = z.object({
   JWT_SECRET: z.string(),
   MUX_ACCESS_TOKEN_ID: z.string(),
   MUX_SECRET_KEY: z.string(),
+  MUX_SIGNING_KEY_ID: z.string(),
+  MUX_SIGNING_KEY_BASE64: z.string(),
   NODE_ENV: z.enum(['development', 'test', 'production']),
 })
 
