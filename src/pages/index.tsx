@@ -66,7 +66,7 @@ const StreamCard = ({
             <img className="h-full w-full" src={thumbnailData} alt={`thumbnail of ${pubkey}`} />
           )}
           <div className="absolute top-0 m-2.5">
-            <div className="rounded bg-red-600 px-1 align-baseline">
+            <div className="rounded bg-red-600 px-1">
               <p className="text-sm font-semibold uppercase">live</p>
             </div>
           </div>

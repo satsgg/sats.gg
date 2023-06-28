@@ -5,6 +5,7 @@ import ChannelSVG from '~/svgs/my-channel.svg'
 import LogOutSVG from '~/svgs/log-out.svg'
 import Key from '~/svgs/key.svg'
 import SettingsSVG from '~/svgs/settings.svg'
+import Notifications from '~/svgs/notifications.svg'
 import AccountSVG from '~/svgs/account.svg'
 import useConnectedRelays from '~/hooks/useConnectedRelays'
 import useSettingsStore from '~/hooks/useSettingsStore'
@@ -20,7 +21,13 @@ interface HeaderProps {
 export const Navbar = ({ openAuthenticate }: HeaderProps) => {
   const [showAccountMenu, setShowAccountMenu] = useState(false)
   const relays = useSettingsStore((state) => state.relays)
-  const [pubkey, npub, view, logout] = useAuthStore((state) => [state.pubkey, state.npub, state.view, state.logout])
+  const [user, pubkey, npub, view, logout] = useAuthStore((state) => [
+    state.user,
+    state.pubkey,
+    state.npub,
+    state.view,
+    state.logout,
+  ])
   const { profile, isLoading } = useProfile(pubkey)
   const connectedRelays = useConnectedRelays()
 
@@ -93,6 +100,19 @@ export const Navbar = ({ openAuthenticate }: HeaderProps) => {
                       >
                         <ChannelSVG width={20} height={20} className="mr-1" strokeWidth={1.5} />
                         <span>My Channel</span>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href={`/notifications?pubkey=${pubkey}${
+                          user?.chatChannelId ? `&id=${user.chatChannelId}` : ''
+                        }`}
+                        legacyBehavior={false}
+                        onClick={() => setShowAccountMenu(false)}
+                        className="inline-flex w-full whitespace-nowrap rounded bg-transparent py-1 px-1 text-sm font-normal text-white hover:bg-stone-700"
+                      >
+                        <Notifications width={20} height={20} className="mr-1" strokeWidth={1.5} />
+                        <span>Notifications</span>
                       </Link>
                     </li>
                     <li>
