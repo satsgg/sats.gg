@@ -14,7 +14,6 @@ export default function FollowButton({ pubkey }: { pubkey: string }) {
   const [myPubkey, view, privkey] = useAuthStore((state) => [state.pubkey, state.view, state.privkey])
 
   const followsUser = follows.includes(pubkey)
-  const myself = pubkey === myPubkey
   const [followAnimation, setFollowAnimation] = useState(false)
 
   const handleFollowClick = async () => {
@@ -68,7 +67,6 @@ export default function FollowButton({ pubkey }: { pubkey: string }) {
     <button
       className={`
         ${followsUser && !followAnimation ? 'bg-stone-700' : 'bg-primary'} 
-        ${myself && 'hidden'}
         relative inline-flex h-8 items-center space-x-1 rounded px-3 py-1
       `}
       onClick={handleFollowClick}

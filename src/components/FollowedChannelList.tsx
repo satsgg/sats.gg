@@ -31,7 +31,7 @@ export const FollowedChannelList = ({
     if (allFollows.length > 0 && streams && streams.length > 0) {
       for (let stream of streams) {
         let index = allFollows.indexOf(stream.publicKey)
-        if (index > 0) {
+        if (index >= 0) {
           liveFollows.push({
             pubkey: stream.publicKey,
             streamStatus: StreamStatus.ACTIVE,
@@ -41,6 +41,7 @@ export const FollowedChannelList = ({
         }
       }
     }
+    liveFollows.sort((a, b) => b.viewerCount - a.viewerCount)
     return liveFollows.concat(allFollows.map((f) => ({ pubkey: f, streamStatus: StreamStatus.IDLE, viewerCount: 0 })))
   }
 

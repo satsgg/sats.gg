@@ -6,6 +6,7 @@ import ProfileImg from './ProfileImg'
 import { StreamStatus } from '@prisma/client'
 import { displayName, getVerifiedChannelLink } from '~/utils/nostr'
 import { fmtViewerCnt } from '~/utils/util'
+import { trpc } from '~/utils/trpc'
 
 export const FollowedChannelSingle = ({
   pubkey,
@@ -21,6 +22,9 @@ export const FollowedChannelSingle = ({
   viewerCount: number
 }) => {
   const { profile, isLoading } = useProfile(pubkey)
+
+  // update their live viewer count
+  trpc.user.getUser.useQuery({ pubkey: pubkey }, { refetchInterval: 15000, enabled: status === StreamStatus.ACTIVE })
 
   return (
     <Link href={getVerifiedChannelLink(profile) || `/${nip19.npubEncode(pubkey)}`}>

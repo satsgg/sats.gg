@@ -28,6 +28,8 @@ export const StreamBio = ({
   setShowZapModule: (show: boolean) => void
   viewerCount: number | null | undefined
 }) => {
+  const showViewerCount = Number.isInteger(viewerCount) && streamStatus === StreamStatus.ACTIVE
+
   return (
     <div
       id="streamBioWrapper"
@@ -69,7 +71,8 @@ export const StreamBio = ({
                 setShowZapModule={setShowZapModule}
               />
             </div>
-            {viewerCount && streamStatus === StreamStatus.ACTIVE && (
+
+            {showViewerCount && (
               <div className="mr-2 flex items-center justify-end">
                 <LiveUser className="h-5 w-5 stroke-red-400" strokeWidth={2.5} />
                 <span className="font-semibold text-red-400">{fmtViewerCnt(viewerCount, false)}</span>

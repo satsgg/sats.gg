@@ -88,15 +88,15 @@ export const userRouter = t.router({
         }
       }
 
-      if (newJwtToken || newViewerCount) {
+      if (newJwtToken || newViewerCount !== null) {
         return await prisma.user
           .update({
             where: { publicKey: input.pubkey },
             data: {
               ...(newJwtToken ? { muxJwt: newJwtToken } : {}),
               ...(newJwtToken ? { muxJwtCreatedAt: now } : {}),
-              ...(newViewerCount ? { viewerCount: newViewerCount } : {}),
-              ...(newViewerCount ? { viewerCountUpdatedAt: now } : {}),
+              ...(newViewerCount !== null ? { viewerCount: newViewerCount } : {}),
+              ...(newViewerCount !== null ? { viewerCountUpdatedAt: now } : {}),
             },
             select: {
               streamId: true,
@@ -170,7 +170,7 @@ export const userRouter = t.router({
     )
     .output(z.any())
     .query(async ({ input }) => {
-      console.debug('mux webook input', input)
+      // console.debug('mux webook input', input)
       if (input.type == 'video.live_stream.active' || input.type == 'video.live_stream.idle') {
         // update user stream status
         const status: StreamStatus = input.type === 'video.live_stream.active' ? StreamStatus.ACTIVE : StreamStatus.IDLE
