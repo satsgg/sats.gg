@@ -5,17 +5,8 @@ import { validHexKey } from '~/utils/nostr'
 import useAuthStore from './useAuthStore'
 
 export default function useAuth() {
-  const {
-    setUser,
-    setPubkey,
-    setPrivatekey,
-    unsetPrivkey,
-    view: storeView,
-    setView,
-    authToken,
-    setAuthToken,
-    logout,
-  } = useAuthStore()
+  const { user, setUser, setPubkey, setPrivatekey, unsetPrivkey, view, setView, authToken, setAuthToken, logout } =
+    useAuthStore()
   const utils = trpc.useContext()
 
   const [shouldReset, setShouldReset] = useState(false)
@@ -26,34 +17,35 @@ export default function useAuth() {
   }
 
   useEffect(() => {
-    const pubkey = localStorage.getItem('pubkey')
-    const privkey = localStorage.getItem('privkey')
-    const token = localStorage.getItem('token')
-    const view = localStorage.getItem('view')
+    const localPubkey = localStorage.getItem('pubkey')
+    const localPrivkey = localStorage.getItem('privkey')
+    const localAuthToken = localStorage.getItem('token')
+    const localView = localStorage.getItem('view')
 
-    if (!view) {
+    if (!localView) {
       const defaultPrivkey = generatePrivateKey()
       setPrivatekey(defaultPrivkey)
       setPubkey(getPublicKey(defaultPrivkey))
       setView('default')
-    } else if (view === 'default') {
-      if (!privkey) return reset()
-      setPrivatekey(privkey)
-      setPubkey(getPublicKey(privkey))
+    } else if (localView === 'default') {
+      if (!localPrivkey) return reset()
+      setPrivatekey(localPrivkey)
+      setPubkey(getPublicKey(localPrivkey))
       setView('default')
-    } else if (view === 'pubkey') {
-      if (!pubkey || !validHexKey(pubkey)) return reset()
-      setPubkey(pubkey)
+    } else if (localView === 'pubkey') {
+      if (!localPubkey || !validHexKey(localPubkey)) return reset()
+      setPubkey(localPubkey)
       unsetPrivkey()
       setView('pubkey')
-    } else if (view === 'authenticated') {
-      if (!pubkey || !validHexKey(pubkey) || !token) return reset()
+    } else if (localView === 'authenticated') {
+      if (!localPubkey || !validHexKey(localPubkey) || !localAuthToken) return reset()
       if (!authToken) {
-        return setAuthToken(token)
+        return setAuthToken(localAuthToken)
       }
 
       // used for page refresh
-      if (!storeView) {
+      if (!view || !user) {
+        console.debug('fetching and setting user')
         utils.auth.getMe
           .fetch()
           .then((data) => {
@@ -74,5 +66,5 @@ export default function useAuth() {
     } else {
       return reset()
     }
-  }, [authToken, storeView, shouldReset])
+  }, [authToken, view, shouldReset])
 }
