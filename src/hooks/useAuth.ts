@@ -45,7 +45,6 @@ export default function useAuth() {
 
       // used for page refresh
       if (!view || !user) {
-        console.debug('fetching and setting user')
         utils.auth.getMe
           .fetch()
           .then((data) => {

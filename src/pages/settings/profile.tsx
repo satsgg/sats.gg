@@ -77,7 +77,7 @@ export default function Profile() {
 
       nostrClient.publish(signedEvent)
       // TODO: Wait for event to be seen before signalling success
-      toast.success('Zap successful!', {
+      toast.success('Published profile update!', {
         position: 'bottom-center',
         autoClose: 5000,
         hideProgressBar: false,
