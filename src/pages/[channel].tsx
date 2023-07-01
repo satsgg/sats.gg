@@ -113,7 +113,7 @@ export default function Channel() {
           id="streamWrapper"
           className="relative aspect-video max-h-[calc(100vh-9rem)] sm:border-b sm:border-solid sm:border-gray-500"
         >
-          {userLoading ? <StreamSkeleton /> : <Stream channelUser={channelUser} />}
+          {channelUser && !userLoading ? <Stream channelUser={channelUser} /> : <StreamSkeleton />}
           {zapInvoice && showZapModule && (
             <div className="absolute right-0 bottom-0 z-[101] flex max-h-full w-80 max-w-[66%] shrink overflow-y-scroll">
               <ZapInvoiceModule invoice={zapInvoice} type="stream" close={closeZap} />
@@ -133,6 +133,7 @@ export default function Channel() {
         />
       </div>
 
+      {/* TODO: Better useLoading && !channelUser skeleton handling */}
       <div className="flex h-full w-full sm:w-80 md:shrink-0">
         {userLoading ? (
           <ChatSkeleton />

@@ -4,6 +4,7 @@ import MuxPlayer from '@mux/mux-player-react'
 import { inferProcedureOutput } from '@trpc/server'
 import { AppRouter } from '~/server/routers/_app'
 import useAuthStore from '~/hooks/useAuthStore'
+import StreamSkeleton from './StreamSkeleton'
 
 // NOTE: Bug or something with lazy mux loader
 // placeholder (btwn DOM/placeholder and actual video loading) doesn't respect
@@ -15,7 +16,8 @@ import useAuthStore from '~/hooks/useAuthStore'
 
 type GetUserOutput = inferProcedureOutput<AppRouter['user']['getUser']>
 
-export const Stream = ({ channelUser }: { channelUser: GetUserOutput | undefined }) => {
+export const Stream = ({ channelUser }: { channelUser: GetUserOutput }) => {
+  if (!channelUser) return <StreamSkeleton />
   const viewerPubkey = useAuthStore((state) => state.pubkey)
   const videoEl = useRef(null)
 
@@ -69,7 +71,7 @@ export const Stream = ({ channelUser }: { channelUser: GetUserOutput | undefined
   return (
     <MuxPlayer
       streamType="ll-live"
-      playbackId={channelUser?.playbackId}
+      playbackId={channelUser.playbackId}
       // playbackId="v69RSHhFelSm4701snP22dYz2jICy4E4FUyk02rW4gxRM"
       // title="hi"
       // debug
@@ -87,8 +89,9 @@ export const Stream = ({ channelUser }: { channelUser: GetUserOutput | undefined
       // placeholder={Nostrich.src}
       className={'aspect-video h-full'}
       metadata={{
-        video_id: 'video-id-54321',
-        video_title: 'Test video title',
+        env_key: process.env.NEXT_PUBLIC_MUX_ENV_KEY || '',
+        video_id: channelUser.streamId,
+        video_title: channelUser?.streamTitle || '',
         viewer_user_id: viewerPubkey,
       }}
     />
