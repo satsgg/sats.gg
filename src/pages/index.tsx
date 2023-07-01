@@ -1,10 +1,11 @@
 import { useProfile } from '~/hooks/useProfile'
 import { trpc } from '~/utils/trpc'
-import { displayName } from '~/utils/nostr'
+import { displayName, getVerifiedChannelLink } from '~/utils/nostr'
 import ProfileImg from '~/components/ProfileImg'
 import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'
 import { fmtViewerCnt } from '~/utils/util'
+import { nip19 } from 'nostr-tools'
 
 // i like bg-stone-600...
 const DummyStreamCard = () => {
@@ -58,7 +59,7 @@ const StreamCard = ({
 
   return (
     <div className="flex flex-col gap-2">
-      <Link href={`/${pubkey}`} legacyBehavior={false}>
+      <Link href={getVerifiedChannelLink(profile) || `/${nip19.npubEncode(pubkey)}`} legacyBehavior={false}>
         <div id="cardThumbnailWrapper" className="relative aspect-video">
           {thumbnailIsLoading || thumbnailError ? (
             <div className="h-full w-full rounded bg-stone-800"></div>
@@ -81,7 +82,7 @@ const StreamCard = ({
       <div className="flex h-16 w-full gap-2 ">
         <div className="">
           <div className="h-10 w-10">
-            <Link href={`/${pubkey}`} legacyBehavior={false}>
+            <Link href={getVerifiedChannelLink(profile) || `/${nip19.npubEncode(pubkey)}`} legacyBehavior={false}>
               {isLoading ? (
                 <div className="h-full w-full rounded-[50%] bg-gray-600" />
               ) : (
@@ -92,11 +93,11 @@ const StreamCard = ({
         </div>
         <div className="flex min-w-0 flex-col">
           {streamTitle && (
-            <Link href={`/${pubkey}`} legacyBehavior={false}>
+            <Link href={getVerifiedChannelLink(profile) || `/${nip19.npubEncode(pubkey)}`} legacyBehavior={false}>
               <h3 className="truncate font-bold">{streamTitle}</h3>
             </Link>
           )}
-          <Link href={`/${pubkey}`} legacyBehavior={false}>
+          <Link href={getVerifiedChannelLink(profile) || `/${nip19.npubEncode(pubkey)}`} legacyBehavior={false}>
             <p className="truncate">{!isLoading && displayName(pubkey, profile)}</p>
           </Link>
         </div>
