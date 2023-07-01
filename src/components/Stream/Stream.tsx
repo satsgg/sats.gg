@@ -72,19 +72,13 @@ export const Stream = ({ channelUser }: { channelUser: GetUserOutput }) => {
     <MuxPlayer
       streamType="ll-live"
       playbackId={channelUser.playbackId}
-      // playbackId="v69RSHhFelSm4701snP22dYz2jICy4E4FUyk02rW4gxRM"
       // title="hi"
       // debug
-      envKey="06ap5jkfhpso2kfdumgvn5ml9"
       // autoPlay
       // debug
       ref={videoEl}
       muted={false}
       // disableCookies
-      // tokens={{
-      //   playback: "zkma4FkEBYfNGXf6dcu9t3qcFpeLRpGT0001R5xDOVGkI",
-      //   thumbnail: "zkma4FkEBYfNGXf6dcu9t3qcFpeLRpGT0001R5xDOVGkI"
-      // }}
       // loading="viewport"
       // placeholder={Nostrich.src}
       className={'aspect-video h-full'}
