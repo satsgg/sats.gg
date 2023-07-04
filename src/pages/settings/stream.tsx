@@ -13,7 +13,7 @@ import { toast } from 'react-toastify'
 const StreamSettings = ({ user, setUser }: { user: User; setUser: (user: User) => void }) => {
   const refreshStreamKeyMutation = trpc.user.refreshStreamKey.useMutation()
   const utils = trpc.useContext()
-  const rtmpUrl = 'rtmp://global-live.mux.com:5222/app'
+  const rtmpUrl = 'rtmp://live.sats.gg:5222/app'
   const streamTitleMutation = trpc.user.updateStreamTitle.useMutation()
 
   const onSubmitRefreshStreamKey = async () => {
