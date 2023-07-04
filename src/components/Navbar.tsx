@@ -37,8 +37,8 @@ export const Navbar = ({ openAuthenticate }: HeaderProps) => {
   }
 
   return (
-    <nav className="flex w-full items-center justify-between bg-stone-900 py-2 text-gray-200 shadow-lg">
-      <div className="flex w-full items-center justify-between px-6">
+    <nav className="flex w-full items-center justify-between bg-stone-900 py-1 text-gray-200 shadow-lg sm:py-2">
+      <div className="flex w-full items-center justify-between px-2 sm:px-6">
         <Link href="/">
           <h1 className="text-2xl font-bold text-white hover:cursor-pointer">SATS.GG</h1>
         </Link>
@@ -144,7 +144,11 @@ export const Navbar = ({ openAuthenticate }: HeaderProps) => {
             </ClickAwayListener>
           )}
           {view === 'default' && (
-            <Button onClick={openAuthenticate} icon={<Key height={20} width={20} strokeWidth={1.5} />}>
+            <Button
+              className="hidden sm:inline-flex"
+              onClick={openAuthenticate}
+              icon={<Key height={20} width={20} strokeWidth={1.5} />}
+            >
               <span>Log In</span>
             </Button>
           )}

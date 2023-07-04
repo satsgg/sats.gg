@@ -67,7 +67,7 @@ export default function FollowButton({ pubkey }: { pubkey: string }) {
     <button
       className={`
         ${followsUser && !followAnimation ? 'bg-stone-700' : 'bg-primary'} 
-        relative inline-flex h-8 items-center space-x-1 rounded px-3 py-1
+        relative hidden h-8 items-center space-x-1 rounded px-3 py-1 sm:inline-flex
       `}
       onClick={handleFollowClick}
       onAnimationEnd={() => setFollowAnimation(false)}
