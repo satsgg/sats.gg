@@ -12,7 +12,6 @@ export const liveRouter = t.router({
         },
         select: {
           publicKey: true,
-          playbackId: true,
           streamTitle: true,
           viewerCount: true,
         },

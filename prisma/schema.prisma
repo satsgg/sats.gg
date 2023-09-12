@@ -18,13 +18,8 @@ model User {
   updatedAt            DateTime     @updatedAt
   lastLogin            DateTime?
   publicKey            String       @unique
-  streamKey            String       @unique
-  playbackId           String       @unique
-  streamId             String       @unique
   streamStatus         StreamStatus @default(IDLE)
   streamTitle          String?
-  muxJwt               String?
-  muxJwtCreatedAt      DateTime     @default(now())
   viewerCount          Int          @default(0)
   viewerCountUpdatedAt DateTime     @default(now())
   chatChannelId        String?      @unique

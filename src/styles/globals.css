@@ -31,13 +31,6 @@
   body {
     overflow: hidden;
   }
-
-  mux-player {
-    /* --controls: none; */
-    /* --center-controls: none; */
-    --bottom-play-button: reveal;
-    /* --bottom-controls: none; */
-  }
 }
 
 /* Chrome, Safari, Edge, Opera */

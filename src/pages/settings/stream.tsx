@@ -11,15 +11,9 @@ import { z } from 'zod'
 import { toast } from 'react-toastify'
 
 const StreamSettings = ({ user, setUser }: { user: User; setUser: (user: User) => void }) => {
-  const refreshStreamKeyMutation = trpc.user.refreshStreamKey.useMutation()
   const utils = trpc.useContext()
   const rtmpUrl = 'rtmp://live.sats.gg:5222/app'
   const streamTitleMutation = trpc.user.updateStreamTitle.useMutation()
-
-  const onSubmitRefreshStreamKey = async () => {
-    setUser(await refreshStreamKeyMutation.mutateAsync())
-    await utils.invalidate()
-  }
 
   const {
     register: registerStreamInfo,
@@ -74,18 +68,8 @@ const StreamSettings = ({ user, setUser }: { user: User; setUser: (user: User) =
             <p>Stream Key</p>
           </div>
           <div className="flex w-3/4 gap-x-4">
-            <CopyValueBar value={user.streamKey} />
-
-            <button
-              className="inline-flex w-32 items-center justify-center rounded bg-primary py-1 px-2 text-sm font-semibold text-white"
-              disabled={refreshStreamKeyMutation.isLoading}
-              onClick={onSubmitRefreshStreamKey}
-            >
-              {refreshStreamKeyMutation.isLoading ? (
-                <IsLoadingSVG width={24} height={24} className="animate-spin" strokeWidth={2} />
-              ) : (
-                'Refresh Key'
-              )}
+            <button className="inline-flex w-32 items-center justify-center rounded bg-primary py-1 px-2 text-sm font-semibold text-white">
+              'Refresh Key'
             </button>
           </div>
         </div>

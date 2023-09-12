@@ -75,34 +75,9 @@ export const authRouter = t.router({
         })
 
         if (!innerUser) {
-          const muxResponse = await fetch('https://api.mux.com/video/v1/live-streams', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json;charset=utf-8',
-              Accept: 'application/json;charset=utf-8',
-              Authorization:
-                'Basic ' +
-                Buffer.from(process.env.MUX_ACCESS_TOKEN_ID + ':' + process.env.MUX_SECRET_KEY).toString('base64'),
-            },
-            body: JSON.stringify({
-              playback_policy: ['public'],
-              new_asset_settings: {
-                playback_policy: ['public'],
-              },
-            }),
-          })
-            .then((r) => r.json())
-            .catch((error) => {
-              console.log(error)
-              throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
-            })
-
           innerUser = await transactionPrisma.user.create({
             data: {
               publicKey: input.pubkey,
-              streamKey: muxResponse.data.stream_key,
-              playbackId: muxResponse.data.playback_ids[0].id,
-              streamId: muxResponse.data.id,
             },
           })
         }

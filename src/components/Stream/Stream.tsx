@@ -1,18 +1,8 @@
 import { useEffect, useRef } from 'react'
-// import MuxPlayer from '@mux/mux-player-react/lazy'
-import MuxPlayer from '@mux/mux-player-react'
 import { inferProcedureOutput } from '@trpc/server'
 import { AppRouter } from '~/server/routers/_app'
 import useAuthStore from '~/hooks/useAuthStore'
 import StreamSkeleton from './StreamSkeleton'
-
-// NOTE: Bug or something with lazy mux loader
-// placeholder (btwn DOM/placeholder and actual video loading) doesn't respect
-// h-full. It only does the aspect ratio. So when the dev console is open
-// and max v height is the used, the palceholder doesn't respect the max v height
-
-// want lazy loader because it makes the DOM content load wayyy faster...
-// just have the issue with the placeholder
 
 type GetUserOutput = inferProcedureOutput<AppRouter['user']['getUser']>
 
@@ -68,26 +58,5 @@ export const Stream = ({ channelUser }: { channelUser: GetUserOutput }) => {
   //   )
   // }
 
-  return (
-    <MuxPlayer
-      streamType="ll-live"
-      playbackId={channelUser.playbackId}
-      // title="hi"
-      // debug
-      // autoPlay
-      // debug
-      ref={videoEl}
-      muted={false}
-      // disableCookies
-      // loading="viewport"
-      // placeholder={Nostrich.src}
-      className={'aspect-video h-full'}
-      metadata={{
-        env_key: process.env.NEXT_PUBLIC_MUX_ENV_KEY || '',
-        video_id: channelUser.streamId,
-        video_title: channelUser?.streamTitle || '',
-        viewer_user_id: viewerPubkey,
-      }}
-    />
-  )
+  return <div className="aspect-video h-full" />
 }

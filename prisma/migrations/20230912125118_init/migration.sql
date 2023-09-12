@@ -8,10 +8,12 @@ CREATE TABLE "User" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "lastLogin" TIMESTAMP(3),
     "publicKey" TEXT NOT NULL,
-    "streamKey" TEXT NOT NULL,
-    "playbackId" TEXT NOT NULL,
-    "streamId" TEXT NOT NULL,
     "streamStatus" "StreamStatus" NOT NULL DEFAULT 'IDLE',
+    "streamTitle" TEXT,
+    "viewerCount" INTEGER NOT NULL DEFAULT 0,
+    "viewerCountUpdatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "chatChannelId" TEXT,
+    "defaultZapAmount" INTEGER NOT NULL DEFAULT 1000,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -30,13 +32,7 @@ CREATE TABLE "UserAuth" (
 CREATE UNIQUE INDEX "User_publicKey_key" ON "User"("publicKey");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_streamKey_key" ON "User"("streamKey");
-
--- CreateIndex
-CREATE UNIQUE INDEX "User_playbackId_key" ON "User"("playbackId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "User_streamId_key" ON "User"("streamId");
+CREATE UNIQUE INDEX "User_chatChannelId_key" ON "User"("chatChannelId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "UserAuth_challengeHash_key" ON "UserAuth"("challengeHash");

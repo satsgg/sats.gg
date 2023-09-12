@@ -39,33 +39,13 @@ const StreamCard = ({
 }) => {
   const { profile, isLoading } = useProfile(pubkey)
 
-  const {
-    isLoading: thumbnailIsLoading,
-    error: thumbnailError,
-    data: thumbnailData,
-  } = useQuery({
-    queryKey: ['thumbnail'],
-    queryFn: async () => {
-      const response = await fetch(`https://image.mux.com/${playbackId}/thumbnail.jpg?height=347`)
-      if (!response.ok) {
-        throw new Error('Network response was not ok')
-      }
-      const imageBlob = await response.blob()
-      return URL.createObjectURL(imageBlob)
-    },
-  })
-
   if (isLoading) return <DummyStreamCard />
 
   return (
     <div className="flex flex-col gap-2">
       <Link href={getVerifiedChannelLink(profile) || `/${nip19.npubEncode(pubkey)}`} legacyBehavior={false}>
         <div id="cardThumbnailWrapper" className="relative aspect-video">
-          {thumbnailIsLoading || thumbnailError ? (
-            <div className="h-full w-full rounded bg-stone-800"></div>
-          ) : (
-            <img className="h-full w-full" src={thumbnailData} alt={`thumbnail of ${pubkey}`} />
-          )}
+          <div className="h-full w-full rounded bg-stone-800"></div>
           <div className="absolute top-0 m-2.5">
             <div className="rounded bg-red-600 px-1">
               <p className="text-sm font-semibold uppercase">live</p>

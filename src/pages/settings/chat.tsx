@@ -260,7 +260,6 @@ const ChatSettings = () => {
             />
             <button
               className="inline-flex w-32 shrink-0 items-center justify-center rounded bg-primary py-1 px-2 text-sm font-semibold text-white"
-              // disabled={refreshStreamKeyMutation.isLoading}
               onClick={handleSubmitId(onSubmitById)}
             >
               Save

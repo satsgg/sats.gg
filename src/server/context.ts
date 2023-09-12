@@ -8,7 +8,6 @@ export interface TokenUser {
   createdAt: string
   updatedAt: string
   lastLogin: string
-  streamId: string
 }
 
 interface CreateContextOptions {
