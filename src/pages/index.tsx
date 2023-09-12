@@ -28,12 +28,10 @@ const DummyStreamCard = () => {
 
 const StreamCard = ({
   pubkey,
-  playbackId,
   streamTitle,
   viewerCount,
 }: {
   pubkey: string
-  playbackId: string
   streamTitle: string | null
   viewerCount: number
 }) => {
@@ -98,7 +96,6 @@ export default function IndexPage() {
               <StreamCard
                 key={stream.publicKey}
                 pubkey={stream.publicKey}
-                playbackId={stream.playbackId}
                 streamTitle={stream.streamTitle}
                 viewerCount={stream.viewerCount}
               />

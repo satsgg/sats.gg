@@ -11,6 +11,7 @@ import { useProfile } from '~/hooks/useProfile'
 import { useEffect, useState } from 'react'
 import ZapInvoiceModule from '~/components/ZapInvoiceModule'
 import useMediaQuery from '~/hooks/useMediaQuery'
+import Player from '~/components/Stream/Player'
 
 const getChannelPubkey = (channel: string, isReady: boolean) => {
   if (channel === 'chad') {
@@ -113,7 +114,8 @@ export default function Channel() {
           id="streamWrapper"
           className="relative aspect-video max-h-[calc(100vh-9rem)] sm:border-b sm:border-solid sm:border-gray-500"
         >
-          {channelUser && !userLoading ? <Stream channelUser={channelUser} /> : <StreamSkeleton />}
+          <Player />
+
           {zapInvoice && showZapModule && (
             <div className="absolute right-0 bottom-0 z-[101] flex max-h-full w-80 max-w-[66%] shrink overflow-y-scroll">
               <ZapInvoiceModule invoice={zapInvoice} type="stream" close={closeZap} />

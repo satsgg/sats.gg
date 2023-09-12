@@ -1,13 +1,17 @@
 import { useEffect, useRef } from 'react'
 import { inferProcedureOutput } from '@trpc/server'
 import { AppRouter } from '~/server/routers/_app'
+import videojs from 'video.js'
 import useAuthStore from '~/hooks/useAuthStore'
 import StreamSkeleton from './StreamSkeleton'
 
 type GetUserOutput = inferProcedureOutput<AppRouter['user']['getUser']>
 
-export const Stream = ({ channelUser }: { channelUser: GetUserOutput }) => {
-  if (!channelUser) return <StreamSkeleton />
+// export const Stream = ({ channelUser }: { channelUser: GetUserOutput }) => {
+// TODO: Replace channelUser with noteID?
+// what if user clicks on a user they follow? Support both pubkey and noteID links?
+export const Stream = () => {
+  // if (!channelUser) return <StreamSkeleton />
   const viewerPubkey = useAuthStore((state) => state.pubkey)
   const videoEl = useRef(null)
 
@@ -58,5 +62,5 @@ export const Stream = ({ channelUser }: { channelUser: GetUserOutput }) => {
   //   )
   // }
 
-  return <div className="aspect-video h-full" />
+  return <video className="video-js aspect-video h-full max-h-[calc(100vh-9rem)]" />
 }
