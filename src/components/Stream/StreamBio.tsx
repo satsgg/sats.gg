@@ -2,10 +2,7 @@ import FollowButton from './FollowButton'
 import ZapButton from '~/components/ZapButton'
 import { displayName } from '~/utils/nostr'
 import { UserMetadataStore } from '~/store/db'
-import { StreamStatus } from '@prisma/client'
 import HaloProfileImg from '../HaloProfileImg'
-import LiveUser from '~/svgs/live-user.svg'
-import { fmtViewerCnt } from '~/utils/util'
 
 export const StreamBio = ({
   channelPubkey,
@@ -16,7 +13,6 @@ export const StreamBio = ({
   zapInvoice,
   setZapInvoice,
   setShowZapModule,
-  viewerCount,
 }: {
   channelPubkey: string
   channelProfile: UserMetadataStore | undefined
@@ -26,10 +22,7 @@ export const StreamBio = ({
   zapInvoice: string | null
   setZapInvoice: (invoice: string | null) => void
   setShowZapModule: (show: boolean) => void
-  viewerCount: number | null | undefined
 }) => {
-  const showViewerCount = Number.isInteger(viewerCount) && streamStatus === StreamStatus.ACTIVE
-
   return (
     <div
       id="streamBioWrapper"
@@ -43,7 +36,7 @@ export const StreamBio = ({
             <HaloProfileImg
               pubkey={channelPubkey}
               picture={channelProfile?.picture}
-              liveBorder={streamStatus === StreamStatus.ACTIVE}
+              liveBorder={streamStatus === 'live'}
             />
           )}
         </div>
@@ -71,20 +64,13 @@ export const StreamBio = ({
                 setShowZapModule={setShowZapModule}
               />
             </div>
-
-            {showViewerCount && (
-              <div className="mr-2 flex items-center justify-end">
-                <LiveUser className="h-5 w-5 stroke-red-400" strokeWidth={2.5} />
-                <span className="font-semibold text-red-400">{fmtViewerCnt(viewerCount!, false)}</span>
-              </div>
-            )}
           </div>
         </div>
       </div>
 
       <div id="about" className="hidden rounded bg-stone-800 p-12 sm:block">
         <p className="font-semi text-xl text-white">About {channelProfile?.name}</p>
-        <p className="font-semi text-lg text-white">{channelProfile?.about}</p>
+        <p className="font-semi whitespace-pre-line text-lg text-white">{channelProfile?.about}</p>
       </div>
 
       {/* <div className="hidden h-screen w-full border-4 border-cyan-500 sm:block" /> */}

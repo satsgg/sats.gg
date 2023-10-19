@@ -12,8 +12,19 @@ import { useEffect, useState } from 'react'
 import ZapInvoiceModule from '~/components/ZapInvoiceModule'
 import useMediaQuery from '~/hooks/useMediaQuery'
 import Player from '~/components/Stream/Player'
+import { useStream } from '~/hooks/useStream'
 
-const getChannelPubkey = (channel: string, isReady: boolean) => {
+const getChannelPubkey = (channel: string, isReady: boolean): nip19.AddressPointer | string | null => {
+  if (channel.startsWith('naddr')) {
+    try {
+      const { type, data } = nip19.decode(channel)
+      if (type === 'naddr') {
+        return data as nip19.AddressPointer
+      }
+    } catch (error) {
+      return null
+    }
+  }
   if (channel === 'chad') {
     return 'e9038e10916d910869db66f3c9a1f41535967308b47ce3136c98f1a6a22a6150'
   }
@@ -45,6 +56,8 @@ const getChannelPubkey = (channel: string, isReady: boolean) => {
   } catch (error) {
     return null
   }
+
+  return null
 }
 
 export default function Channel() {
@@ -66,22 +79,23 @@ export default function Channel() {
     )
   }
 
-  const channelPubkey = getChannelPubkey(channel, isReady)
-  if (!channelPubkey) {
+  const channelInfo = getChannelPubkey(channel, isReady)
+  if (!channelInfo) {
     return (
       <div className="flex h-full w-full content-center items-center justify-center">
-        <p className="text-white">Invalid npub or public key</p>
+        <p className="text-white">Invalid naddr/npub/pubkey</p>
       </div>
     )
   }
 
-  const { profile: channelProfile, isLoading: channelProfileIsLoading } = useProfile(channelPubkey)
+  const channelPubkey = typeof channelInfo === 'string' ? channelInfo : channelInfo.pubkey
+  console.log('channelPubkey', channelPubkey)
 
-  const {
-    data: channelUser,
-    isLoading: userLoading,
-    isError: userError,
-  } = trpc.user.getUser.useQuery({ pubkey: channelPubkey }, { refetchInterval: 15000 })
+  const { profile: channelProfile, isLoading: channelProfileIsLoading } = useProfile(channelPubkey)
+  console.log('channelProfile', channelProfile)
+
+  const stream = useStream(channelPubkey)
+  console.log('stream', stream)
 
   const [zapInvoice, setZapInvoice] = useState<string | null>(null)
   const [showZapModule, setShowZapModule] = useState(false)
@@ -114,7 +128,7 @@ export default function Channel() {
           id="streamWrapper"
           className="relative aspect-video max-h-[calc(100vh-9rem)] sm:border-b sm:border-solid sm:border-gray-500"
         >
-          <Player />
+          {stream?.streaming ? <Player url={stream?.streaming} /> : <StreamSkeleton />}
 
           {zapInvoice && showZapModule && (
             <div className="absolute right-0 bottom-0 z-[101] flex max-h-full w-80 max-w-[66%] shrink overflow-y-scroll">
@@ -126,21 +140,22 @@ export default function Channel() {
           channelPubkey={channelPubkey}
           channelProfile={channelProfile}
           channelProfileIsLoading={channelProfileIsLoading}
-          streamTitle={channelUser?.streamTitle}
-          streamStatus={channelUser?.streamStatus}
+          // streamTitle={channelUser?.streamTitle}
+          streamTitle={stream?.title}
+          streamStatus={stream?.status}
           zapInvoice={zapInvoice}
           setZapInvoice={setZapInvoice}
           setShowZapModule={setShowZapModule}
-          viewerCount={channelUser?.viewerCount}
+          // viewerCount={channelUser?.viewerCount}
         />
       </div>
 
       {/* TODO: Better useLoading && !channelUser skeleton handling */}
       <div className="flex h-full w-full sm:w-80 md:shrink-0">
-        {userLoading ? (
-          <ChatSkeleton />
+        {stream?.d ? (
+          <Chat channelPubkey={channelPubkey} channelIdentifier={stream?.d} channelProfile={channelProfile} />
         ) : (
-          <Chat channelPubkey={channelPubkey} channelProfile={channelProfile} channelUser={channelUser} />
+          <ChatSkeleton />
         )}
       </div>
     </>

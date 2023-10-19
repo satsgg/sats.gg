@@ -1,11 +1,12 @@
 import { useProfile } from '~/hooks/useProfile'
-import { trpc } from '~/utils/trpc'
-import { displayName, getVerifiedChannelLink } from '~/utils/nostr'
+import { displayName, getStreamNaddr, getVerifiedChannelLink } from '~/utils/nostr'
 import ProfileImg from '~/components/ProfileImg'
 import Link from 'next/link'
-import { useQuery } from '@tanstack/react-query'
 import { fmtViewerCnt } from '~/utils/util'
-import { nip19 } from 'nostr-tools'
+import { Filter, nip19 } from 'nostr-tools'
+import { useStreams } from '~/hooks/useStreams'
+import { useEffect } from 'react'
+import { naddrEncode } from 'nostr-tools/lib/nip19'
 
 // i like bg-stone-600...
 const DummyStreamCard = () => {
@@ -28,12 +29,16 @@ const DummyStreamCard = () => {
 
 const StreamCard = ({
   pubkey,
+  identifier,
   streamTitle,
-  viewerCount,
+  thumbnail,
+  relays,
 }: {
   pubkey: string
-  streamTitle: string | null
-  viewerCount: number
+  identifier?: string
+  streamTitle?: string
+  thumbnail?: string
+  relays?: string[]
 }) => {
   const { profile, isLoading } = useProfile(pubkey)
 
@@ -41,17 +46,17 @@ const StreamCard = ({
 
   return (
     <div className="flex flex-col gap-2">
-      <Link href={getVerifiedChannelLink(profile) || `/${nip19.npubEncode(pubkey)}`} legacyBehavior={false}>
+      {/* <Link href={getVerifiedChannelLink(profile) || `/${nip19.npubEncode(pubkey)}`} legacyBehavior={false}> */}
+      <Link href={`/${getStreamNaddr(pubkey, identifier, relays)}`} legacyBehavior={false}>
         <div id="cardThumbnailWrapper" className="relative aspect-video">
-          <div className="h-full w-full rounded bg-stone-800"></div>
+          {thumbnail ? (
+            <img className="h-full w-full" src={thumbnail} alt={`thumbnail of ${pubkey}`} />
+          ) : (
+            <div className="h-full w-full rounded bg-stone-800"></div>
+          )}
           <div className="absolute top-0 m-2.5">
             <div className="rounded bg-red-600 px-1">
               <p className="text-sm font-semibold uppercase">live</p>
-            </div>
-          </div>
-          <div className="absolute bottom-0 m-2.5">
-            <div className="rounded bg-stone-900/80 px-1.5">
-              <p className="text-sm">{fmtViewerCnt(viewerCount, true)} viewers</p>
             </div>
           </div>
         </div>
@@ -85,7 +90,18 @@ const StreamCard = ({
 }
 
 export default function IndexPage() {
-  const { data: streams, isLoading, isError } = trpc.live.getLiveStreams.useQuery(undefined, { refetchInterval: 15000 })
+  const filters: Filter[] = [
+    {
+      kinds: [30311],
+      // since: Math.floor(Date.now() / 1000) - 3600,
+      // '#status': ['live'],
+    },
+  ]
+  const streams = useStreams('streams', filters)
+
+  useEffect(() => {
+    console.log('streams', streams)
+  }, [streams])
 
   return (
     <div className="flex w-full flex-col overflow-y-auto px-8 py-6">
@@ -94,35 +110,17 @@ export default function IndexPage() {
           <>
             {streams.map((stream) => (
               <StreamCard
-                key={stream.publicKey}
-                pubkey={stream.publicKey}
-                streamTitle={stream.streamTitle}
-                viewerCount={stream.viewerCount}
+                key={stream.pubkey}
+                pubkey={stream.pubkey}
+                identifier={stream.d}
+                streamTitle={stream.title}
+                thumbnail={stream.image}
+                relays={stream.relays}
               />
             ))}
           </>
         )}
-        {/* <StreamCard
-          pubkey={'5b6bfd0b8b1b2107e247d1750519ef30c142d5e6da8503cd28293ee22446c43b'}
-          playbackId="123"
-          streamTitle="yoooooooooooookjashflkjasdhfljhaskljfhasdjkhfljaksdhflkjasdhfkjh"
-          viewerCount={420000}
-        /> */}
-        {/* {isLoading && (
-          <>
-            {[...Array(32)].map((e, i) => (
-              <DummyStreamCard key={i} />
-            ))}
-          </>
-        )} */}
       </div>
-
-      {!isLoading && streams?.length === 0 && (
-        <>
-          <p>Welcome to SATS.GG!</p>
-          <p>Nobody is streaming at the moment... Be the first!</p>
-        </>
-      )}
     </div>
   )
 }

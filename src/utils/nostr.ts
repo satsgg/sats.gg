@@ -13,7 +13,6 @@ import {
   getPublicKey,
   EventTemplate,
 } from 'nostr-tools'
-import { utf8Decoder } from 'nostr-tools/lib/utils'
 import { UserMetadata } from '~/nostr/NostrClient'
 import { UserMetadataStore } from '~/store/db'
 
@@ -296,4 +295,21 @@ export const parseZapRequest = (note: NostrEvent): NostrEvent | null => {
     // TODO: Better validation type for zap request
   }
   return null
+}
+
+// export type AddressPointer = {
+//   identifier: string
+//   pubkey: string
+//   kind: number
+//   relays?: string[]
+// }
+
+export const getStreamNaddr = (pubkey: string, identifier?: string, relays?: string[]) => {
+  const addressPointer = {
+    identifier: identifier ?? '',
+    pubkey: pubkey,
+    kind: 30331,
+    relays: relays,
+  }
+  return nip19.naddrEncode(addressPointer)
 }

@@ -34,12 +34,12 @@ type GetUserOutput = inferProcedureOutput<AppRouter['user']['getUser']>
 
 export const Chat = ({
   channelPubkey,
+  channelIdentifier,
   channelProfile,
-  channelUser,
 }: {
   channelPubkey: string
+  channelIdentifier: string | undefined
   channelProfile: UserMetadataStore | undefined
-  channelUser: GetUserOutput | undefined
 }) => {
   const [user, pubkey, view, privkey] = useAuthStore((state) => [state.user, state.pubkey, state.view, state.privkey])
   const canSign = useCanSign()
@@ -64,13 +64,17 @@ export const Chat = ({
   const filters: Filter[] = [
     {
       // TODO: separate filter for zaps with pubkey equal to channelUser pubkey
-      kinds: [42, 9735],
+      // kinds: [1311, 9735],
+      kinds: [1311, 9735],
       // since and limit don't really work well
       since: now.current - 1000 * 60 * 60 * 24, // one day ago
       limit: 25,
-      '#e': [channelUser?.chatChannelId || ''],
+      // ["a", "30311:<Community event author pubkey>:<d-identifier of the community>", "<Optional relay url>", "root"],
+      '#a': [`30311:${channelPubkey}:${channelIdentifier}`],
     },
   ]
+
+  // console.log(`30311:${channelPubkey}:${channelIdentifier}`)
   const notes = useSubscription(channelPubkey, filters, false, 250)
 
   const closeZap = () => {
@@ -145,7 +149,7 @@ export const Chat = ({
   }, [])
 
   const onSubmitMessage = async (data: any) => {
-    if (!pubkey || !channelUser?.chatChannelId) return
+    if (!pubkey) return
 
     const formattedMessage = data.message.trim()
     if (!showZapChat && formattedMessage === '') return
@@ -161,7 +165,8 @@ export const Chat = ({
 
         const zapRequestArgs = {
           profile: channelProfile.pubkey,
-          event: channelUser.chatChannelId,
+          // TODO:
+          // event: channelUser.chatChannelId,
           amount: amountMilliSats,
           comment: data.message,
           relays: relays,
@@ -247,7 +252,7 @@ export const Chat = ({
 
   const renderNote = (note: NostrEvent) => {
     switch (note.kind) {
-      case 42:
+      case 1311:
         return <ChatMessage note={note} />
       case 9735:
         return <ZapChatMessage note={note} />
@@ -263,51 +268,45 @@ export const Chat = ({
       <div className="hidden justify-center border-b border-solid border-gray-500 sm:flex">
         <p className="py-2 px-4 font-normal uppercase text-white">chat</p>
       </div>
-      {channelUser?.chatChannelId ? (
-        <div className="relative h-full">
-          <Virtuoso
-            // logLevel={LogLevel.DEBUG}
-            data={notes}
-            followOutput
-            // followOutput={'smooth'}
-            ref={virtuosoRef}
-            className={'max-h-[calc(100vh-12.5rem)]'}
-            // not sure on these pixel calcs, but 1000px bottom seems to have *improved*
-            // the scrollToBottom issue as recommended by virtuoso guy.
-            increaseViewportBy={{
-              top: 200,
-              bottom: 2000,
-            }}
-            atBottomStateChange={(bottom) => {
-              setAtBottom(bottom)
-            }}
-            itemContent={(index, note) => {
-              return renderNote(note)
-            }}
-          />
-          {zapInvoice && showZapModule && (
-            <div className="absolute bottom-0 z-50 hidden max-h-[calc(100vh-12.5rem)] w-full overflow-x-hidden px-2 pt-2 sm:block">
-              <ZapInvoiceModule invoice={zapInvoice} type="chat" close={closeZap} />
-            </div>
-          )}
-          {channelUser?.chatChannelId && showBottomButton && (
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2">
-              <ScrollToButtomButton
-                onClick={() => virtuosoRef.current?.scrollToIndex({ index: notes.length - 1, behavior: 'auto' })}
-              />
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="flex h-full w-full items-center justify-center text-center">
-          User has not set a chat channel!
-        </div>
-      )}
+      <div className="relative h-full">
+        <Virtuoso
+          // logLevel={LogLevel.DEBUG}
+          data={notes}
+          followOutput
+          // followOutput={'smooth'}
+          ref={virtuosoRef}
+          className={'max-h-[calc(100vh-12.5rem)]'}
+          // not sure on these pixel calcs, but 1000px bottom seems to have *improved*
+          // the scrollToBottom issue as recommended by virtuoso guy.
+          increaseViewportBy={{
+            top: 200,
+            bottom: 2000,
+          }}
+          atBottomStateChange={(bottom) => {
+            setAtBottom(bottom)
+          }}
+          itemContent={(index, note) => {
+            return renderNote(note)
+          }}
+        />
+        {zapInvoice && showZapModule && (
+          <div className="absolute bottom-0 z-50 hidden max-h-[calc(100vh-12.5rem)] w-full overflow-x-hidden px-2 pt-2 sm:block">
+            <ZapInvoiceModule invoice={zapInvoice} type="chat" close={closeZap} />
+          </div>
+        )}
+        {showBottomButton && (
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2">
+            <ScrollToButtomButton
+              onClick={() => virtuosoRef.current?.scrollToIndex({ index: notes.length - 1, behavior: 'auto' })}
+            />
+          </div>
+        )}
+      </div>
 
       <div className="flex w-full flex-row gap-1 py-3 px-3 sm:flex-col">
         <MessageInput
           handleSubmitMessage={handleSubmit(onSubmitMessage)}
-          disabled={!canSign || !channelUser?.chatChannelId}
+          disabled={!canSign}
           placeholder={`Send a ${showZapChat ? 'zap message' : 'message'}`}
           showZapChat={showZapChat}
           register={register}
@@ -316,7 +315,7 @@ export const Chat = ({
           <div className="hidden gap-x-2 sm:flex">
             <ZapChatButton
               channelProfile={channelProfile}
-              chatChannelId={channelUser?.chatChannelId}
+              // chatChannelId={channelUser?.chatChannelId}
               showZapChat={showZapChat}
               setShowZapChat={setShowZapChat}
               setFocus={setFocus}
@@ -346,7 +345,7 @@ export const Chat = ({
           {showZapChat ? (
             <Button
               onClick={handleSubmit(onSubmitMessage)}
-              disabled={!canSign || !channelUser?.chatChannelId || !isValid}
+              disabled={!canSign || !isValid}
               icon={
                 <LightningBolt
                   className={`${zapInvoice || zapLoading ? 'animate-pulse' : 'animate-flash'}`}
@@ -359,7 +358,7 @@ export const Chat = ({
               <span>chat</span>
             </Button>
           ) : (
-            <Button disabled={!canSign || !channelUser?.chatChannelId} onClick={handleSubmit(onSubmitMessage)}>
+            <Button disabled={!canSign} onClick={handleSubmit(onSubmitMessage)}>
               <span>chat</span>
             </Button>
           )}

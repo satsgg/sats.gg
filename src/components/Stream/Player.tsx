@@ -3,7 +3,8 @@ import { useRef } from 'react'
 // This imports the functional component from the previous sample.
 import VideoJS from './VideoJS'
 
-const Player = () => {
+const Player = ({ url }: { url?: string }) => {
+  console.log('url', url)
   const playerRef = useRef(null)
 
   const videoJsOptions = {
@@ -11,9 +12,11 @@ const Player = () => {
     controls: true,
     responsive: true,
     fill: true,
+    liveui: true,
     sources: [
       {
-        src: 'https://d2zihajmogu5jn.cloudfront.net/bipbop-advanced/bipbop_16x9_variant.m3u8',
+        // src: 'https://d2zihajmogu5jn.cloudfront.net/bipbop-advanced/bipbop_16x9_variant.m3u8',
+        src: url ?? '',
         type: 'application/x-mpegURL',
       },
     ],
