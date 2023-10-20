@@ -2,11 +2,9 @@ import { useProfile } from '~/hooks/useProfile'
 import { displayName, getStreamNaddr, getVerifiedChannelLink } from '~/utils/nostr'
 import ProfileImg from '~/components/ProfileImg'
 import Link from 'next/link'
-import { fmtViewerCnt } from '~/utils/util'
 import { Filter, nip19 } from 'nostr-tools'
 import { useStreams } from '~/hooks/useStreams'
 import { useEffect } from 'react'
-import { naddrEncode } from 'nostr-tools/lib/nip19'
 
 // i like bg-stone-600...
 const DummyStreamCard = () => {
@@ -93,8 +91,9 @@ export default function IndexPage() {
   const filters: Filter[] = [
     {
       kinds: [30311],
+      // nobody seems to be updating their 30311s every hour
       // since: Math.floor(Date.now() / 1000) - 3600,
-      // '#status': ['live'],
+      // '#status': ['live'], // this doesn't really work
     },
   ]
   const streams = useStreams('streams', filters)

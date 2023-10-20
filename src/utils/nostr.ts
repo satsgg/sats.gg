@@ -313,3 +313,77 @@ export const getStreamNaddr = (pubkey: string, identifier?: string, relays?: str
   }
   return nip19.naddrEncode(addressPointer)
 }
+
+export type Stream = {
+  pubkey: string
+  created_at: number
+  id: string
+  sig: string
+  // tags
+  d?: string // unique identifier
+  title?: string
+  summary?: string // description
+  image?: string
+  t?: string[] // hashtag
+  streaming?: string // rtmp url
+  recording?: string // used to place the edited video once the activity is over
+  starts?: string // unix timestamp
+  ends?: string // unix timestamp
+  status?: 'planned' | 'live' | 'ended'
+  current_participants?: number
+  total_participants?: number
+  p?: string[] // participants
+  relays?: string[]
+}
+
+export const parseStreamNote = (note: NostrEvent) => {
+  const stream: Stream = {
+    pubkey: note.pubkey,
+    created_at: note.created_at,
+    id: note.id,
+    sig: note.sig,
+  }
+  let d = note.tags.find(([t, v]) => t === 'd' && v)
+  if (d && d[1]) stream['d'] = d[1]
+
+  let title = note.tags.find(([t, v]) => t === 'title' && v)
+  if (title && title[1]) stream['title'] = title[1]
+
+  let summary = note.tags.find(([t, v]) => t === 'summary' && v)
+  if (summary && summary[1]) stream['summary'] = summary[1]
+
+  let image = note.tags.find(([t, v]) => t === 'image' && v)
+  if (image && image[1]) stream['image'] = image[1]
+
+  // TODO: may be multiple hashtags
+  let t = note.tags.find(([t, v]) => t === 't' && v)
+  if (t && t[1]) stream['t'] = [t[1]]
+
+  let streaming = note.tags.find(([t, v]) => t === 'streaming' && v)
+  if (streaming && streaming[1]) stream['streaming'] = streaming[1]
+
+  let recording = note.tags.find(([t, v]) => t === 'recording' && v)
+  if (recording && recording[1]) stream['recording'] = recording[1]
+
+  let starts = note.tags.find(([t, v]) => t === 'starts' && v)
+  if (starts && starts[1]) stream['starts'] = starts[1]
+
+  let ends = note.tags.find(([t, v]) => t === 'ends' && v)
+  if (ends && ends[1]) stream['ends'] = ends[1]
+
+  let status = note.tags.find(([t, v]) => t === 'status' && v)
+  if (status && status[1]) stream['status'] = status[1] as 'planned' | 'live' | 'ended'
+
+  // TODO: Number
+  let cp = note.tags.find(([t, v]) => t === 'cp' && v)
+  if (cp && cp[1]) stream['current_participants'] = cp[1]
+
+  let tp = note.tags.find(([t, v]) => t === 'tp' && v)
+  if (tp && tp[1]) stream['total_participants'] = tp[1]
+
+  // TODO: Multiple
+  let p = note.tags.find(([t, v]) => t === 'p' && v)
+  if (p && p[1]) stream['p'] = [p[1]]
+
+  return stream
+}

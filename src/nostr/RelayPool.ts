@@ -80,8 +80,8 @@ export default class RelayPool {
       console.error(`failed to connect to ${relay.url}`)
     })
 
-    relay.on('notice', () => {
-      console.debug(relay.url, ' notice')
+    relay.on('notice', (msg) => {
+      console.debug(relay.url, ' notice', msg)
     })
   }
 
