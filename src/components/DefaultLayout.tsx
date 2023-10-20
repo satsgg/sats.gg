@@ -35,6 +35,7 @@ export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
       nostrClient.connect()
     }, 1000 * 60 * 5) // reconnect every 5 minutes
     return () => {
+      nostrClient.disconnect()
       clearInterval(timer)
     }
   }, [])

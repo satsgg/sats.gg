@@ -45,6 +45,10 @@ export default class RelayPool {
 
   connectToRelay(url: string) {
     const relay = this.relays.get(url)
+    if (this.connectedRelays.has(url)) {
+      console.debug(url, ' is already connected')
+      return
+    }
     if (!relay) {
       console.warn("Relay doesn't exist")
       return
@@ -83,6 +87,21 @@ export default class RelayPool {
     relay.on('notice', (msg) => {
       console.debug(relay.url, ' notice', msg)
     })
+  }
+
+  // TODO: two ws connections are still opened up in strict mode..
+  disconnectFromRelay(url: string) {
+    const relay = this.relays.get(url)
+    if (!relay) {
+      console.warn("Relay doesn't exist")
+      return
+    }
+
+    relay.close()
+    this.connectedRelays.delete(relay.url)
+    this.connectedRelays = new Set(this.connectedRelays)
+    this.listeners.forEach((listener) => listener(this.connectedRelays))
+    this.relays.delete(url)
   }
 
   addSubscription(id: string, filters: Filter[], eventCb: (event: Event) => void) {

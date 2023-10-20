@@ -32,15 +32,15 @@ export const useStreams = (reverse = false, limit: number = 500) => {
   }
 
   useEffect(() => {
-    if (id && filter.length > 0) {
+    if (filter.length > 0) {
       nostrClient.subscribe('streams', filter, onEventCallback)
 
       return () => {
         setStreams([])
-        nostrClient.unsubscribe(id)
+        nostrClient.unsubscribe('streams')
       }
     }
-  }, [id])
+  }, [])
 
   const uniqEvents = streams.length > 0 ? uniqBy(streams, 'id') : []
   if (reverse) return uniqEvents.sort((b, a) => a.created_at - b.created_at)

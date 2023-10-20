@@ -45,16 +45,30 @@ class NostrClient {
   //    * client saved in top level NostrStore
   //    * initiated after user settings slice
 
-  async connect() {
+  connect() {
     const relays = Settings.getState().relays
     console.debug('NostrClient.connect relays: ', relays)
     relays.forEach((relay) => {
+      console.log('connect', relay)
       this.relayPool.connectToRelay(relay)
+    })
+  }
+
+  disconnect() {
+    const relays = Settings.getState().relays
+    console.debug('disconnect', relays)
+    relays.forEach((relay) => {
+      console.log('connect', relay)
+      this.relayPool.disconnectFromRelay(relay)
     })
   }
 
   connectToRelay(url: string) {
     this.relayPool.connectToRelay(url)
+  }
+
+  disconnectFromRelay(url: string) {
+    this.relayPool.disconnectFromRelay(url)
   }
 
   addRelay(url: string) {
