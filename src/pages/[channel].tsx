@@ -11,7 +11,7 @@ import { useProfile } from '~/hooks/useProfile'
 import { useEffect, useState } from 'react'
 import ZapInvoiceModule from '~/components/ZapInvoiceModule'
 import useMediaQuery from '~/hooks/useMediaQuery'
-import Player from '~/components/Stream/Player'
+import VideoPlayer from '~/components/Stream/Player'
 import { useStream } from '~/hooks/useStream'
 
 const getChannelPubkey = (channel: string, isReady: boolean): nip19.AddressPointer | string | null => {
@@ -127,7 +127,7 @@ export default function Channel() {
           id="streamWrapper"
           className="relative aspect-video max-h-[calc(100vh-9rem)] sm:border-b sm:border-solid sm:border-gray-500"
         >
-          {stream?.streaming ? <Player url={stream?.streaming} /> : <StreamSkeleton />}
+          {stream?.streaming ? <VideoPlayer url={stream?.streaming} /> : <StreamSkeleton />}
 
           {zapInvoice && showZapModule && (
             <div className="absolute right-0 bottom-0 z-[101] flex max-h-full w-80 max-w-[66%] shrink overflow-y-scroll">

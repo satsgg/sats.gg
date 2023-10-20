@@ -2173,6 +2173,11 @@
   resolved "https://registry.yarnpkg.com/@types/tough-cookie/-/tough-cookie-4.0.2.tgz#6286b4c7228d58ab7866d19716f3696e03a09397"
   integrity sha512-Q5vtl1W5ue16D+nIaW8JWebSSraJVlK+EthKn7e7UcD4KWsaSJ8BqGPXNaPghgtcn/fhvrN17Tv8ksUsQpiplw==
 
+"@types/video.js@^7.3.55":
+  version "7.3.55"
+  resolved "https://registry.yarnpkg.com/@types/video.js/-/video.js-7.3.55.tgz#4cfd017347f16f59748906ff836c82c75995b729"
+  integrity sha512-uMHaGOM3D6KBFedNUXpGsv6e5R0FSZAk9B4KSxwFV7FN6w/XSfc5JSyvQ4zR6vvcDEV9ofyMpKfqybDvCluknQ==
+
 "@types/ws@8.5.3":
   version "8.5.3"
   resolved "https://registry.yarnpkg.com/@types/ws/-/ws-8.5.3.tgz#7d25a1ffbecd3c4f2d35068d0b283c037003274d"

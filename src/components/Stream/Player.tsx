@@ -2,9 +2,11 @@ import { useRef } from 'react'
 
 // This imports the functional component from the previous sample.
 import VideoJS from './VideoJS'
+import videojs from 'video.js'
+import type Player from 'video.js/dist/types/player'
 
-const Player = ({ url }: { url?: string }) => {
-  const playerRef = useRef(null)
+const VideoPlayer = ({ url }: { url?: string }) => {
+  const playerRef = useRef<Player | null>(null)
 
   const videoJsOptions = {
     autoplay: true,
@@ -21,7 +23,7 @@ const Player = ({ url }: { url?: string }) => {
     ],
   }
 
-  const handlePlayerReady = (player) => {
+  const handlePlayerReady = (player: Player) => {
     playerRef.current = player
 
     // You can handle player events here, for example:
@@ -37,4 +39,4 @@ const Player = ({ url }: { url?: string }) => {
   return <VideoJS options={videoJsOptions} onReady={handlePlayerReady} />
 }
 
-export default Player
+export default VideoPlayer

@@ -19,15 +19,9 @@
     "incremental": true,
     "baseUrl": ".",
     "paths": {
-      "~/*": ["src/*"],
+      "~/*": ["src/*"]
     }
   },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    "./*.js",
-    "./src/**/*.js"
-  ],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "./*.js", "./src/**/*.js", "jest.config.ts"],
   "exclude": ["node_modules"]
 }

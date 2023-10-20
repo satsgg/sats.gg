@@ -84,6 +84,7 @@
     "@types/node": "^18.11.6",
     "@types/react": "^18.0.9",
     "@types/secp256k1": "^4.0.3",
+    "@types/video.js": "^7.3.55",
     "@typescript-eslint/eslint-plugin": "^4.30.0",
     "@typescript-eslint/parser": "^5.14.0",
     "autoprefixer": "^10.4.12",
