@@ -95,7 +95,6 @@ export default function Channel() {
   console.log('channelProfile', channelProfile)
 
   const stream = useStream(channelPubkey)
-  console.log('stream', stream)
 
   const [zapInvoice, setZapInvoice] = useState<string | null>(null)
   const [showZapModule, setShowZapModule] = useState(false)
@@ -153,7 +152,12 @@ export default function Channel() {
       {/* TODO: Better useLoading && !channelUser skeleton handling */}
       <div className="flex h-full w-full sm:w-80 md:shrink-0">
         {stream?.d ? (
-          <Chat channelPubkey={channelPubkey} channelIdentifier={stream?.d} channelProfile={channelProfile} />
+          <Chat
+            channelPubkey={channelPubkey}
+            streamId={stream.id}
+            channelIdentifier={stream.d}
+            channelProfile={channelProfile}
+          />
         ) : (
           <ChatSkeleton />
         )}

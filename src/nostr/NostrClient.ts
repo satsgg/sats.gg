@@ -123,8 +123,8 @@ class NostrClient {
     }, 500)
   }
 
-  publish(event: NostrEvent) {
-    this.relayPool.publish(event)
+  async publish(event: NostrEvent) {
+    await this.relayPool.publish(event)
   }
 }
 

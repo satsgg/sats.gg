@@ -31,11 +31,11 @@ export const uniqBy = <T>(arr: T[], key: keyof T): T[] => {
 
 // TODO: Make all of these functions better and more consistent
 
-export const createChatEvent = (content: string, channelId: string): EventTemplate => {
+export const createChatEvent = (content: string, pubkey: string, d: string): EventTemplate => {
   const event: EventTemplate = {
-    kind: 42,
+    kind: 1311,
     created_at: Math.floor(Date.now() / 1000),
-    tags: [['e', channelId]],
+    tags: [['a', `30311:${pubkey}:${d}`]],
     content: content,
   }
   return event
@@ -182,9 +182,15 @@ type ZapRequestArgs = {
   relays: string[]
 }
 
-export async function createZapEvent(zapRequestArgs: ZapRequestArgs, privKey: string | null = null) {
+export async function createZapEvent(
+  zapRequestArgs: ZapRequestArgs,
+  channelPubkey: string,
+  channelIdentifier: string,
+  privKey: string | null = null,
+) {
   try {
     const zapRequestEvent = nip57.makeZapRequest(zapRequestArgs)
+    zapRequestEvent.tags.push(['a', `30311:${channelPubkey}:${channelIdentifier}`])
     let signedZapRequestEvent: NostrEvent | null = null
 
     if (privKey) {

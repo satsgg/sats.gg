@@ -7,7 +7,6 @@ import useCanSign from '~/hooks/useCanSign'
 
 const ZapChatButton = ({
   channelProfile,
-  chatChannelId,
   showZapChat,
   setShowZapChat,
   setFocus,
@@ -16,7 +15,6 @@ const ZapChatButton = ({
   setShowZapModule,
 }: {
   channelProfile: UserMetadataStore | undefined
-  chatChannelId: string | undefined | null
   showZapChat: boolean
   setShowZapChat: Dispatch<SetStateAction<boolean>>
   setFocus: Function
@@ -26,7 +24,7 @@ const ZapChatButton = ({
 }) => {
   const canSign = useCanSign()
   const disabled = () => {
-    return !chatChannelId || !channelProfile || (!channelProfile.lud06 && !channelProfile.lud16) || !canSign
+    return !channelProfile || (!channelProfile.lud06 && !channelProfile.lud16) || !canSign
   }
 
   const buttonState = () => {

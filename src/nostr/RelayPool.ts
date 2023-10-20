@@ -125,18 +125,28 @@ export default class RelayPool {
     return () => this.listeners.delete(listener)
   }
 
-  publish(event: Event) {
+  async publish(event: Event) {
+    let ps: Promise<unknown>[] = []
     for (const cr of this.connectedRelays) {
       const r = this.relays.get(cr)
       if (!r) continue
-      let pub = r.publish(event)
 
-      pub.on('ok', () => {
-        console.log(`${r.url} has accepted our event`)
-      })
-      pub.on('failed', (reason: string) => {
-        console.log(`failed to publish to ${r.url}: ${reason}`)
-      })
+      const publishWithTimeout = (millis: number) => {
+        const timeout = new Promise((resolve, reject) => {
+          setTimeout(() => reject(`${r.url} timed out after ${millis} ms`), millis)
+        })
+
+        const publish = new Promise((resolve, reject) => {
+          r.publish(event)
+            .then(() => resolve(`${r.url} published`))
+            .catch((error) => reject(`${r.url} ${error}`))
+        })
+
+        return Promise.race([publish, timeout])
+      }
+
+      ps.push(publishWithTimeout(1000))
     }
+    await Promise.allSettled(ps).then((results) => console.debug('publish results', results))
   }
 }

@@ -88,15 +88,7 @@ const StreamCard = ({
 }
 
 export default function IndexPage() {
-  const filters: Filter[] = [
-    {
-      kinds: [30311],
-      // nobody seems to be updating their 30311s every hour
-      // since: Math.floor(Date.now() / 1000) - 3600,
-      // '#status': ['live'], // this doesn't really work
-    },
-  ]
-  const streams = useStreams('streams', filters)
+  const streams = useStreams()
 
   useEffect(() => {
     console.log('streams', streams)

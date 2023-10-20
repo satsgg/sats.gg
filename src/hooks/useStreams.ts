@@ -3,8 +3,17 @@ import { Filter, Event } from 'nostr-tools'
 import { nostrClient } from '~/nostr/NostrClient'
 import { Stream, parseStreamNote, uniqBy } from '~/utils/nostr'
 
-export const useStreams = (id: string, filter: Filter[], reverse = false, limit: number = 500) => {
+export const useStreams = (reverse = false, limit: number = 500) => {
   const [streams, setStreams] = useState<Stream[]>([])
+
+  const filter: Filter[] = [
+    {
+      kinds: [30311],
+      // nobody seems to be updating their 30311s every hour
+      // since: Math.floor(Date.now() / 1000) - 3600,
+      // '#status': ['live'], // this doesn't really work
+    },
+  ]
 
   const onEventCallback = (event: Event) => {
     setStreams((prev) => {
@@ -24,7 +33,7 @@ export const useStreams = (id: string, filter: Filter[], reverse = false, limit:
 
   useEffect(() => {
     if (id && filter.length > 0) {
-      nostrClient.subscribe(id, filter, onEventCallback)
+      nostrClient.subscribe('streams', filter, onEventCallback)
 
       return () => {
         setStreams([])

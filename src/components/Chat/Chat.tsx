@@ -34,11 +34,13 @@ type GetUserOutput = inferProcedureOutput<AppRouter['user']['getUser']>
 
 export const Chat = ({
   channelPubkey,
+  streamId,
   channelIdentifier,
   channelProfile,
 }: {
   channelPubkey: string
-  channelIdentifier: string | undefined
+  streamId: string
+  channelIdentifier: string
   channelProfile: UserMetadataStore | undefined
 }) => {
   const [user, pubkey, view, privkey] = useAuthStore((state) => [state.user, state.pubkey, state.view, state.privkey])
@@ -140,6 +142,7 @@ export const Chat = ({
     if (!onLoadScrollToBottom) return
     virtuosoRef.current?.scrollToIndex({ index: notes.length - 1, behavior: 'auto' })
     setOnLoadScrollToBottom(false)
+    console.log('notes', notes)
   }, [notes])
 
   useEffect(() => {
@@ -164,16 +167,20 @@ export const Chat = ({
         const amountMilliSats = data.amount * 1000
 
         const zapRequestArgs = {
-          profile: channelProfile.pubkey,
-          // TODO:
-          // event: channelUser.chatChannelId,
+          profile: channelPubkey,
+          event: streamId,
           amount: amountMilliSats,
           comment: data.message,
           relays: relays,
         }
 
         const defaultPrivKey = view === 'default' ? privkey : null
-        const signedZapRequestEvent = await createZapEvent(zapRequestArgs, defaultPrivKey)
+        const signedZapRequestEvent = await createZapEvent(
+          zapRequestArgs,
+          channelPubkey,
+          channelIdentifier,
+          defaultPrivKey,
+        )
         if (!signedZapRequestEvent) throw new Error('Failed to sign zap')
 
         const invoice = await requestZapInvoice(signedZapRequestEvent, amountMilliSats, zapInfo.callback, zapInfo.lnurl)
@@ -201,7 +208,7 @@ export const Chat = ({
         })
       }
     } else {
-      const event: EventTemplate = createChatEvent(formattedMessage, channelUser.chatChannelId)
+      const event: EventTemplate = createChatEvent(formattedMessage, channelPubkey, channelIdentifier)
       // error handling here? What if none of the relays accepted our message...
       try {
         const signedEvent: NostrEvent | null =

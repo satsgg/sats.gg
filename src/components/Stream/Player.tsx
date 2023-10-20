@@ -4,7 +4,6 @@ import { useRef } from 'react'
 import VideoJS from './VideoJS'
 
 const Player = ({ url }: { url?: string }) => {
-  console.log('url', url)
   const playerRef = useRef(null)
 
   const videoJsOptions = {
