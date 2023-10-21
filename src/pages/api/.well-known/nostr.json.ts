@@ -7,6 +7,9 @@ const verifiedDB = {
   satbox: {
     pubkey: '8756779be69455fee07957ae409a7485914b06a747ff0b105721dcf1538697e1',
   },
+  nostrplays: {
+    pubkey: 'npub1p0keym0jvzyudp5kyx4l3vnctrwskc0jc0z4d6z0m8qg7r6fjdzqmyvmgv',
+  },
 }
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
