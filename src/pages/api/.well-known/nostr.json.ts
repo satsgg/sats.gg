@@ -8,7 +8,7 @@ const verifiedDB = {
     pubkey: '8756779be69455fee07957ae409a7485914b06a747ff0b105721dcf1538697e1',
   },
   nostrplays: {
-    pubkey: 'npub1p0keym0jvzyudp5kyx4l3vnctrwskc0jc0z4d6z0m8qg7r6fjdzqmyvmgv',
+    pubkey: '0bed926df26089c6869621abf8b27858dd0b61f2c3c556e84fd9c08f0f499344',
   },
 }
 

@@ -31,6 +31,9 @@ const getChannelPubkey = (channel: string, isReady: boolean): nip19.AddressPoint
   if (channel === 'satbox') {
     return '8756779be69455fee07957ae409a7485914b06a747ff0b105721dcf1538697e1'
   }
+  if (channel === 'pokemon') {
+    return '0bed926df26089c6869621abf8b27858dd0b61f2c3c556e84fd9c08f0f499344'
+  }
 
   if (channel.startsWith('npub1')) {
     try {

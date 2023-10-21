@@ -131,6 +131,8 @@ export const displayName = (pubkey: string, profile: UserMetadata | undefined) =
     return profile.name
   } else if (profile?.display_name) {
     return profile.display_name
+  } else if (profile?.nip05) {
+    return profile.nip05.substring(0, profile.nip05.indexOf('@'))
   } else {
     return nip19.npubEncode(pubkey)
   }
