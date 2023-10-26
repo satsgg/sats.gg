@@ -16,7 +16,6 @@ type Actions = {
 }
 
 export const DEFAULT_RELAYS = [
-  'wss://brb.io',
   'wss://relay.damus.io',
   'wss://nostr.fmt.wiz.biz',
   'wss://nostr.oxtr.dev',
