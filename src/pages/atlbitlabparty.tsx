@@ -37,9 +37,6 @@ export default function Party() {
   })
 
   const onSubmit = async (data: { video: string; amount: number }) => {
-    // parse video
-    console.log('submitted video', data.video)
-    console.log('submitted amount', data.amount)
     const videoId = parseVideoId(data.video)
     if (!videoId) {
       setError('video', { message: 'Invalid YouTube video URL!' })
@@ -48,16 +45,11 @@ export default function Party() {
     await createZapInvoice(data.video, data.amount)
   }
 
-  // TODO: Form for video, amount
-  // const videoId = 'https://youtube.com/watch?v=xzpndHtdl9A'
-  // const amount = 10
-
-  // TODO: Pass youtube url param and amount
   const createZapInvoice = async (video: string, amount: number) => {
     const amountMilliSats = amount * 1000
     const zapRequestArgs = {
       profile: streamPubkey,
-      event: null, // event and comment will be added in chat zap
+      event: null, // for now not hooking into
       amount: amountMilliSats,
       comment: video,
       relays: DEFAULT_RELAYS,
@@ -77,7 +69,6 @@ export default function Party() {
       const zapRequestHttp = `${zapInfo.callback}?amount=${amountMilliSats}&nostr=${encodedZapRequest}&lnurl=${zapInfo.lnurl}`
       console.debug('zapRequestHttp', zapRequestHttp)
 
-      // separate function for fetching invoice? store invoice?
       const resObj = await fetch(
         `${zapInfo.callback}?amount=${zapRequestArgs.amount}&nostr=${encodedZapRequest}&lnurl=${zapInfo.lnurl}`,
       ).then((res) => res.json())
