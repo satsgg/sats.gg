@@ -31,7 +31,7 @@ export default function Party() {
     mode: 'onSubmit',
     schema: z.object({ video: z.string(), amount: z.number().min(1) }),
     defaultValues: {
-      video: 'https://youtube.com/watch?v=xzpndHtdl9A',
+      video: '',
       amount: 10,
     },
   })
