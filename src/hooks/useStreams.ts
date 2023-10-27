@@ -10,7 +10,7 @@ export const useStreams = (reverse = false, limit: number = 500) => {
     {
       kinds: [30311],
       // nobody seems to be updating their 30311s every hour
-      // since: Math.floor(Date.now() / 1000) - 3600,
+      since: Math.floor(Date.now() / 1000) - 3600,
       // '#status': ['live'], // this doesn't really work
     },
   ]

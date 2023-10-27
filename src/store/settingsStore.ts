@@ -18,9 +18,7 @@ type Actions = {
 export const DEFAULT_RELAYS = [
   'wss://relay.damus.io',
   'wss://nostr.fmt.wiz.biz',
-  'wss://nostr.oxtr.dev',
   'wss://arc1.arcadelabs.co',
-  'wss://relay.nostr.ch',
   'wss://eden.nostr.land',
   'wss://nos.lol',
   'wss://relay.snort.social',
