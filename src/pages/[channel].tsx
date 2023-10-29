@@ -92,7 +92,6 @@ export default function Channel() {
   }
 
   const channelPubkey = typeof channelInfo === 'string' ? channelInfo : channelInfo.pubkey
-  console.log('channelPubkey', channelPubkey)
 
   const { profile: channelProfile, isLoading: channelProfileIsLoading } = useProfile(channelPubkey)
   console.log('channelProfile', channelProfile)
@@ -145,6 +144,7 @@ export default function Channel() {
           // streamTitle={channelUser?.streamTitle}
           streamTitle={stream?.title}
           streamStatus={stream?.status}
+          participants={stream?.p}
           zapInvoice={zapInvoice}
           setZapInvoice={setZapInvoice}
           setShowZapModule={setShowZapModule}

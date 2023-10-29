@@ -15,6 +15,8 @@ export const useStreams = (reverse = false, limit: number = 500) => {
     },
   ]
 
+  // TODO: Need to account for an "ended" live event...
+  // this is only considering the latest "live" events
   const onEventCallback = (event: Event) => {
     setStreams((prev) => {
       // TODO: this whole thing sucks
