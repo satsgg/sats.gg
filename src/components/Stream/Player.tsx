@@ -1,11 +1,11 @@
-import { useRef } from 'react'
+import { useRef, memo } from 'react'
 
 // This imports the functional component from the previous sample.
 import VideoJS from './VideoJS'
 import videojs from 'video.js'
 import type Player from 'video.js/dist/types/player'
 
-const VideoPlayer = ({ url }: { url?: string }) => {
+const VideoPlayer = ({ url }: { url: string }) => {
   const playerRef = useRef<Player | null>(null)
 
   const videoJsOptions = {
@@ -23,6 +23,8 @@ const VideoPlayer = ({ url }: { url?: string }) => {
     ],
   }
 
+  console.debug('player rendered', url)
+
   const handlePlayerReady = (player: Player) => {
     playerRef.current = player
 
@@ -39,4 +41,4 @@ const VideoPlayer = ({ url }: { url?: string }) => {
   return <VideoJS options={videoJsOptions} onReady={handlePlayerReady} />
 }
 
-export default VideoPlayer
+export default memo(VideoPlayer)
