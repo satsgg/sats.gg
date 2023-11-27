@@ -26,6 +26,38 @@ export default class RelayPool {
       subs: new Map(),
     }
     this.relays.set(url, relay)
+
+    relay.on('connect', () => {
+      console.debug(relay.url, ' connected! status: ', relay.status)
+      this.connectedRelays = new Set(this.connectedRelays).add(relay.url)
+
+      this.listeners.forEach((listener) => listener(this.connectedRelays))
+
+      for (const si of this.subscriptions.values()) {
+        const sub = relay.sub(si.filters)
+        // console.debug('on connect subscribing to : ' + si.id)
+        sub.on('event', si.callback)
+        relay.subs.set(si.id, sub)
+      }
+    })
+
+    relay.on('disconnect', () => {
+      console.warn(`🚪 nostr (${relay.url}): Connection closed.`)
+      console.debug('connected relays before delete', this.connectedRelays)
+      this.connectedRelays.delete(relay.url)
+      console.debug('connected relays after delete', this.connectedRelays)
+      this.connectedRelays = new Set(this.connectedRelays)
+      console.debug('connected relays after delete in set', this.connectedRelays)
+      this.listeners.forEach((listener) => listener(this.connectedRelays))
+    })
+
+    relay.on('error', () => {
+      console.error(`failed to connect to ${relay.url}`)
+    })
+
+    relay.on('notice', (msg) => {
+      console.debug(relay.url, ' notice', msg)
+    })
   }
 
   removeRelay(url: string) {
@@ -54,39 +86,11 @@ export default class RelayPool {
       return
     }
     try {
+      console.debug('Connect to', relay)
       relay.connect()
     } catch (e: any) {
       console.error(relay.url, ' error connecting')
     }
-
-    relay.on('connect', () => {
-      console.debug(relay.url, ' connected! status: ', relay.status)
-      this.connectedRelays = new Set(this.connectedRelays).add(relay.url)
-
-      this.listeners.forEach((listener) => listener(this.connectedRelays))
-
-      for (const si of this.subscriptions.values()) {
-        const sub = relay.sub(si.filters)
-        console.debug('on connect subscribing to : ' + si.id)
-        sub.on('event', si.callback)
-        relay.subs.set(si.id, sub)
-      }
-    })
-
-    relay.on('disconnect', () => {
-      console.warn(`🚪 nostr (${relay.url}): Connection closed.`)
-      this.connectedRelays.delete(relay.url)
-      this.connectedRelays = new Set(this.connectedRelays)
-      this.listeners.forEach((listener) => listener(this.connectedRelays))
-    })
-
-    relay.on('error', () => {
-      console.error(`failed to connect to ${relay.url}`)
-    })
-
-    relay.on('notice', (msg) => {
-      console.debug(relay.url, ' notice', msg)
-    })
   }
 
   // TODO: two ws connections are still opened up in strict mode..

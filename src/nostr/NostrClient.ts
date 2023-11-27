@@ -49,7 +49,6 @@ class NostrClient {
     const relays = Settings.getState().relays
     console.debug('NostrClient.connect relays: ', relays)
     relays.forEach((relay) => {
-      console.log('connect', relay)
       this.relayPool.connectToRelay(relay)
     })
   }
