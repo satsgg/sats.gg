@@ -3,28 +3,20 @@ import { useProfile } from '~/hooks/useProfile'
 import LiveSVG from '~/svgs/live.svg'
 import { nip19 } from 'nostr-tools'
 import ProfileImg from './ProfileImg'
-import { StreamStatus } from '@prisma/client'
-import { displayName, getVerifiedChannelLink } from '~/utils/nostr'
-import { fmtViewerCnt } from '~/utils/util'
-import { trpc } from '~/utils/trpc'
+import { Stream, displayName, getVerifiedChannelLink } from '~/utils/nostr'
 
 export const FollowedChannelSingle = ({
   pubkey,
+  stream,
   userCollapse,
   autoCollapse,
-  status,
-  viewerCount,
 }: {
   pubkey: string
+  stream: Stream | null
   userCollapse: boolean
   autoCollapse: boolean
-  status: StreamStatus
-  viewerCount: number
 }) => {
   const { profile, isLoading } = useProfile(pubkey)
-
-  // update their live viewer count
-  trpc.user.getUser.useQuery({ pubkey: pubkey }, { refetchInterval: 15000, enabled: status === StreamStatus.ACTIVE })
 
   return (
     <Link href={getVerifiedChannelLink(profile) || `/${nip19.npubEncode(pubkey)}`}>
@@ -40,16 +32,13 @@ export const FollowedChannelSingle = ({
 
           <div className={`${userCollapse || autoCollapse ? 'hidden' : 'flex flex-col'} min-w-0`}>
             <p className="truncate text-sm font-semibold text-white">{!isLoading && displayName(pubkey, profile)}</p>
-            {/* TODO: Live stream category */}
+            {/* TODO: tags */}
           </div>
         </div>
 
         <div className={`${userCollapse || autoCollapse ? 'hidden' : 'align-right'}`}>
-          {status === StreamStatus.ACTIVE ? (
-            <span className="inline-flex gap-1">
-              <LiveSVG width={20} height={20} className="fill-red-600" />
-              <span className="text-sm text-gray-100">{fmtViewerCnt(viewerCount, true)}</span>
-            </span>
+          {stream ? (
+            <LiveSVG width={20} height={20} className="fill-red-600" />
           ) : (
             <p className="text-sm font-light text-white">Offline</p>
           )}

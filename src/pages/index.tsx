@@ -88,7 +88,7 @@ const StreamCard = ({
 }
 
 export default function IndexPage() {
-  const streams = useStreams()
+  const streams = useStreams('streams-browse')
 
   useEffect(() => {
     console.log('streams', streams)

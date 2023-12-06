@@ -4,8 +4,8 @@ import useAuthStore from '~/hooks/useAuthStore'
 import { FollowedChannelSingle } from './FollowedChannelSingle'
 import OpenRightSVG from '~/svgs/open-right.svg'
 import OpenLeftSVG from '~/svgs/open-left.svg'
-import { trpc } from '~/utils/trpc'
-import { StreamStatus } from '@prisma/client'
+import { useStreams } from '~/hooks/useStreams'
+import { Stream } from '~/utils/nostr'
 
 export const FollowedChannelList = ({
   autoCollapse,
@@ -18,31 +18,24 @@ export const FollowedChannelList = ({
 }) => {
   const pubkey = useAuthStore((state) => state.pubkey)
   const follows = useFollows(pubkey)
+  const streams = useStreams('streams-followed', follows, false, follows.length)
 
-  const { data: streams, isLoading, isError } = trpc.live.getLiveStreams.useQuery(undefined, { refetchInterval: 15000 })
-
-  // short term way to handle which pubkeys are live...
-  // will need to sort again once view count is added...
-  // live status should eventually be based off a nostr note
-  // TODO: Run less often
   const liveFollows = () => {
-    let liveFollows: { pubkey: string; streamStatus: StreamStatus; viewerCount: number }[] = []
+    let liveFollows: { pubkey: string; stream: Stream | null }[] = []
     let allFollows = follows.slice()
-    if (allFollows.length > 0 && streams && streams.length > 0) {
+    if (allFollows.length > 0 && streams.length > 0) {
       for (let stream of streams) {
-        let index = allFollows.indexOf(stream.publicKey)
+        const index = allFollows.indexOf(stream.pubkey)
         if (index >= 0) {
           liveFollows.push({
-            pubkey: stream.publicKey,
-            streamStatus: StreamStatus.ACTIVE,
-            viewerCount: stream.viewerCount,
+            pubkey: stream.pubkey,
+            stream: stream,
           })
-          allFollows.splice(index, 1)
         }
+        allFollows.splice(index, 1)
       }
     }
-    liveFollows.sort((a, b) => b.viewerCount - a.viewerCount)
-    return liveFollows.concat(allFollows.map((f) => ({ pubkey: f, streamStatus: StreamStatus.IDLE, viewerCount: 0 })))
+    return liveFollows.concat(allFollows.map((f) => ({ pubkey: f, stream: null })))
   }
 
   return (
@@ -74,10 +67,9 @@ export const FollowedChannelList = ({
             <FollowedChannelSingle
               key={index}
               pubkey={user.pubkey}
+              stream={user.stream}
               userCollapse={userCollapse}
               autoCollapse={autoCollapse}
-              status={user.streamStatus}
-              viewerCount={user.viewerCount}
             />
           )
         }}
