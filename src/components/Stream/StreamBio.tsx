@@ -74,7 +74,7 @@ export const StreamBio = ({
 
       <div id="about" className="hidden rounded bg-stone-800 p-12 sm:block">
         <p className="font-semi text-xl text-white">About {channelProfile?.name}</p>
-        <p className="font-semi whitespace-pre-line text-lg text-white">{channelProfile?.about}</p>
+        <p className="font-semi whitespace-pre-line break-words text-lg text-white">{channelProfile?.about}</p>
       </div>
 
       {/* <div className="hidden h-screen w-full border-4 border-cyan-500 sm:block" /> */}
