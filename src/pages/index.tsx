@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Filter, nip19 } from 'nostr-tools'
 import { useStreams } from '~/hooks/useStreams'
 import { useEffect } from 'react'
+import ThumbnailImg from '~/components/ThumbnailImg'
 
 // i like bg-stone-600...
 const DummyStreamCard = () => {
@@ -44,14 +45,9 @@ const StreamCard = ({
 
   return (
     <div className="flex flex-col gap-2">
-      {/* <Link href={getVerifiedChannelLink(profile) || `/${nip19.npubEncode(pubkey)}`} legacyBehavior={false}> */}
       <Link href={`/${getStreamNaddr(pubkey, identifier, relays)}`} legacyBehavior={false}>
         <div id="cardThumbnailWrapper" className="relative aspect-video">
-          {thumbnail ? (
-            <img className="h-full w-full" src={thumbnail} alt={`thumbnail of ${pubkey}`} />
-          ) : (
-            <div className="h-full w-full rounded bg-stone-800"></div>
-          )}
+          <ThumbnailImg pubkey={pubkey} thumbnail={thumbnail} />
           <div className="absolute top-0 m-2.5">
             <div className="rounded bg-red-600 px-1">
               <p className="text-sm font-semibold uppercase">live</p>
@@ -89,10 +85,6 @@ const StreamCard = ({
 
 export default function IndexPage() {
   const streams = useStreams('streams-browse')
-
-  useEffect(() => {
-    console.log('streams', streams)
-  }, [streams])
 
   return (
     <div className="flex w-full flex-col overflow-y-auto px-8 py-6">
