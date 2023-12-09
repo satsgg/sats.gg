@@ -60,3 +60,9 @@ export const fmtViewerCnt = (viewerCount: number, compact: boolean = false) => {
   //@ts-ignore
   return Intl.NumberFormat('en', notation).format(viewerCount)
 }
+
+export const fmtNumber = (number: number, compact: boolean = false) => {
+  let notation: Intl.NumberFormatOptions | undefined = undefined
+  if (compact) notation = { notation: 'compact', maximumSignificantDigits: 3 }
+  return Intl.NumberFormat('en', notation).format(number)
+}

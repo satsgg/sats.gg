@@ -14,8 +14,7 @@ const ChatUser = ({ pubkey }: { pubkey: string }) => {
 
   return (
     <a href={`https://nostr.com/p/${pubkey}`} target="_blank">
-      {/* <span className="text-sm text-orange-300">{fmtName(displayName(pubkey, profile).slice(0, 25))}</span> */}
-      <span className="text-sm text-orange-300">{displayName(pubkey, profile).slice(0, 25)}</span>
+      <span className="text-sm text-orange-300">{displayName(pubkey, profile).slice(0, 15)}</span>
     </a>
   )
 }

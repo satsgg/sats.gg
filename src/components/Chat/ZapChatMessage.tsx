@@ -2,12 +2,19 @@ import { Event as NostrEvent } from 'nostr-tools'
 import ChatUser from './ChatUser'
 import Message from './Message'
 import LightningBolt from '~/svgs/lightning-bolt.svg'
-import { parseZapRequest } from '~/utils/nostr'
+import { getZapAmountFromReceipt, parseZapRequest } from '~/utils/nostr'
+import { fmtNumber } from '~/utils/util'
 
-const ZapChatMessage = ({ note }: { note: NostrEvent }) => {
-  const zapRequest = parseZapRequest(note)
+const ZapChatMessage = ({ note }: { note: NostrEvent<9735> }) => {
+  const zapRequestTag = note.tags.find((t) => t[0] == 'description')
+  if (!zapRequestTag || !zapRequestTag[1]) return
 
-  if (!zapRequest) return null
+  const zapRequest: NostrEvent<9734> = JSON.parse(zapRequestTag[1])
+  const zap = parseZapRequest(zapRequest)
+  if (!zap) return
+
+  const amount = getZapAmountFromReceipt(note)
+  if (!amount) return
 
   return (
     <div className="break-words px-2 py-1">
@@ -19,7 +26,8 @@ const ZapChatMessage = ({ note }: { note: NostrEvent }) => {
           <ChatUser pubkey={zapRequest.pubkey} />
           <span className="text-sm text-white">
             {' '}
-            zapped {zapRequest.tags[1][1] / 1000} sats! <br />
+            zapped {fmtNumber(amount, true)} sats!
+            <br />
             <Message content={zapRequest.content} />
           </span>
         </p>

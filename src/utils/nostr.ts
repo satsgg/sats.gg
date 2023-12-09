@@ -288,20 +288,67 @@ export const validHexKey = (hexKey: string) => {
   return true
 }
 
-export const parseZapRequest = (note: NostrEvent): NostrEvent | null => {
-  const zapRequest = note.tags.find((t) => t[0] == 'description')
-  if (zapRequest && zapRequest[1]) {
-    try {
-      const requestJson = JSON.parse(zapRequest[1])
-      // TODO: ordering of tags not required and amount is optional
-      if (!requestJson.tags[1] && requestJson.tags[1] === 'amount') return null
-      return requestJson
-    } catch (e) {
-      console.error('Invalid zap request event')
+export const getZapAmountFromReceipt = (zapReceipt: NostrEvent<9735>) => {
+  const bolt11 = zapReceipt.tags.find((t) => t[0] == 'bolt11')
+  if (!bolt11 || !bolt11[1]) return null
+
+  const decoded = require('light-bolt11-decoder').decode(bolt11[1])
+  const index = decoded.sections.findIndex((s: any) => s.name === 'amount')
+
+  const amount = parseInt(decoded.sections[index].value) / 1000
+
+  return amount
+}
+
+export type ZapRequest = {
+  pubkey: string
+  created_at: number
+  id: string
+  sig: string
+  content: string
+  // tags
+  relays?: string[]
+  amount?: string
+  lnurl?: string
+  p: string
+  e?: string
+  a?: string
+}
+
+export const parseZapRequest = (zapRequest: NostrEvent<9734>): ZapRequest | null => {
+  try {
+    const pTag = zapRequest.tags.find(([t, v]) => t === 'p' && v)
+    if (!pTag || !pTag[1]) return null
+
+    let parsedZapRequest: ZapRequest = {
+      pubkey: zapRequest.pubkey,
+      created_at: zapRequest.created_at,
+      id: zapRequest.id,
+      sig: zapRequest.sig,
+      content: zapRequest.content,
+      p: pTag[1],
     }
-    // if (!requestJson.tags[1][1]) return null
-    // TODO: Better validation type for zap request
+
+    const relays = zapRequest.tags.find(([t, v]) => t === 'relays' && v)
+    if (relays && relays[1]) parsedZapRequest['relays'] = relays.splice(1)
+
+    const amount = zapRequest.tags.find(([t, v]) => t === 'amount' && v)
+    if (amount && amount[1]) parsedZapRequest['amount'] = amount[1]
+
+    const lnurl = zapRequest.tags.find(([t, v]) => t === 'lnurl' && v)
+    if (lnurl && lnurl[1]) parsedZapRequest['lnurl'] = lnurl[1]
+
+    const e = zapRequest.tags.find(([t, v]) => t === 'e' && v)
+    if (e && e[1]) parsedZapRequest['e'] = e[1]
+
+    const a = zapRequest.tags.find(([t, v]) => t === 'a' && v)
+    if (a && a[1]) parsedZapRequest['a'] = a[1]
+
+    return parsedZapRequest
+  } catch (e) {
+    console.error('Invalid zap request event')
   }
+
   return null
 }
 

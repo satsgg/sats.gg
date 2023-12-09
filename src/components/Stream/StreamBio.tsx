@@ -54,7 +54,7 @@ export const StreamBio = ({
                 {streamTitle}
               </span>
             )}
-            {participants && participants?.length !== 0 && <Participant pubkey={participants[0]} />}
+            {participants && participants?.length !== 0 && <Participant pubkey={participants[0]!} />}
           </div>
 
           <div className="flex flex-col gap-1">

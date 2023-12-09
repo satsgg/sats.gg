@@ -262,7 +262,8 @@ export const Chat = ({
       case 1311:
         return <ChatMessage note={note} />
       case 9735:
-        return <ZapChatMessage note={note} />
+        // TODO: Fix
+        return <ZapChatMessage note={note as NostrEvent<9735>} />
       default:
         return null
     }

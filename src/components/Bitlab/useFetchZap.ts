@@ -17,7 +17,7 @@ export default function useFetchZap(invoice: string | null, callback: () => void
       },
     ])
 
-    sub.on('event', (event: NostrEvent) => {
+    sub.on('event', (event: NostrEvent<9735>) => {
       const pk = event.tags.find((t) => t[0] == 'p')
       if (pk && pk[1] !== streamPubkey) return
 
@@ -26,8 +26,12 @@ export default function useFetchZap(invoice: string | null, callback: () => void
       const bolt11 = event.tags.find((t) => t[0] == 'bolt11')
       if (!bolt11 || bolt11[1] !== invoice) return
 
-      const zapRequest = parseZapRequest(event)
-      if (!zapRequest) return
+      const zapRequestTag = event.tags.find((t) => t[0] == 'description')
+      if (!zapRequestTag || !zapRequestTag[1]) return
+
+      const zapRequest: NostrEvent<9734> = JSON.parse(zapRequestTag[1])
+      const zap = parseZapRequest(zapRequest)
+      if (!zap) return
 
       callback()
     })
