@@ -25,8 +25,8 @@ const SettingsLayout = ({ children }: { children: ReactNode }) => {
   const view = useAuthStore((state) => state.view)
 
   let tabs = ['profile', 'relays']
-  view === 'authenticated' && tabs.push('stream')
-  view === 'authenticated' && tabs.push('chat')
+  // view === 'authenticated' && tabs.push('stream')
+  // view === 'authenticated' && tabs.push('chat')
   view === 'authenticated' && tabs.push('zaps')
 
   // useEffect(() => {
