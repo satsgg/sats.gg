@@ -20,7 +20,7 @@ export const useStream = (pubkey: string) => {
         return parseStreamNote(event)
       }
       const alreadyHaveNote = prev.id === event.id
-      const newerNoteExists = prev.created_at >= event.created_at
+      const newerNoteExists = prev.createdAt >= event.created_at
       if (alreadyHaveNote || newerNoteExists) {
         return prev
       }

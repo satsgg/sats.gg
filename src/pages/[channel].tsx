@@ -139,14 +139,13 @@ export default function Channel() {
           channelPubkey={channelPubkey}
           channelProfile={channelProfile}
           channelProfileIsLoading={channelProfileIsLoading}
-          // streamTitle={channelUser?.streamTitle}
           streamTitle={stream?.title}
           streamStatus={stream?.status}
           participants={stream?.p}
+          viewerCount={stream?.currentParticipants}
           zapInvoice={zapInvoice}
           setZapInvoice={setZapInvoice}
           setShowZapModule={setShowZapModule}
-          // viewerCount={channelUser?.viewerCount}
         />
       </div>
 

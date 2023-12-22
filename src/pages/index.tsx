@@ -6,6 +6,7 @@ import { Filter, nip19 } from 'nostr-tools'
 import { useStreams } from '~/hooks/useStreams'
 import { useEffect } from 'react'
 import ThumbnailImg from '~/components/ThumbnailImg'
+import { fmtNumber } from '~/utils/util'
 
 // i like bg-stone-600...
 const DummyStreamCard = () => {
@@ -32,12 +33,14 @@ const StreamCard = ({
   streamTitle,
   thumbnail,
   relays,
+  viewerCount,
 }: {
   pubkey: string
   identifier?: string
   streamTitle?: string
   thumbnail?: string
   relays?: string[]
+  viewerCount?: number
 }) => {
   const { profile, isLoading } = useProfile(pubkey)
 
@@ -53,6 +56,14 @@ const StreamCard = ({
               <p className="text-sm font-semibold uppercase">live</p>
             </div>
           </div>
+
+          {Number.isInteger(viewerCount) && (
+            <div className="absolute bottom-0 m-2.5">
+              <div className="rounded bg-stone-900/80 px-1.5">
+                <p className="text-sm">{fmtNumber(viewerCount!, true)} viewers</p>
+              </div>
+            </div>
+          )}
         </div>
       </Link>
 
@@ -99,6 +110,7 @@ export default function IndexPage() {
                 streamTitle={stream.title}
                 thumbnail={stream.image}
                 relays={stream.relays}
+                viewerCount={stream.currentParticipants}
               />
             ))}
           </>

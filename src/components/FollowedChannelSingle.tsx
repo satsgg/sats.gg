@@ -4,6 +4,7 @@ import LiveSVG from '~/svgs/live.svg'
 import { nip19 } from 'nostr-tools'
 import ProfileImg from './ProfileImg'
 import { Stream, displayName, getVerifiedChannelLink } from '~/utils/nostr'
+import { fmtNumber } from '~/utils/util'
 
 export const FollowedChannelSingle = ({
   pubkey,
@@ -37,8 +38,13 @@ export const FollowedChannelSingle = ({
         </div>
 
         <div className={`${userCollapse || autoCollapse ? 'hidden' : 'align-right'}`}>
-          {stream ? (
-            <LiveSVG width={20} height={20} className="fill-red-600" />
+          {stream && stream.status === 'live' ? (
+            <span className="inline-flex gap-1">
+              <LiveSVG width={20} height={20} className="fill-red-600" />
+              {Number.isInteger(stream.currentParticipants) && (
+                <span className="text-sm text-gray-100">{fmtNumber(stream.currentParticipants!, true)}</span>
+              )}
+            </span>
           ) : (
             <p className="text-sm font-light text-white">Offline</p>
           )}

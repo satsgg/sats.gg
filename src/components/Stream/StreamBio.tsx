@@ -4,6 +4,8 @@ import { displayName } from '~/utils/nostr'
 import { UserMetadataStore } from '~/store/db'
 import HaloProfileImg from '../HaloProfileImg'
 import Participant from './Participant'
+import LiveUser from '~/svgs/live-user.svg'
+import { fmtNumber } from '~/utils/util'
 
 export const StreamBio = ({
   channelPubkey,
@@ -12,6 +14,7 @@ export const StreamBio = ({
   streamTitle,
   streamStatus,
   participants,
+  viewerCount,
   zapInvoice,
   setZapInvoice,
   setShowZapModule,
@@ -22,6 +25,7 @@ export const StreamBio = ({
   streamTitle: string | null | undefined
   streamStatus: string | undefined
   participants: string[] | undefined
+  viewerCount: number | undefined
   zapInvoice: string | null
   setZapInvoice: (invoice: string | null) => void
   setShowZapModule: (show: boolean) => void
@@ -68,6 +72,12 @@ export const StreamBio = ({
                 setShowZapModule={setShowZapModule}
               />
             </div>
+            {Number.isInteger(viewerCount) && streamStatus === 'live' && (
+              <div className="mr-2 flex items-center justify-end">
+                <LiveUser className="h-5 w-5 stroke-red-400" strokeWidth={2.5} />
+                <span className="font-semibold text-red-400">{fmtNumber(viewerCount!, false)}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>

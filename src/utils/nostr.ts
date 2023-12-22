@@ -371,7 +371,7 @@ export const getStreamNaddr = (pubkey: string, identifier?: string, relays?: str
 
 export type Stream = {
   pubkey: string
-  created_at: number
+  createdAt: number
   id: string
   sig: string
   // tags
@@ -385,16 +385,17 @@ export type Stream = {
   starts?: string // unix timestamp
   ends?: string // unix timestamp
   status?: 'planned' | 'live' | 'ended'
-  current_participants?: number
-  total_participants?: number
+  currentParticipants?: number
+  totalParticipants?: number
   p?: string[] // participants
   relays?: string[]
 }
 
+// TODO: Can't expect properly formatted notes and types
 export const parseStreamNote = (note: NostrEvent) => {
   const stream: Stream = {
     pubkey: note.pubkey,
-    created_at: note.created_at,
+    createdAt: note.created_at,
     id: note.id,
     sig: note.sig,
   }
@@ -429,12 +430,11 @@ export const parseStreamNote = (note: NostrEvent) => {
   let status = note.tags.find(([t, v]) => t === 'status' && v)
   if (status && status[1]) stream['status'] = status[1] as 'planned' | 'live' | 'ended'
 
-  // TODO: Number
-  let cp = note.tags.find(([t, v]) => t === 'cp' && v)
-  if (cp && cp[1]) stream['current_participants'] = cp[1]
+  let cp = note.tags.find(([t, v]) => t === 'current_participants' && v)
+  if (cp && cp[1]) stream['currentParticipants'] = Number(cp[1])
 
-  let tp = note.tags.find(([t, v]) => t === 'tp' && v)
-  if (tp && tp[1]) stream['total_participants'] = tp[1]
+  let tp = note.tags.find(([t, v]) => t === 'total_participants' && v)
+  if (tp && tp[1]) stream['totalParticipants'] = Number(tp[1])
 
   // TODO: Multiple
   let p = note.tags.find(([t, v]) => t === 'p' && v)
