@@ -2,7 +2,15 @@ import { useRef, useState, useEffect } from 'react'
 import { Virtuoso, LogLevel, VirtuosoHandle } from 'react-virtuoso'
 import { inferProcedureOutput } from '@trpc/server'
 import { Event as NostrEvent, Filter, UnsignedEvent, verifySignature, validateEvent, EventTemplate } from 'nostr-tools'
-import { createChatEvent, createZapEvent, getZapEndpoint, requestZapInvoice, signEventPrivkey } from '~/utils/nostr'
+import {
+  createChatEvent,
+  createZapEvent,
+  getZapAmountFromReceipt,
+  getZapEndpoint,
+  parseZapRequest,
+  requestZapInvoice,
+  signEventPrivkey,
+} from '~/utils/nostr'
 import MessageInput from './MessageInput'
 import { useSubscription } from '~/hooks/useSubscription'
 import useCanSign from '~/hooks/useCanSign'
@@ -262,8 +270,17 @@ export const Chat = ({
       case 1311:
         return <ChatMessage note={note} />
       case 9735:
-        // TODO: Fix
-        return <ZapChatMessage note={note as NostrEvent<9735>} />
+        const zapRequestTag = note.tags.find((t) => t[0] == 'description')
+        if (!zapRequestTag || !zapRequestTag[1]) return
+
+        const zapRequest: NostrEvent<9734> = JSON.parse(zapRequestTag[1])
+        const zap = parseZapRequest(zapRequest)
+        if (!zap) return
+
+        const amount = getZapAmountFromReceipt(note as NostrEvent<9735>)
+        if (!amount) return
+
+        return <ZapChatMessage pubkey={zap.pubkey} amount={amount} content={zap.content} />
       default:
         return null
     }
