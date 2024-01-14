@@ -14,6 +14,7 @@ const VideoPlayer = ({ url }: { url: string }) => {
     responsive: true,
     fill: true,
     liveui: true,
+    playsinline: true,
     sources: [
       {
         // src: 'https://d2zihajmogu5jn.cloudfront.net/bipbop-advanced/bipbop_16x9_variant.m3u8',
