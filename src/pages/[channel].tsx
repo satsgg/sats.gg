@@ -30,7 +30,8 @@ const getChannelPubkey = (channel: string, isReady: boolean): nip19.AddressPoint
     return '8756779be69455fee07957ae409a7485914b06a747ff0b105721dcf1538697e1'
   }
   if (channel === 'pokemon') {
-    return '0bed926df26089c6869621abf8b27858dd0b61f2c3c556e84fd9c08f0f499344'
+    // return '0bed926df26089c6869621abf8b27858dd0b61f2c3c556e84fd9c08f0f499344'
+    return 'e9038e10916d910869db66f3c9a1f41535967308b47ce3136c98f1a6a22a6150'
   }
 
   if (channel.startsWith('npub1')) {
