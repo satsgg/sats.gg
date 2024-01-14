@@ -38,8 +38,6 @@ const eventOrder = {
   content: null,
 }
 
-type GetUserOutput = inferProcedureOutput<AppRouter['user']['getUser']>
-
 export const Chat = ({
   channelPubkey,
   streamId,
@@ -268,7 +266,7 @@ export const Chat = ({
   const renderNote = (note: NostrEvent) => {
     switch (note.kind) {
       case 1311:
-        return <ChatMessage note={note} />
+        return <ChatMessage channelPubkey={channelPubkey} note={note} />
       case 9735:
         const zapRequestTag = note.tags.find((t) => t[0] == 'description')
         if (!zapRequestTag || !zapRequestTag[1]) return
@@ -280,7 +278,9 @@ export const Chat = ({
         const amount = getZapAmountFromReceipt(note as NostrEvent<9735>)
         if (!amount) return
 
-        return <ZapChatMessage pubkey={zap.pubkey} amount={amount} content={zap.content} />
+        return (
+          <ZapChatMessage channelPubkey={channelPubkey} pubkey={zap.pubkey} amount={amount} content={zap.content} />
+        )
       default:
         return null
     }
