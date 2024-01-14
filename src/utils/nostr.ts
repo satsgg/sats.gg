@@ -127,10 +127,10 @@ export const signAuthEvent = async (pubkey: string, challenge: string) => {
 }
 
 export const displayName = (pubkey: string, profile: UserMetadata | undefined) => {
-  if (profile?.name) {
-    return profile.name
-  } else if (profile?.display_name) {
+  if (profile?.display_name) {
     return profile.display_name
+  } else if (profile?.name) {
+    return profile.name
   } else if (profile?.nip05) {
     return profile.nip05.substring(0, profile.nip05.indexOf('@'))
   } else {
