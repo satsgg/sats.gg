@@ -74,8 +74,8 @@ export const Chat = ({
       // TODO: separate filter for zaps with pubkey equal to channelUser pubkey
       kinds: [1311, 9735],
       // since and limit don't really work well
-      since: now.current - 1000 * 60 * 60 * 24, // one day ago
-      limit: 50,
+      since: now.current - 1000 * 60 * 60 * 2, // 2 hours ago... should use since "starts"
+      limit: 20,
       // ["a", "30311:<Community event author pubkey>:<d-identifier of the community>", "<Optional relay url>", "root"],
       '#a': [`30311:${channelPubkey}:${channelIdentifier}`],
     },

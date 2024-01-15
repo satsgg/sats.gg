@@ -13,7 +13,8 @@ export const useSubscription = (id: string, filter: Filter[], reverse = false, l
       }
       // before settings the event into the list
       // check store for event.pubkey kind5 metadata
-      return [...prev.slice(0, limit), event]
+      if (prev.length > limit) return [...prev.slice(1), event]
+      return [...prev, event]
     })
   }
 
