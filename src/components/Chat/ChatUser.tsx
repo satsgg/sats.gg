@@ -1,12 +1,19 @@
 import { useProfile } from '~/hooks/useProfile'
+import { UserMetadataStore } from '~/nostr/NostrClient'
 import { displayName } from '~/utils/nostr'
 
 const unicodeNameRegex =
   /(?![*#0-9]+)[\p{Emoji}\p{Emoji_Modifier}\p{Emoji_Component}\p{Emoji_Modifier_Base}\p{Emoji_Presentation}]/gu
 
-const ChatUser = ({ channelPubkey, pubkey }: { channelPubkey: string; pubkey: string }) => {
-  const { profile, isLoading } = useProfile(pubkey)
-
+const ChatUser = ({
+  channelPubkey,
+  pubkey,
+  profile,
+}: {
+  channelPubkey: string
+  pubkey: string
+  profile: UserMetadataStore | undefined
+}) => {
   const color = channelPubkey === pubkey ? 'text-red-500' : 'text-orange-300'
 
   const fmtName = (name: string) => {
