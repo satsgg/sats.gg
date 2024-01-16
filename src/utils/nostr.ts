@@ -108,20 +108,25 @@ export const signEventPrivkey = (event: EventTemplate, privKey: string | undefin
   return null
 }
 
-// TODO: Nip 42 kind 22242
 export const signAuthEvent = async (pubkey: string, challenge: string) => {
-  const content = {
-    challenge: challenge,
-    message: 'Sign this event to authenticate with sats.gg. This event will not be published.',
-  }
+  // const content = {
+  //   challenge: challenge,
+  //   message: 'Sign this event to authenticate with sats.gg. This event will not be published.',
+  // }
+
   const event: UnsignedEvent = {
-    // TODO: Kind 255? Blank nostr-tools?
-    kind: -1,
+    kind: 27235,
     pubkey: pubkey,
     created_at: Math.floor(Date.now() / 1000),
-    tags: [[]],
-    content: JSON.stringify(content),
+    tags: [
+      ['u', 'https://sats.gg/api/trpc/auth.login'],
+      ['method', 'POST'],
+      ['payload', challenge],
+    ],
+    // content: JSON.stringify(content),
+    content: '',
   }
+  console.debug('signed event', event)
 
   return await window.nostr.signEvent(event)
 }

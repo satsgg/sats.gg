@@ -102,9 +102,7 @@ const Nip07Login = ({ challenge, close }: { challenge: string | undefined; close
 
   const onClick = async () => {
     try {
-      // TODO: user won't receive any feedback why button doesn't do anything
-      // if we fail to get the challenge
-      if (!challenge) return
+      if (!challenge) throw new Error('Missing challenge!')
       setWaiting(true)
 
       const pubkey = await window.nostr.getPublicKey()
@@ -114,11 +112,11 @@ const Nip07Login = ({ challenge, close }: { challenge: string | undefined; close
       let veryOk = verifySignature(signedEvent)
       if (!veryOk) throw new Error('Invalid signature')
 
-      const data = await mutation.mutateAsync(signedEvent)
+      const authData = await mutation.mutateAsync(signedEvent)
 
       setPubkey(pubkey)
       setView('authenticated')
-      setAuthToken(data.authToken)
+      setAuthToken(authData.authToken)
       close()
     } catch (error: any) {
       console.error(error)
@@ -164,7 +162,10 @@ const Nip07Login = ({ challenge, close }: { challenge: string | undefined; close
 }
 
 export const Authenticate = ({ close }: { close: () => void }) => {
-  const { data } = trpc.auth.getChallenge.useQuery(undefined, { refetchOnWindowFocus: false })
+  const { data } = trpc.auth.getChallenge.useQuery(undefined, {
+    refetchOnWindowFocus: false,
+    refetchInterval: 30 * 1000,
+  })
 
   // const utils = trpc.useContext()
   // useEffect(() => {

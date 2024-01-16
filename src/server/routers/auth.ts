@@ -39,14 +39,14 @@ export const authRouter = t.router({
         created_at: z.number(),
         kind: z.number(),
         tags: z.array(z.array(z.string())),
-        content: z.preprocess((val: any) => JSON.parse(val), z.object({ challenge: z.string(), message: z.string() })),
+        // content: z.preprocess((val: any) => JSON.parse(val), z.object({ challenge: z.string(), message: z.string() })),
+        content: z.string(),
         sig: z.string(),
       }),
     )
     .mutation(async ({ input }) => {
-      // TODO: Update to newest nostr-tools and use SignedEvent type
-      const signedAuthEvent: NostrEvent & { sig: string } = { ...input, content: JSON.stringify(input.content) }
-      console.debug('input', input)
+      const signedAuthEvent: NostrEvent = input
+      console.debug('signedAuthEvent', signedAuthEvent)
       try {
         let ok = validateEvent(signedAuthEvent)
         if (!ok) throw new Error('Invalid event')
@@ -57,8 +57,13 @@ export const authRouter = t.router({
         throw new TRPCError({ code: 'BAD_REQUEST', message: err.message })
       }
 
+      let challenge = null
+      const challengeTag = signedAuthEvent.tags.find(([t, v]) => t === 'payload' && v)
+      if (challengeTag && challengeTag[1]) challenge = challengeTag[1]
+      else throw new TRPCError({ code: 'BAD_REQUEST', message: 'Missing secret.' })
+
       // signature and event okay... now check challenge
-      const challengeHash = createHash('sha256').update(input.content.challenge).digest('hex')
+      const challengeHash = createHash('sha256').update(challenge).digest('hex')
 
       // TODO: Also store pubkey associated with the challengeHash?
       const userAuth = await prisma.userAuth.findFirst({ where: { challengeHash } })
