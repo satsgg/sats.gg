@@ -46,6 +46,6 @@ export const useStreams = (id: string, pubkeys: string[] | null = null, reverse 
   }, [pubkeys])
 
   const uniqEvents = streams.length > 0 ? uniqBy(streams, 'id') : []
-  if (reverse) return uniqEvents.sort((b, a) => a.created_at - b.created_at)
-  return uniqEvents.sort((b, a) => b.created_at - a.created_at)
+  if (reverse) return uniqEvents.sort((b, a) => a.createdAt - b.createdAt)
+  return uniqEvents.sort((b, a) => b.createdAt - a.createdAt)
 }
