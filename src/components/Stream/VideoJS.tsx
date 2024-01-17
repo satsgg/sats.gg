@@ -4,12 +4,13 @@ import type Player from 'video.js/dist/types/player'
 import type Video from 'video.js/dist/types/video'
 import PlayerOptions from 'video.js/dist/types/player'
 import 'video.js/dist/video-js.css'
+import usePlayerStore from '~/store/playerStore'
 
 // export const VideoJS = (props) => {
 export const VideoJS = ({ options, onReady }: { options: any; onReady: Function }) => {
   const videoRef = useRef<Video | null>(null)
   const playerRef = useRef<Player | null>(null)
-  // const { options, onReady } = props
+  const adjustVolume = usePlayerStore((state) => state.adjustVolume)
 
   useEffect(() => {
     // Make sure Video.js player is only initialized once
@@ -35,12 +36,26 @@ export const VideoJS = ({ options, onReady }: { options: any; onReady: Function 
     }
   }, [options, videoRef])
 
+  // Save volume in local storage before any refresh
+  window.addEventListener('beforeunload', (event) => {
+    const player = playerRef.current
+    if (player && !player.isDisposed()) {
+      const volume = player.volume()
+      if (!volume) return
+      adjustVolume(volume)
+    }
+  })
+
   // Dispose the Video.js player when the functional component unmounts
   useEffect(() => {
     const player = playerRef.current
 
     return () => {
       if (player && !player.isDisposed()) {
+        const volume = player.volume()
+        if (!volume) return
+        adjustVolume(volume)
+
         player.dispose()
         playerRef.current = null
       }

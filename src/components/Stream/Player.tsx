@@ -1,4 +1,5 @@
 import { useRef, memo } from 'react'
+import usePlayerStore from '~/store/playerStore'
 
 // This imports the functional component from the previous sample.
 import VideoJS from './VideoJS'
@@ -7,6 +8,7 @@ import type Player from 'video.js/dist/types/player'
 
 const VideoPlayer = ({ url }: { url: string }) => {
   const playerRef = useRef<Player | null>(null)
+  const volume = usePlayerStore((state) => state.volume)
 
   const videoJsOptions = {
     autoplay: true,
@@ -37,6 +39,8 @@ const VideoPlayer = ({ url }: { url: string }) => {
     player.on('dispose', () => {
       videojs.log('player will dispose')
     })
+
+    player.volume(volume)
   }
 
   return <VideoJS options={videoJsOptions} onReady={handlePlayerReady} />
