@@ -25,7 +25,7 @@ export const useStreams = (id: string, pubkeys: string[] | null = null, reverse 
       if (status && status[1] && status[1] !== 'live') return prev
 
       const alreadyHaveNote = prev.some((a) => a.id === event.id)
-      const newerNoteExists = prev.some((a) => a.pubkey === event.pubkey && a.created_at >= event.created_at)
+      const newerNoteExists = prev.some((a) => a.pubkey === event.pubkey && a.createdAt >= event.created_at)
       if (alreadyHaveNote || newerNoteExists) {
         return prev
       }
