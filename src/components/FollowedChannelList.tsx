@@ -35,7 +35,9 @@ export const FollowedChannelList = ({
         allFollows.splice(index, 1)
       }
     }
-    return liveFollows.concat(allFollows.map((f) => ({ pubkey: f, stream: null })))
+    return liveFollows
+      .filter((f) => f.stream!.status === 'live')
+      .concat(allFollows.map((f) => ({ pubkey: f, stream: null })))
   }
 
   return (

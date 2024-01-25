@@ -40,11 +40,13 @@ const eventOrder = {
 
 export const Chat = ({
   channelPubkey,
+  providerPubkey,
   streamId,
   channelIdentifier,
   channelProfile,
 }: {
   channelPubkey: string
+  providerPubkey: string | undefined
   streamId: string
   channelIdentifier: string
   channelProfile: UserMetadataStore | undefined
@@ -73,17 +75,14 @@ export const Chat = ({
     {
       // TODO: separate filter for zaps with pubkey equal to channelUser pubkey
       kinds: [1311, 9735],
-      // since and limit don't really work well
-      // since: now.current - 1000 * 60 * 60 * 1, // 2 hours ago... should use since "starts"
-      since: now.current,
-      // limit: 20,
-      // ["a", "30311:<Community event author pubkey>:<d-identifier of the community>", "<Optional relay url>", "root"],
-      '#a': [`30311:${channelPubkey}:${channelIdentifier}`],
+      // TODO: Smarter since..?
+      since: now.current - 60 * 60 * 1, // 1 hour ago
+      limit: 20,
+      '#a': [`30311:${providerPubkey || channelPubkey}:${channelIdentifier}`],
     },
   ]
 
-  // console.log(`30311:${channelPubkey}:${channelIdentifier}`)
-  const notes = useSubscription(channelPubkey, filters, false, 250)
+  const notes = useSubscription(providerPubkey || channelPubkey, filters, false, 250)
 
   const closeZap = () => {
     setZapInvoice(null)
@@ -183,7 +182,7 @@ export const Chat = ({
         const defaultPrivKey = view === 'default' ? privkey : null
         const signedZapRequestEvent = await createZapEvent(
           zapRequestArgs,
-          channelPubkey,
+          providerPubkey || channelPubkey,
           channelIdentifier,
           defaultPrivKey,
         )
@@ -214,7 +213,7 @@ export const Chat = ({
         })
       }
     } else {
-      const event: EventTemplate = createChatEvent(formattedMessage, channelPubkey, channelIdentifier)
+      const event: EventTemplate = createChatEvent(formattedMessage, providerPubkey || channelPubkey, channelIdentifier)
       // error handling here? What if none of the relays accepted our message...
       try {
         const signedEvent: NostrEvent | null =
@@ -266,7 +265,7 @@ export const Chat = ({
   const renderNote = (note: NostrEvent) => {
     switch (note.kind) {
       case 1311:
-        return <ChatMessage channelPubkey={channelPubkey} note={note} />
+        return <ChatMessage channelPubkey={providerPubkey || channelPubkey} note={note} />
       case 9735:
         const zapRequestTag = note.tags.find((t) => t[0] == 'description')
         if (!zapRequestTag || !zapRequestTag[1]) return
@@ -279,7 +278,12 @@ export const Chat = ({
         if (!amount) return
 
         return (
-          <ZapChatMessage channelPubkey={channelPubkey} pubkey={zap.pubkey} amount={amount} content={zap.content} />
+          <ZapChatMessage
+            channelPubkey={providerPubkey || channelPubkey}
+            pubkey={zap.pubkey}
+            amount={amount}
+            content={zap.content}
+          />
         )
       default:
         return null

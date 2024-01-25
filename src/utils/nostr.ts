@@ -364,9 +364,9 @@ export const parseZapRequest = (zapRequest: NostrEvent<9734>): ZapRequest | null
 //   relays?: string[]
 // }
 
-export const getStreamNaddr = (pubkey: string, identifier?: string, relays?: string[]) => {
+export const getStreamNaddr = (pubkey: string, identifier: string, relays?: string[]) => {
   const addressPointer = {
-    identifier: identifier ?? '',
+    identifier: identifier,
     pubkey: pubkey,
     kind: 30331,
     relays: relays,
@@ -374,16 +374,25 @@ export const getStreamNaddr = (pubkey: string, identifier?: string, relays?: str
   return nip19.naddrEncode(addressPointer)
 }
 
+export type Participant = {
+  pubkey: string
+  relay?: string
+  role?: string
+  proof?: string
+}
+
 export type Stream = {
   pubkey: string
+  providerPubkey?: string
   createdAt: number
   id: string
   sig: string
   // tags
-  d?: string // unique identifier
+  d: string // unique identifier
   title?: string
   summary?: string // description
   image?: string
+  // empty array instead of undefined?
   t?: string[] // hashtag
   streaming?: string // rtmp url
   recording?: string // used to place the edited video once the activity is over
@@ -392,20 +401,29 @@ export type Stream = {
   status?: 'planned' | 'live' | 'ended'
   currentParticipants?: number
   totalParticipants?: number
+  // empty arrays instead of undefined?
   p?: string[] // participants
   relays?: string[]
 }
 
 // TODO: Can't expect properly formatted notes and types
-export const parseStreamNote = (note: NostrEvent) => {
+// check types?
+export const parseStreamNote = (note: NostrEvent): Stream | null => {
+  let d = note.tags.find(([t, v]) => t === 'd' && v)
+  if (!d || !d[1]) return null
+  const identifier = d[1]
+
   const stream: Stream = {
     pubkey: note.pubkey,
     createdAt: note.created_at,
     id: note.id,
     sig: note.sig,
+    d: identifier,
   }
-  let d = note.tags.find(([t, v]) => t === 'd' && v)
-  if (d && d[1]) stream['d'] = d[1]
+  // let d = note.tags.find(([t, v]) => t === 'd' && v)
+  // if (d && d[1]) stream['d'] = d[1]
+  // else return null
+  // if no unique identifier, return null
 
   let title = note.tags.find(([t, v]) => t === 'title' && v)
   if (title && title[1]) stream['title'] = title[1]
@@ -416,12 +434,13 @@ export const parseStreamNote = (note: NostrEvent) => {
   let image = note.tags.find(([t, v]) => t === 'image' && v)
   if (image && image[1]) stream['image'] = image[1]
 
-  // TODO: may be multiple hashtags
+  // TODO: multiple hashtags
   let t = note.tags.find(([t, v]) => t === 't' && v)
   if (t && t[1]) stream['t'] = [t[1]]
 
   let streaming = note.tags.find(([t, v]) => t === 'streaming' && v)
   if (streaming && streaming[1]) stream['streaming'] = streaming[1]
+  // if no url, return ull
 
   let recording = note.tags.find(([t, v]) => t === 'recording' && v)
   if (recording && recording[1]) stream['recording'] = recording[1]
@@ -433,7 +452,13 @@ export const parseStreamNote = (note: NostrEvent) => {
   if (ends && ends[1]) stream['ends'] = ends[1]
 
   let status = note.tags.find(([t, v]) => t === 'status' && v)
-  if (status && status[1]) stream['status'] = status[1] as 'planned' | 'live' | 'ended'
+  // if (status && status[1]) stream['status'] = status[1] as 'planned' | 'live' | 'ended'
+  // else return null
+  // if (stream['status'] !== 'live' && stream['status'] !== 'ended' && stream['status'] !== 'planned') return null
+
+  if (status && status[1]) stream.status = status[1] as 'planned' | 'live' | 'ended'
+  else return null
+  if (stream.status !== 'live' && stream.status !== 'ended' && stream.status !== 'planned') return null
 
   let cp = note.tags.find(([t, v]) => t === 'current_participants' && v)
   if (cp && cp[1]) stream['currentParticipants'] = Number(cp[1])
@@ -441,9 +466,22 @@ export const parseStreamNote = (note: NostrEvent) => {
   let tp = note.tags.find(([t, v]) => t === 'total_participants' && v)
   if (tp && tp[1]) stream['totalParticipants'] = Number(tp[1])
 
-  // TODO: Multiple
+  // TODO: Multiple participants, create participant type
   let p = note.tags.find(([t, v]) => t === 'p' && v)
   if (p && p[1]) stream['p'] = [p[1]]
 
-  return stream
+  return handleZapStream(stream)
+}
+
+const handleZapStream = (stream?: Stream) => {
+  if (!stream) return null
+  if (stream.pubkey !== 'cf45a6ba1363ad7ed213a078e710d24115ae721c9b47bd1ebf4458eaefb4c2a5') {
+    return stream
+  }
+  if (!stream.p || !stream.p[0]) return stream
+  const zapStream = { ...stream }
+  zapStream.providerPubkey = stream.pubkey
+  zapStream.pubkey = stream.p[0]
+  zapStream.p = []
+  return zapStream
 }

@@ -1,5 +1,5 @@
 import { useProfile } from '~/hooks/useProfile'
-import { displayName, getStreamNaddr, getVerifiedChannelLink } from '~/utils/nostr'
+import { Stream, displayName, getStreamNaddr, getVerifiedChannelLink } from '~/utils/nostr'
 import ProfileImg from '~/components/ProfileImg'
 import Link from 'next/link'
 import { Filter, nip19 } from 'nostr-tools'
@@ -29,18 +29,20 @@ const DummyStreamCard = () => {
 
 const StreamCard = ({
   pubkey,
-  identifier,
-  streamTitle,
-  thumbnail,
+  providerPubkey,
+  d,
+  title,
+  image,
   relays,
-  viewerCount,
+  currentParticipants,
 }: {
   pubkey: string
-  identifier?: string
-  streamTitle?: string
-  thumbnail?: string
+  providerPubkey?: string
+  d: string
+  title?: string
+  image?: string
   relays?: string[]
-  viewerCount?: number
+  currentParticipants?: number
 }) => {
   const { profile, isLoading } = useProfile(pubkey)
 
@@ -48,19 +50,19 @@ const StreamCard = ({
 
   return (
     <div className="flex flex-col gap-2">
-      <Link href={`/${getStreamNaddr(pubkey, identifier, relays)}`} legacyBehavior={false}>
+      <Link href={`/${getStreamNaddr(providerPubkey || pubkey, d, relays)}`} legacyBehavior={false}>
         <div id="cardThumbnailWrapper" className="relative aspect-video">
-          <ThumbnailImg pubkey={pubkey} thumbnail={thumbnail} />
+          <ThumbnailImg pubkey={pubkey} thumbnail={image} />
           <div className="absolute top-0 m-2.5">
             <div className="rounded bg-red-600 px-1">
               <p className="text-sm font-semibold uppercase">live</p>
             </div>
           </div>
 
-          {Number.isInteger(viewerCount) && (
+          {Number.isInteger(currentParticipants) && (
             <div className="absolute bottom-0 m-2.5">
               <div className="rounded bg-stone-900/80 px-1.5">
-                <p className="text-sm">{fmtNumber(viewerCount!, true)} viewers</p>
+                <p className="text-sm">{fmtNumber(currentParticipants!, true)} viewers</p>
               </div>
             </div>
           )}
@@ -80,12 +82,15 @@ const StreamCard = ({
           </div>
         </div>
         <div className="flex min-w-0 flex-col">
-          {streamTitle && (
+          {title && (
             <Link href={getVerifiedChannelLink(profile) || `/${nip19.npubEncode(pubkey)}`} legacyBehavior={false}>
-              <h3 className="truncate font-bold">{streamTitle}</h3>
+              <h3 className="truncate font-bold">{title}</h3>
             </Link>
           )}
-          <Link href={getVerifiedChannelLink(profile) || `/${nip19.npubEncode(pubkey)}`} legacyBehavior={false}>
+          <Link
+            href={getVerifiedChannelLink(profile) || `/${nip19.npubEncode(providerPubkey || pubkey)}`}
+            legacyBehavior={false}
+          >
             <p className="truncate">{!isLoading && displayName(pubkey, profile)}</p>
           </Link>
         </div>
@@ -96,23 +101,27 @@ const StreamCard = ({
 
 export default function IndexPage() {
   const streams = useStreams('streams-browse')
+  console.debug('streams', streams)
 
   return (
     <div className="flex w-full flex-col overflow-y-auto px-8 py-6">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
         {streams && (
           <>
-            {streams.map((stream) => (
-              <StreamCard
-                key={stream.pubkey}
-                pubkey={stream.pubkey}
-                identifier={stream.d}
-                streamTitle={stream.title}
-                thumbnail={stream.image}
-                relays={stream.relays}
-                viewerCount={stream.currentParticipants}
-              />
-            ))}
+            {streams
+              .filter((stream) => stream.status === 'live')
+              .map((stream) => (
+                <StreamCard
+                  key={stream.id}
+                  pubkey={stream.pubkey}
+                  providerPubkey={stream.providerPubkey}
+                  d={stream.d}
+                  title={stream.title}
+                  image={stream.image}
+                  relays={stream.relays}
+                  currentParticipants={stream.currentParticipants}
+                />
+              ))}
           </>
         )}
       </div>

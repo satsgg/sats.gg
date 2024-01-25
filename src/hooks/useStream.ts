@@ -3,7 +3,7 @@ import { Filter, Event } from 'nostr-tools'
 import { nostrClient } from '~/nostr/NostrClient'
 import { Stream, parseStreamNote, uniqBy } from '~/utils/nostr'
 
-export const useStream = (pubkey: string) => {
+export const useStream = (pubkey: string, d?: string) => {
   const [stream, setStream] = useState<Stream | null>(null)
 
   const filter: Filter[] = [
@@ -12,8 +12,12 @@ export const useStream = (pubkey: string) => {
       authors: [pubkey],
     },
   ]
+  if (d) filter[0]!['#d'] = [d]
 
   const onEventCallback = (event: Event) => {
+    const stream = parseStreamNote(event)
+    if (!stream) return
+
     setStream((prev) => {
       if (!prev) {
         console.log('event', event)
