@@ -12,6 +12,7 @@ import { toast } from 'react-toastify'
 import useWebln from '~/hooks/useWebln'
 import useAuthStore from '~/hooks/useAuthStore'
 import useCanSign from '~/hooks/useCanSign'
+import { fmtNumber } from '~/utils/util'
 
 const ZapButton = ({
   channelProfile,
@@ -151,18 +152,18 @@ const ZapButton = ({
   return (
     <button
       className={`${disabled() ? 'bg-stone-700' : 'bg-primary'}
-      hidden h-8 items-center space-x-1 rounded px-3 py-1 sm:inline-flex`}
+      hidden h-8 items-center space-x-0.5 rounded px-3 py-1 sm:inline-flex`}
       disabled={disabled()}
       onClick={handleZapClick}
     >
       {
         {
-          disabled: <LightningBoltDisabled height={20} width={20} strokeWidth={1.5} />,
-          waiting: <LightningBolt className="animate-pulse" height={20} width={20} strokeWidth={1.5} />,
-          ready: <LightningBolt height={20} width={20} strokeWidth={1.5} />,
+          disabled: <LightningBoltDisabled height={16} width={16} strokeWidth={1.5} />,
+          waiting: <LightningBolt className="animate-pulse" height={16} width={16} strokeWidth={1.5} />,
+          ready: <LightningBolt height={16} width={16} strokeWidth={1.5} />,
         }[buttonState()]
       }
-      <p className="text-sm font-semibold capitalize">zap</p>
+      <p className="text-sm font-semibold capitalize">{fmtNumber(user?.defaultZapAmount || 1000, true)}</p>
     </button>
   )
 }
