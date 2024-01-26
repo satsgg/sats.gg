@@ -32,7 +32,7 @@ module.exports = {
       animation: {
         wiggle: 'wiggle 1s ease-in-out',
         pulse: 'pulse 1.5s ease-in-out infinite',
-        flash: 'flash 10s ease-out infinite',
+        flash: 'flash 10s ease-out',
         alert: 'alert 10s ease-in-out forwards',
       },
     },

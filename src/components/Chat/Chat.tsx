@@ -399,7 +399,7 @@ export const Chat = ({
               disabled={!canSign || !isValid}
               icon={
                 <LightningBolt
-                  className={`${zapInvoice || zapLoading ? 'animate-pulse' : 'animate-flash'}`}
+                  className={`${zapInvoice || zapLoading ? 'animate-pulse' : ''}`}
                   height={20}
                   width={20}
                   strokeWidth={1.5}

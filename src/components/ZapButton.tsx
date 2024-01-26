@@ -159,7 +159,7 @@ const ZapButton = ({
         {
           disabled: <LightningBoltDisabled height={20} width={20} strokeWidth={1.5} />,
           waiting: <LightningBolt className="animate-pulse" height={20} width={20} strokeWidth={1.5} />,
-          ready: <LightningBolt className="animate-flash" height={20} width={20} strokeWidth={1.5} />,
+          ready: <LightningBolt height={20} width={20} strokeWidth={1.5} />,
         }[buttonState()]
       }
       <p className="text-sm font-semibold capitalize">zap</p>
