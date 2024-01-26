@@ -89,7 +89,7 @@ const ZapButton = ({
         // TODO: overrideable here? idea is quick zaps...
         // maybe long press configure amount later
         amount: amountMilliSats,
-        comment: 'zapped on sats.gg!',
+        comment: '',
         relays: relays,
       }
 
@@ -151,8 +151,9 @@ const ZapButton = ({
 
   return (
     <button
-      className={`${disabled() ? 'bg-stone-700' : 'bg-primary'}
-      hidden h-8 items-center space-x-0.5 rounded px-3 py-1 sm:inline-flex`}
+      className={`
+        ${disabled() ? 'bg-stone-700' : 'bg-primary'}
+        hidden h-8 items-center space-x-0.5 rounded px-3 py-1 sm:inline-flex`}
       disabled={disabled()}
       onClick={handleZapClick}
     >
