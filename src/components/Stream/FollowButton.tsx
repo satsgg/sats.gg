@@ -15,6 +15,7 @@ export default function FollowButton({ pubkey }: { pubkey: string }) {
 
   const followsUser = follows.includes(pubkey)
   const [followAnimation, setFollowAnimation] = useState(false)
+  const [hover, setHover] = useState(false)
 
   const handleFollowClick = async () => {
     if (!myPubkey) return
@@ -66,10 +67,12 @@ export default function FollowButton({ pubkey }: { pubkey: string }) {
   return (
     <button
       className={`
-        ${followsUser && !followAnimation ? 'bg-stone-700' : 'bg-primary'} 
+        ${followsUser && !followAnimation ? 'bg-stone-700 hover:bg-red-400' : 'bg-primary'} 
         relative hidden h-8 items-center space-x-1 rounded px-3 py-1 sm:inline-flex
       `}
       onClick={handleFollowClick}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
       onAnimationEnd={() => setFollowAnimation(false)}
       data-tooltip={followsUser && !followAnimation ? 'Unfollow' : null}
       data-position="top"
@@ -79,7 +82,7 @@ export default function FollowButton({ pubkey }: { pubkey: string }) {
         height={20}
         width={20}
         strokeWidth={2.0}
-        fill={followsUser ? 'white' : 'none'}
+        fill={followsUser || hover ? 'white' : 'none'}
         className={`${followAnimation && 'animate-wiggle'} stroke-white`}
       />
       <span className={`${followsUser && !followAnimation && 'hidden'} text-sm font-semibold capitalize text-white`}>
