@@ -24,8 +24,6 @@ export const FollowedChannelSingle = ({
       ? getStreamNaddr(stream.providerPubkey || stream.pubkey, stream.d, stream.relays)
       : nip19.npubEncode(pubkey))
 
-  console.debug('streamlink', `${streamLink}`)
-
   return (
     <Link href={`/${streamLink}`}>
       <div className="flex justify-between gap-2 py-2 px-2 hover:cursor-pointer hover:bg-stone-700/25">
