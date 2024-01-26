@@ -94,7 +94,7 @@ export const Navbar = ({ openAuthenticate }: HeaderProps) => {
                     <li>
                       {/* TODO: link won't work for naddr here... */}
                       <Link
-                        href={`/${getVerifiedChannelLink(profile)}` || `/${npub}`}
+                        href={`/${getVerifiedChannelLink(profile) || npub}`}
                         legacyBehavior={false}
                         onClick={() => setShowAccountMenu(false)}
                         className="inline-flex w-full whitespace-nowrap rounded bg-transparent py-1 px-1 text-sm font-normal text-white hover:bg-stone-700"
