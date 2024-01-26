@@ -15,14 +15,20 @@ import useCanSign from '~/hooks/useCanSign'
 import { fmtNumber } from '~/utils/util'
 
 const ZapButton = ({
+  channelPubkey,
+  providerPubkey,
   channelProfile,
   channelProfileIsLoading,
+  streamIdentifier,
   zapInvoice,
   setZapInvoice,
   setShowZapModule,
 }: {
+  channelPubkey: string
+  providerPubkey: string | undefined
   channelProfile: UserMetadataStore | undefined
   channelProfileIsLoading: boolean
+  streamIdentifier: string | undefined
   zapInvoice: string | null
   setZapInvoice: (invoice: string | null) => void
   setShowZapModule: (show: boolean) => void
@@ -33,7 +39,7 @@ const ZapButton = ({
   const [zapLoading, setZapLoading] = useState(false)
   const { available: weblnAvailable, weblnPay } = useWebln()
 
-  useFetchZap('quick-zap', channelProfile?.pubkey, zapInvoice, () => {
+  useFetchZap('quick-zap', channelPubkey, zapInvoice, () => {
     setShowZapModule(false)
     setZapInvoice(null)
     console.debug('Zap successful, toasting!')
@@ -51,7 +57,13 @@ const ZapButton = ({
 
   const disabled = () => {
     // TODO: could add option to just send sats via standard lnurl w/out zap
-    return channelProfileIsLoading || !channelProfile || (!channelProfile.lud06 && !channelProfile.lud16) || !canSign
+    return (
+      channelProfileIsLoading ||
+      !streamIdentifier ||
+      !channelProfile ||
+      (!channelProfile.lud06 && !channelProfile.lud16) ||
+      !canSign
+    )
   }
 
   const waiting = () => {
@@ -65,7 +77,7 @@ const ZapButton = ({
   }
 
   const handleZapClick = async () => {
-    if (!channelProfile || zapLoading) return
+    if (!channelProfile || zapLoading || !streamIdentifier) return
 
     if (!zapLoading && zapInvoice) {
       setZapInvoice(null)
@@ -83,7 +95,7 @@ const ZapButton = ({
       // this pubkey will be the pubkey of the 9735 receipt later
       const amountMilliSats = (user?.defaultZapAmount || 1000) * 1000
       const zapRequestArgs = {
-        profile: channelProfile.pubkey,
+        profile: channelPubkey,
         event: null, // event and comment will be added in chat zap
         // if we don't include the event, won't be able to tell if zap was via their chatroom/livestream...
         // TODO: overrideable here? idea is quick zaps...
@@ -94,7 +106,12 @@ const ZapButton = ({
       }
 
       const defaultPrivKey = view === 'default' ? privkey : null
-      const signedZapRequestEvent = await createZapEvent(zapRequestArgs, defaultPrivKey)
+      const signedZapRequestEvent = await createZapEvent(
+        zapRequestArgs,
+        providerPubkey || channelPubkey,
+        streamIdentifier,
+        defaultPrivKey,
+      )
       if (!signedZapRequestEvent) throw new Error('Failed to sign zap')
 
       let ok = validateEvent(signedZapRequestEvent)

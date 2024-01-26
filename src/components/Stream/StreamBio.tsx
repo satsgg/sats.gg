@@ -9,6 +9,8 @@ import { fmtNumber } from '~/utils/util'
 
 export const StreamBio = ({
   channelPubkey,
+  providerPubkey,
+  streamIdentifier,
   channelProfile,
   channelProfileIsLoading,
   streamTitle,
@@ -20,6 +22,8 @@ export const StreamBio = ({
   setShowZapModule,
 }: {
   channelPubkey: string
+  providerPubkey: string | undefined
+  streamIdentifier: string | undefined
   channelProfile: UserMetadataStore | undefined
   channelProfileIsLoading: boolean
   streamTitle: string | null | undefined
@@ -65,6 +69,9 @@ export const StreamBio = ({
             <div className="flex gap-2">
               <FollowButton pubkey={channelPubkey} />
               <ZapButton
+                channelPubkey={channelPubkey}
+                providerPubkey={providerPubkey}
+                streamIdentifier={streamIdentifier}
                 channelProfile={channelProfile}
                 channelProfileIsLoading={channelProfileIsLoading}
                 zapInvoice={zapInvoice}

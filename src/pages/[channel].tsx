@@ -140,6 +140,8 @@ export default function Channel() {
         </div>
         <StreamBio
           channelPubkey={channelPubkey}
+          providerPubkey={stream?.providerPubkey}
+          streamIdentifier={stream?.d}
           channelProfile={channelProfile}
           channelProfileIsLoading={channelProfileIsLoading}
           streamTitle={stream?.title}
