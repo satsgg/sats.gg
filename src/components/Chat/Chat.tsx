@@ -32,6 +32,7 @@ import useMediaQuery from '~/hooks/useMediaQuery'
 import Button from '../Button'
 import { MAX_MSG_LEN } from '~/utils/util'
 import ScrollToButtomButton from './ScollToBottomButton'
+import { Spinner } from '../Spinner'
 
 const eventOrder = {
   created_at: null,
@@ -53,6 +54,7 @@ export const Chat = ({
 }) => {
   const [user, pubkey, view, privkey] = useAuthStore((state) => [state.user, state.pubkey, state.view, state.privkey])
   const canSign = useCanSign()
+  const [chatLoading, setChatLoading] = useState(true)
 
   const virtuosoRef = useRef<VirtuosoHandle>(null)
 
@@ -76,8 +78,9 @@ export const Chat = ({
       // TODO: separate filter for zaps with pubkey equal to channelUser pubkey
       kinds: [1311, 9735],
       // TODO: Smarter since..?
+      // since: now.current - 60 * 60 * 1, // 1 hour ago
       since: now.current - 60 * 60 * 1, // 1 hour ago
-      limit: 20,
+      limit: 25,
       '#a': [`30311:${providerPubkey || channelPubkey}:${channelIdentifier}`],
     },
   ]
@@ -148,11 +151,19 @@ export const Chat = ({
     virtuosoRef.current?.scrollToIndex({ index: notes.length - 1, behavior: 'auto' })
     setOnLoadScrollToBottom(false)
     console.log('notes', notes)
+    setChatLoading(false)
   }, [notes])
 
+  // TODO: Replace virtuoso
+  // use an actual initial query for notes... time based only works for fast internet
+  // faster relay connections?
+  // loading needs an actual connection to relays, subscriptions and notes
   useEffect(() => {
     setTimeout(() => {
       setOnLoadScrollToBottom(true)
+    }, 1500)
+    setTimeout(() => {
+      setChatLoading(false)
     }, 2000)
   }, [])
 
@@ -252,6 +263,7 @@ export const Chat = ({
   }, [])
 
   useEffect(() => {
+    if (chatLoading) return
     if (showButtonTimeoutRef.current) {
       clearTimeout(showButtonTimeoutRef.current)
     }
@@ -297,14 +309,14 @@ export const Chat = ({
       <div className="hidden justify-center border-b border-solid border-gray-500 sm:flex">
         <p className="py-2 px-4 font-normal uppercase text-white">chat</p>
       </div>
-      <div className="relative h-full">
+      <div className="relative h-full pb-3">
         <Virtuoso
           // logLevel={LogLevel.DEBUG}
           data={notes}
           followOutput
           // followOutput={'smooth'}
           ref={virtuosoRef}
-          className={'max-h-[calc(100vh-12.5rem)]'}
+          className={`max-h-[calc(100vh-12.0rem)] ${chatLoading ? 'hidden' : ''}`}
           // not sure on these pixel calcs, but 1000px bottom seems to have *improved*
           // the scrollToBottom issue as recommended by virtuoso guy.
           increaseViewportBy={{
@@ -319,20 +331,30 @@ export const Chat = ({
           }}
         />
         {zapInvoice && showZapModule && (
-          <div className="absolute bottom-0 z-50 hidden max-h-[calc(100vh-12.5rem)] w-full overflow-x-hidden px-2 pt-2 sm:block">
+          <div className="absolute bottom-0 z-50 hidden max-h-[calc(100vh-12.5rem)] w-full overflow-x-hidden px-2 py-2 sm:block">
             <ZapInvoiceModule invoice={zapInvoice} type="chat" close={closeZap} />
           </div>
         )}
-        {showBottomButton && (
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2">
+        {showBottomButton && !chatLoading && (
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 pb-3">
             <ScrollToButtomButton
               onClick={() => virtuosoRef.current?.scrollToIndex({ index: notes.length - 1, behavior: 'auto' })}
             />
           </div>
         )}
+        {chatLoading && (
+          <div className="absolute bottom-0 left-1/2 z-0 w-full -translate-x-1/2 px-3 pt-3">
+            <div className="w-full rounded border-l border-r border-t border-gray-500 bg-stone-900/75 px-3 py-1">
+              <div className="flex gap-2">
+                <Spinner height={4} width={4} />
+                <p className="text-sm font-semibold text-gray-300">Connecting to chat</p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
-      <div className="flex w-full flex-row gap-1 py-3 px-3 sm:flex-col">
+      <div className="z-1 flex w-full flex-row gap-1 px-3 pb-3 sm:flex-col">
         <MessageInput
           handleSubmitMessage={handleSubmit(onSubmitMessage)}
           disabled={!canSign}
