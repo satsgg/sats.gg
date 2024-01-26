@@ -3,7 +3,7 @@ import { useProfile } from '~/hooks/useProfile'
 import LiveSVG from '~/svgs/live.svg'
 import { nip19 } from 'nostr-tools'
 import ProfileImg from './ProfileImg'
-import { Stream, displayName, getVerifiedChannelLink } from '~/utils/nostr'
+import { Stream, displayName, getStreamNaddr, getVerifiedChannelLink } from '~/utils/nostr'
 import { fmtNumber } from '~/utils/util'
 
 export const FollowedChannelSingle = ({
@@ -20,7 +20,14 @@ export const FollowedChannelSingle = ({
   const { profile, isLoading } = useProfile(pubkey)
 
   return (
-    <Link href={getVerifiedChannelLink(profile) || `/${nip19.npubEncode(pubkey)}`}>
+    <Link
+      href={
+        getVerifiedChannelLink(profile) ||
+        (stream
+          ? `/${getStreamNaddr(stream.providerPubkey || stream.pubkey, stream.d, stream.relays)}`
+          : `/${nip19.npubEncode(pubkey)})`)
+      }
+    >
       <div className="flex justify-between gap-2 py-2 px-2 hover:cursor-pointer hover:bg-stone-700/25">
         <div className="flex min-w-0">
           <div className={`${userCollapse ? '' : 'mr-2'} h-8 w-8 shrink-0`}>
