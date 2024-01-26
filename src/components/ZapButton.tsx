@@ -159,9 +159,9 @@ const ZapButton = ({
     >
       {
         {
-          disabled: <LightningBoltDisabled height={16} width={16} strokeWidth={1.5} />,
-          waiting: <LightningBolt className="animate-pulse" height={16} width={16} strokeWidth={1.5} />,
-          ready: <LightningBolt height={16} width={16} strokeWidth={1.5} />,
+          disabled: <LightningBoltDisabled height={18} width={18} strokeWidth={1.5} />,
+          waiting: <LightningBolt className="animate-pulse" height={18} width={18} strokeWidth={1.5} />,
+          ready: <LightningBolt height={18} width={18} strokeWidth={1.5} />,
         }[buttonState()]
       }
       <p className="text-sm font-semibold capitalize">{fmtNumber(user?.defaultZapAmount || 1000, true)}</p>
