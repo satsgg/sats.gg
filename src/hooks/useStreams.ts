@@ -10,36 +10,10 @@ export const useStreams = (id: string, pubkeys: string[] | null = null, reverse 
     {
       kinds: [30311],
       authors: pubkeys ? pubkeys : undefined,
-      // nobody seems to be updating their 30311s every hour
       since: Math.floor(Date.now() / 1000) - 3600,
-      // '#status': ['live'], // this doesn't really work
     },
   ]
 
-  // TODO: Need to account for an "ended" live event...
-  // this is only considering the latest "live" events
-  // const onEventCallback = (event: Event) => {
-  //   setStreams((prev) => {
-  //     // TODO: this whole thing sucks
-  //     // if we get an ended and the same pubkey + 'd' is in streams with 'live' need to remove it
-  //     let status = event.tags.find(([t, v]) => t === 'status' && v)
-  //     if (status && status[1] && status[1] !== 'live') return prev
-
-  //     // filter out duplicates
-  //     const alreadyHaveNote = prev.some((a) => a.id === event.id)
-
-  //     // TODO: This prevents us from seeing zap.stream stuff
-  //     // const newerNoteExists = prev.some((a) => a.pubkey === event.pubkey && a.createdAt >= event.created_at)
-  //     // want to allow same pubkey to have multiple 30311s w/ different 'd's...
-  //     // but only keep newest of the e
-  //     const newerNoteExists = prev.some((a) => a.createdAt >= event.created_at)
-  //     if (alreadyHaveNote || newerNoteExists) {
-  //       return prev
-  //     }
-
-  //     return [...prev.filter((stream) => stream.pubkey !== event.pubkey).slice(0, limit), parseStreamNote(event)]
-  //   })
-  // }
   const onEventCallback = (event: Event) => {
     const stream = parseStreamNote(event)
     if (!stream) return

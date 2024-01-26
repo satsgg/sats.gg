@@ -41,8 +41,10 @@ export const VideoJS = ({ options, onReady }: { options: any; onReady: Function 
     const player = playerRef.current
     if (player && !player.isDisposed()) {
       const volume = player.volume()
+      const muted = player.muted()
       if (!volume) return
-      adjustVolume(volume)
+      const newVolume = muted === true ? 0 : volume
+      adjustVolume(newVolume)
     }
   })
 
@@ -53,9 +55,10 @@ export const VideoJS = ({ options, onReady }: { options: any; onReady: Function 
     return () => {
       if (player && !player.isDisposed()) {
         const volume = player.volume()
+        const muted = player.muted()
         if (!volume) return
-        adjustVolume(volume)
-
+        const newVolume = muted === true ? 0 : volume
+        adjustVolume(newVolume)
         player.dispose()
         playerRef.current = null
       }

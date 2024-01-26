@@ -26,7 +26,8 @@ const VideoPlayer = ({ url }: { url: string }) => {
     ],
   }
 
-  console.debug('player rendered', url)
+  // console.debug('player rendered', url)
+  // console.debug('volume', volume)
 
   const handlePlayerReady = (player: Player) => {
     playerRef.current = player
@@ -39,6 +40,9 @@ const VideoPlayer = ({ url }: { url: string }) => {
     player.on('dispose', () => {
       videojs.log('player will dispose')
     })
+    // player.on('volumechange', () => {
+    //   console.debug('volume change', player.volume())
+    // })
 
     player.volume(volume)
   }
