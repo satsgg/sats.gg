@@ -255,7 +255,7 @@ export const getVerifiedChannelLink = (profile: UserMetadataStore | undefined) =
     const match = profile.nip05.match(/^(?:([\w.+-]+)@)?([\w.-]+)$/)
     if (!match) return null
     const [_, name = '_', domain] = match
-    if (domain === 'sats.gg') return `/${name}`
+    if (domain === 'sats.gg') return name
   }
 
   return null

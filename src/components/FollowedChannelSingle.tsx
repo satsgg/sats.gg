@@ -18,16 +18,16 @@ export const FollowedChannelSingle = ({
   autoCollapse: boolean
 }) => {
   const { profile, isLoading } = useProfile(pubkey)
+  const streamLink =
+    getVerifiedChannelLink(profile) ||
+    (stream
+      ? getStreamNaddr(stream.providerPubkey || stream.pubkey, stream.d, stream.relays)
+      : nip19.npubEncode(pubkey))
+
+  console.debug('streamlink', `${streamLink}`)
 
   return (
-    <Link
-      href={
-        getVerifiedChannelLink(profile) ||
-        (stream
-          ? `/${getStreamNaddr(stream.providerPubkey || stream.pubkey, stream.d, stream.relays)}`
-          : `/${nip19.npubEncode(pubkey)})`)
-      }
-    >
+    <Link href={`/${streamLink}`}>
       <div className="flex justify-between gap-2 py-2 px-2 hover:cursor-pointer hover:bg-stone-700/25">
         <div className="flex min-w-0">
           <div className={`${userCollapse ? '' : 'mr-2'} h-8 w-8 shrink-0`}>

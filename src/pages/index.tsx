@@ -48,9 +48,11 @@ const StreamCard = ({
 
   if (isLoading) return <DummyStreamCard />
 
+  const streamLink = getVerifiedChannelLink(profile) || getStreamNaddr(providerPubkey || pubkey, d, relays)
+
   return (
     <div className="flex flex-col gap-2">
-      <Link href={`/${getStreamNaddr(providerPubkey || pubkey, d, relays)}`} legacyBehavior={false}>
+      <Link href={`/${streamLink}`} legacyBehavior={false}>
         <div id="cardThumbnailWrapper" className="relative aspect-video">
           <ThumbnailImg pubkey={pubkey} thumbnail={image} />
           <div className="absolute top-0 m-2.5">
@@ -72,7 +74,7 @@ const StreamCard = ({
       <div className="flex h-16 w-full gap-2 ">
         <div className="">
           <div className="h-10 w-10">
-            <Link href={getVerifiedChannelLink(profile) || `/${nip19.npubEncode(pubkey)}`} legacyBehavior={false}>
+            <Link href={`/${streamLink}`} legacyBehavior={false}>
               {isLoading ? (
                 <div className="h-full w-full rounded-[50%] bg-gray-600" />
               ) : (
@@ -83,14 +85,11 @@ const StreamCard = ({
         </div>
         <div className="flex min-w-0 flex-col">
           {title && (
-            <Link href={getVerifiedChannelLink(profile) || `/${nip19.npubEncode(pubkey)}`} legacyBehavior={false}>
+            <Link href={`/${streamLink}`} legacyBehavior={false}>
               <h3 className="truncate font-bold">{title}</h3>
             </Link>
           )}
-          <Link
-            href={getVerifiedChannelLink(profile) || `/${nip19.npubEncode(providerPubkey || pubkey)}`}
-            legacyBehavior={false}
-          >
+          <Link href={`/${streamLink}`} legacyBehavior={false}>
             <p className="truncate">{!isLoading && displayName(pubkey, profile)}</p>
           </Link>
         </div>
