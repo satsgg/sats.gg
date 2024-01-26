@@ -41,7 +41,7 @@ export const useStream = (pubkey: string, d?: string) => {
       setStream(null)
       nostrClient.unsubscribe('channel')
     }
-  }, [pubkey])
+  }, [pubkey, d])
 
   return stream
 }

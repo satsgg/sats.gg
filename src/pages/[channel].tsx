@@ -11,26 +11,6 @@ import ZapInvoiceModule from '~/components/ZapInvoiceModule'
 import useMediaQuery from '~/hooks/useMediaQuery'
 import VideoPlayer from '~/components/Stream/Player'
 import { useStream } from '~/hooks/useStream'
-import { Stream } from '~/utils/nostr'
-
-const normalizeStreamInfo = (stream?: Stream) => {
-  if (!stream) return null
-  if (stream.pubkey !== 'cf45a6ba1363ad7ed213a078e710d24115ae721c9b47bd1ebf4458eaefb4c2a5') {
-    return stream
-  }
-  console.debug('zap stream', stream)
-  if (!stream.p || !stream.p[0]) return stream
-  // if (!stream)
-  // if (!stream.p && !stream.p[1]) return stream // always at least one on zap stream
-  const zapStream = { ...stream }
-  // console.debug('stream.p[1]', stream.p[0])
-  zapStream.hostPubkey = stream.pubkey
-  zapStream.pubkey = stream.p[0]
-  // zapStream.p = []
-  console.debug('normalize', zapStream)
-
-  return zapStream
-}
 
 const getChannelPubkey = (channel: string, isReady: boolean): nip19.AddressPointer | string | null => {
   if (channel.startsWith('naddr')) {
