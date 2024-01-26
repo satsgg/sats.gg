@@ -103,7 +103,7 @@ export const Navbar = ({ openAuthenticate }: HeaderProps) => {
                         <span>My Channel</span>
                       </Link>
                     </li>
-                    <li>
+                    {/* <li>
                       <Link
                         href={`/notifications?pubkey=${pubkey}${
                           user?.chatChannelId ? `&id=${user.chatChannelId}` : ''
@@ -115,7 +115,7 @@ export const Navbar = ({ openAuthenticate }: HeaderProps) => {
                         <Notifications width={20} height={20} className="mr-1" strokeWidth={1.5} />
                         <span>Notifications</span>
                       </Link>
-                    </li>
+                    </li> */}
                     <li>
                       <Link
                         href="/settings/profile"
