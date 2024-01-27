@@ -137,7 +137,7 @@ export const Chat = ({
       message: '',
       amount: user?.defaultZapAmount || 1000,
     })
-  }, [])
+  }, [user])
 
   // True when < 640px (tailwind sm)
   const resetZapInfo = !useMediaQuery('(min-width: 640px)')
