@@ -11,16 +11,14 @@ const ZapChatButton = ({
   setShowZapChat,
   setFocus,
   getValues,
-  setZapInvoice,
-  setShowZapModule,
+  close,
 }: {
   channelProfile: UserMetadataStore | undefined
   showZapChat: boolean
   setShowZapChat: Dispatch<SetStateAction<boolean>>
   setFocus: Function
   getValues: Function
-  setZapInvoice: Function
-  setShowZapModule: Function
+  close: () => void
 }) => {
   const canSign = useCanSign()
   const disabled = () => {
@@ -37,12 +35,9 @@ const ZapChatButton = ({
     if (!showZapChat && getValues('message') === '') {
       setFocus('message')
     }
-    // TODO: on close, set loading to false
-    // setShowZapChat((show) => !show)
+
     if (showZapChat) {
-      setShowZapChat(false)
-      setShowZapModule(false)
-      setZapInvoice(null)
+      close()
       return
     }
     setShowZapChat(true)

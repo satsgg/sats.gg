@@ -357,7 +357,7 @@ export const Chat = ({
       <div className="z-1 flex w-full flex-row gap-1 px-3 pb-3 sm:flex-col">
         <MessageInput
           handleSubmitMessage={handleSubmit(onSubmitMessage)}
-          disabled={!canSign}
+          disabled={!canSign || showZapModule}
           placeholder={`Send a ${showZapChat ? 'zap message' : 'message'}`}
           showZapChat={showZapChat}
           register={register}
@@ -366,13 +366,11 @@ export const Chat = ({
           <div className="hidden gap-x-2 sm:flex">
             <ZapChatButton
               channelProfile={channelProfile}
-              // chatChannelId={channelUser?.chatChannelId}
               showZapChat={showZapChat}
               setShowZapChat={setShowZapChat}
               setFocus={setFocus}
               getValues={getValues}
-              setZapInvoice={setZapInvoice}
-              setShowZapModule={setShowZapModule}
+              close={closeZap}
             />
             {showZapChat && (
               <div className="relative">
@@ -384,6 +382,7 @@ export const Chat = ({
                   autoComplete="off"
                   spellCheck={false}
                   placeholder="1000"
+                  disabled={showZapModule}
                   min={1}
                   className={`focus:shadow-outline h-8 w-32 resize-none appearance-none rounded border border-gray-500 bg-stone-700 py-2 px-3 leading-tight text-white shadow placeholder:italic focus:border-primary focus:bg-slate-900 focus:outline-none`}
                   {...register('amount', {
