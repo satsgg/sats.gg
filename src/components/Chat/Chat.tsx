@@ -42,14 +42,12 @@ type ZapState = {
   invoice: string | null
   loading: boolean
   showZapChat: boolean
-  showZapModule: boolean
 }
 
 const defaultZapState: ZapState = {
   invoice: null,
   loading: false,
   showZapChat: false,
-  showZapModule: false,
 }
 
 export const Chat = ({
@@ -245,7 +243,6 @@ export const Chat = ({
         ...prev,
         invoice: invoice,
         loading: false,
-        showZapModule: true,
       }
     })
   }
@@ -422,7 +419,7 @@ export const Chat = ({
             return renderNote(note)
           }}
         />
-        {zapState.invoice && zapState.showZapModule && (
+        {!!zapState.invoice && (
           <div className="absolute bottom-0 z-50 hidden max-h-[calc(100vh-12.5rem)] w-full overflow-x-hidden px-2 py-2 sm:block">
             <ZapInvoiceModule
               invoice={zapState.invoice}
@@ -432,7 +429,6 @@ export const Chat = ({
                   return {
                     ...prev,
                     invoice: null,
-                    showZapModule: false,
                   }
                 })
               }}
@@ -461,7 +457,7 @@ export const Chat = ({
       <div className="z-1 flex w-full flex-row gap-1 px-3 pb-3 sm:flex-col">
         <MessageInput
           handleSubmitMessage={handleSubmit(onSubmitMessage)}
-          disabled={!canSign || zapState.loading || zapState.showZapModule}
+          disabled={!canSign || zapState.loading || !!zapState.invoice}
           placeholder={`Send a ${zapState.showZapChat ? 'zap message' : 'message'}`}
           showZapChat={zapState.showZapChat}
           register={register}
@@ -502,7 +498,7 @@ export const Chat = ({
                   autoComplete="off"
                   spellCheck={false}
                   placeholder="1000"
-                  disabled={zapState.loading || zapState.showZapModule}
+                  disabled={zapState.loading || !!zapState.invoice}
                   min={1}
                   className={`focus:shadow-outline h-8 w-32 resize-none appearance-none rounded border border-gray-500 bg-stone-700 py-2 px-3 leading-tight text-white shadow placeholder:italic focus:border-primary focus:bg-slate-900 focus:outline-none`}
                   {...register('amount', {
@@ -518,8 +514,7 @@ export const Chat = ({
               disabled={!canSign || !isValid}
               icon={
                 <LightningBolt
-                  // className={`${zapInvoice || zapLoading ? 'animate-pulse' : ''}`}
-                  className={`${zapState.invoice || zapState.loading ? 'animate-pulse' : ''}`}
+                  className={`${!!zapState.invoice || zapState.loading ? 'animate-pulse' : ''}`}
                   height={20}
                   width={20}
                   strokeWidth={1.5}
