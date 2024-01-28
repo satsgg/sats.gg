@@ -175,7 +175,7 @@ export const Chat = ({
   useEffect(() => {
     if (zapState.showZapChat) return
 
-    const defaultZapRegex = /(?:\/zap|\/z)(?:\s+)([a-zA-Z])/
+    const defaultZapRegex = /^(?:\/zap|\/z)(?:\s+)([a-zA-Z])/
     const parsedDefaultAmount = defaultZapRegex.exec(message)
 
     if (parsedDefaultAmount) {
@@ -192,7 +192,7 @@ export const Chat = ({
       return
     }
 
-    const amountRegex = /(?:\/zap|\/z)(?:\s+)(\d+)\s/
+    const amountRegex = /^(?:\/zap|\/z)(?:\s+)(\d+)\s/
     const parsedAmount = amountRegex.exec(message)
 
     if (parsedAmount) {
@@ -235,6 +235,11 @@ export const Chat = ({
 
     if (weblnAvailable && (await weblnPay(invoice))) {
       console.debug('Invoice paid via WebLN!')
+      setZapState(defaultZapState)
+      reset({
+        message: '',
+        amount: user?.defaultZapAmount || 1000,
+      })
       return
     }
 
@@ -253,7 +258,7 @@ export const Chat = ({
     const formattedMessage = data.message.trim()
     if (!zapState.showZapChat && formattedMessage === '') return
 
-    let regex = /(?:\/zap|\/z)(?:\s)?(\d+)?/
+    let regex = /^(?:\/zap|\/z)(?:\s)?(\d+)?/
 
     let parsedSlashCommand = zapState.showZapChat ? null : regex.exec(formattedMessage)
 
