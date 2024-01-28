@@ -42,6 +42,7 @@ const useWebln = () => {
     return true
   }
 
+  // TODO: Should throw
   const weblnPay = async (invoice: string) => {
     if (typeof enabled === 'undefined' && !(await enableWebln())) {
       return false

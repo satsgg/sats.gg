@@ -88,15 +88,10 @@ export const Chat = ({
 
   const notes = useSubscription(providerPubkey || channelPubkey, filters, false, 250)
 
-  const closeZap = () => {
+  useFetchZap('chat-zap', channelProfile?.pubkey, zapInvoice, () => {
     setZapInvoice(null)
-    setZapLoading(false)
     setShowZapModule(false)
     setShowZapChat(false)
-  }
-
-  useFetchZap('chat-zap', channelProfile?.pubkey, zapInvoice, () => {
-    closeZap()
     reset({
       message: '',
       amount: user?.defaultZapAmount || 1000,
@@ -148,7 +143,11 @@ export const Chat = ({
   // True when < 640px (tailwind sm)
   const resetZapInfo = !useMediaQuery('(min-width: 640px)')
   useEffect(() => {
-    if (resetZapInfo) closeZap()
+    if (resetZapInfo) {
+      setZapInvoice(null)
+      setShowZapModule(false)
+      setShowZapChat(false)
+    }
   }, [resetZapInfo])
 
   // Hacky patch to get the chat to scroll to bottom after mounting...
@@ -273,8 +272,12 @@ export const Chat = ({
       try {
         await sendZapChat(zapRequestArgs)
       } catch (err: any) {
+        // failure to sign, failure to get zap invoice, failure to webln pay
         console.error(err)
-        closeZap()
+        setZapLoading(false)
+        setZapInvoice(null)
+        setShowZapModule(false)
+        setShowZapChat(false)
         toast.error(err.message, {
           position: 'bottom-center',
           autoClose: 5000,
@@ -397,7 +400,14 @@ export const Chat = ({
         />
         {zapInvoice && showZapModule && (
           <div className="absolute bottom-0 z-50 hidden max-h-[calc(100vh-12.5rem)] w-full overflow-x-hidden px-2 py-2 sm:block">
-            <ZapInvoiceModule invoice={zapInvoice} type="chat" close={closeZap} />
+            <ZapInvoiceModule
+              invoice={zapInvoice}
+              type="chat"
+              close={() => {
+                setZapInvoice(null)
+                setShowZapModule(false)
+              }}
+            />
           </div>
         )}
         {showBottomButton && !chatLoading && (
@@ -435,7 +445,15 @@ export const Chat = ({
               setShowZapChat={setShowZapChat}
               setFocus={setFocus}
               getValues={getValues}
-              close={closeZap}
+              close={() => {
+                setZapInvoice(null)
+                setShowZapModule(false)
+                setShowZapChat(false)
+                reset({
+                  message: '',
+                  amount: user?.defaultZapAmount || 1000,
+                })
+              }}
             />
             {showZapChat && (
               <div className="relative">
