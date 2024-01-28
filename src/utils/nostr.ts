@@ -181,7 +181,7 @@ export async function getZapEndpoint(
   return null
 }
 
-type ZapRequestArgs = {
+export type ZapRequestArgs = {
   profile: string
   event: string | null
   amount: number

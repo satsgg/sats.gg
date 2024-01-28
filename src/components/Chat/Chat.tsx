@@ -3,6 +3,7 @@ import { Virtuoso, LogLevel, VirtuosoHandle } from 'react-virtuoso'
 import { inferProcedureOutput } from '@trpc/server'
 import { Event as NostrEvent, Filter, UnsignedEvent, verifySignature, validateEvent, EventTemplate } from 'nostr-tools'
 import {
+  ZapRequestArgs,
   createChatEvent,
   createZapEvent,
   getZapAmountFromReceipt,
@@ -96,7 +97,10 @@ export const Chat = ({
 
   useFetchZap('chat-zap', channelProfile?.pubkey, zapInvoice, () => {
     closeZap()
-    reset()
+    reset({
+      message: '',
+      amount: user?.defaultZapAmount || 1000,
+    })
     console.debug('Zap successful, toasting!')
     toast.success('Zap successful!', {
       position: 'bottom-center',
@@ -124,13 +128,15 @@ export const Chat = ({
     mode: 'onChange',
     schema: z.object({
       message: z.string().max(MAX_MSG_LEN),
-      amount: z.number().min(1).optional(),
+      // amount: z.number().min(1).optional(),
+      amount: z.number().min(1),
     }),
     // defaultValues: {
     //   message: '',
     //   amount: user?.defaultZapAmount || 1000,
     // },
   })
+  const message = watch('message')
 
   useEffect(() => {
     reset({
@@ -167,48 +173,103 @@ export const Chat = ({
     }, 2000)
   }, [])
 
-  const onSubmitMessage = async (data: any) => {
+  // auto parse for zap slash command
+  useEffect(() => {
+    if (showZapChat) return
+
+    const defaultZapRegex = /(?:\/zap|\/z)(?:\s+)([a-zA-Z])/
+    const parsedDefaultAmount = defaultZapRegex.exec(message)
+
+    if (parsedDefaultAmount) {
+      reset({
+        message: parsedDefaultAmount[1],
+        amount: user?.defaultZapAmount || 1000,
+      })
+      setShowZapChat(true)
+      return
+    }
+
+    const amountRegex = /(?:\/zap|\/z)(?:\s+)(\d+)\s/
+    const parsedAmount = amountRegex.exec(message)
+
+    if (parsedAmount) {
+      reset({
+        message: '',
+        amount: Number(parsedAmount[1]),
+      })
+      setShowZapChat(true)
+      return
+    }
+  }, [message])
+
+  const sendZapChat = async (zapRequestArgs: ZapRequestArgs) => {
+    // TODO: getZap endpoint when the page is loaded... not per zap
+    if (!channelProfile) return
+    const zapInfo = await getZapEndpoint(channelProfile)
+    if (!zapInfo) throw new Error('Failed to fetch zap endpoint')
+
+    const defaultPrivKey = view === 'default' ? privkey : null
+    const signedZapRequestEvent = await createZapEvent(
+      zapRequestArgs,
+      providerPubkey || channelPubkey,
+      channelIdentifier,
+      defaultPrivKey,
+    )
+    if (!signedZapRequestEvent) throw new Error('Failed to sign zap')
+
+    const invoice = await requestZapInvoice(
+      signedZapRequestEvent,
+      zapRequestArgs.amount,
+      zapInfo.callback,
+      zapInfo.lnurl,
+    )
+    if (!invoice) throw new Error('Failed to fetch zap invoice')
+
+    setZapInvoice(invoice)
+    if (weblnAvailable && (await weblnPay(invoice))) {
+      console.debug('Invoice paid via WebLN!')
+      return
+    }
+
+    setShowZapModule(true)
+  }
+
+  const onSubmitMessage = async (data: { message: string; amount: number }) => {
     if (!pubkey) return
 
     const formattedMessage = data.message.trim()
     if (!showZapChat && formattedMessage === '') return
 
-    if (showZapChat) {
-      if (!channelProfile || zapLoading) return
-      setZapLoading(true)
+    let regex = /(?:\/zap|\/z)(?:\s)?(\d+)?/
+
+    let parsedSlashCommand = showZapChat ? null : regex.exec(formattedMessage)
+
+    // send a zap
+    if (parsedSlashCommand || showZapChat) {
+      let finalAmount = data.amount
+      let finalMessage = data.message
+
+      if (parsedSlashCommand) {
+        console.debug('parsed slash command', parsedSlashCommand)
+        finalMessage = ''
+        finalAmount = parsedSlashCommand[1] ? Number(parsedSlashCommand[1]) : finalAmount
+        setShowZapChat(true)
+        reset({
+          message: finalMessage,
+          amount: finalAmount,
+        })
+      }
+
+      const zapRequestArgs: ZapRequestArgs = {
+        profile: channelPubkey,
+        event: streamId,
+        amount: finalAmount * 1000,
+        comment: finalMessage,
+        relays: relays,
+      }
+
       try {
-        const zapInfo = await getZapEndpoint(channelProfile)
-        if (!zapInfo) throw new Error('Failed to fetch zap endpoint')
-
-        const amountMilliSats = data.amount * 1000
-
-        const zapRequestArgs = {
-          profile: channelPubkey,
-          event: streamId,
-          amount: amountMilliSats,
-          comment: data.message,
-          relays: relays,
-        }
-
-        const defaultPrivKey = view === 'default' ? privkey : null
-        const signedZapRequestEvent = await createZapEvent(
-          zapRequestArgs,
-          providerPubkey || channelPubkey,
-          channelIdentifier,
-          defaultPrivKey,
-        )
-        if (!signedZapRequestEvent) throw new Error('Failed to sign zap')
-
-        const invoice = await requestZapInvoice(signedZapRequestEvent, amountMilliSats, zapInfo.callback, zapInfo.lnurl)
-        if (!invoice) throw new Error('Failed to fetch zap invoice')
-
-        setZapInvoice(invoice)
-        if (weblnAvailable && (await weblnPay(invoice))) {
-          console.debug('Invoice paid via WebLN!')
-          return
-        }
-
-        setShowZapModule(true)
+        await sendZapChat(zapRequestArgs)
       } catch (err: any) {
         console.error(err)
         closeZap()
@@ -223,35 +284,37 @@ export const Chat = ({
           theme: 'light',
         })
       }
-    } else {
-      const event: EventTemplate = createChatEvent(formattedMessage, providerPubkey || channelPubkey, channelIdentifier)
-      // error handling here? What if none of the relays accepted our message...
-      try {
-        const signedEvent: NostrEvent | null =
-          view === 'default' ? signEventPrivkey(event, privkey) : await window.nostr.signEvent(event)
-        if (!signedEvent) throw new Error('Failed to sign message')
-        let ok = validateEvent(signedEvent)
-        if (!ok) throw new Error('Invalid event')
-        let veryOk = verifySignature(signedEvent)
-        if (!veryOk) throw new Error('Invalid signature')
-        nostrClient.publish(signedEvent)
-      } catch (err: any) {
-        console.error(err.message)
-        toast.error(err.message, {
-          position: 'bottom-center',
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: 'light',
-        })
-      }
 
-      reset()
       return
     }
+
+    // send a regular chat message
+    const event: EventTemplate = createChatEvent(formattedMessage, providerPubkey || channelPubkey, channelIdentifier)
+    // error handling here? What if none of the relays accepted our message...
+    try {
+      const signedEvent: NostrEvent | null =
+        view === 'default' ? signEventPrivkey(event, privkey) : await window.nostr.signEvent(event)
+      if (!signedEvent) throw new Error('Failed to sign message')
+      let ok = validateEvent(signedEvent)
+      if (!ok) throw new Error('Invalid event')
+      let veryOk = verifySignature(signedEvent)
+      if (!veryOk) throw new Error('Invalid signature')
+      nostrClient.publish(signedEvent)
+    } catch (err: any) {
+      console.error(err.message)
+      toast.error(err.message, {
+        position: 'bottom-center',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'light',
+      })
+    }
+
+    reset()
   }
 
   useEffect(() => {
