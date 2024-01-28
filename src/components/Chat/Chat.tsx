@@ -1,7 +1,6 @@
 import { useRef, useState, useEffect } from 'react'
-import { Virtuoso, LogLevel, VirtuosoHandle } from 'react-virtuoso'
-import { inferProcedureOutput } from '@trpc/server'
-import { Event as NostrEvent, Filter, UnsignedEvent, verifySignature, validateEvent, EventTemplate } from 'nostr-tools'
+import { Virtuoso, VirtuosoHandle } from 'react-virtuoso'
+import { Event as NostrEvent, Filter, verifySignature, validateEvent, EventTemplate } from 'nostr-tools'
 import {
   ZapRequestArgs,
   createChatEvent,
@@ -18,7 +17,6 @@ import useCanSign from '~/hooks/useCanSign'
 import { toast } from 'react-toastify'
 import { UserMetadataStore, nostrClient } from '~/nostr/NostrClient'
 import useAuthStore from '~/hooks/useAuthStore'
-import { AppRouter } from '~/server/routers/_app'
 import ZapChatButton from '~/components/ZapChatButton'
 import LightningBolt from '~/svgs/lightning-bolt.svg'
 import { useZodForm } from '~/utils/useZodForm'
@@ -38,6 +36,20 @@ import { Spinner } from '../Spinner'
 const eventOrder = {
   created_at: null,
   content: null,
+}
+
+type ZapState = {
+  invoice: string | null
+  loading: boolean
+  showZapChat: boolean
+  showZapModule: boolean
+}
+
+const defaultZapState: ZapState = {
+  invoice: null,
+  loading: false,
+  showZapChat: false,
+  showZapModule: false,
 }
 
 export const Chat = ({
@@ -65,21 +77,17 @@ export const Chat = ({
   const [onLoadScrollToBottom, setOnLoadScrollToBottom] = useState(false)
 
   const relays = useSettingsStore((state) => state.relays)
-  const [zapInvoice, setZapInvoice] = useState<string | null>(null)
-  const [showZapModule, setShowZapModule] = useState(false)
-  const [showZapChat, setShowZapChat] = useState(false)
-  // TODO: Need to clean up zap state and double check closeZap()
-  const [zapLoading, setZapLoading] = useState(false)
+
+  const [zapState, setZapState] = useState<ZapState>(defaultZapState)
+
   const { available: weblnAvailable, weblnPay } = useWebln()
 
   const now = useRef(Math.floor(Date.now() / 1000)) // Make sure current time isn't re-rendered
 
   const filters: Filter[] = [
     {
-      // TODO: separate filter for zaps with pubkey equal to channelUser pubkey
       kinds: [1311, 9735],
       // TODO: Smarter since..?
-      // since: now.current - 60 * 60 * 1, // 1 hour ago
       since: now.current - 60 * 60 * 1, // 1 hour ago
       limit: 25,
       '#a': [`30311:${providerPubkey || channelPubkey}:${channelIdentifier}`],
@@ -88,10 +96,8 @@ export const Chat = ({
 
   const notes = useSubscription(providerPubkey || channelPubkey, filters, false, 250)
 
-  useFetchZap('chat-zap', channelProfile?.pubkey, zapInvoice, () => {
-    setZapInvoice(null)
-    setShowZapModule(false)
-    setShowZapChat(false)
+  useFetchZap('chat-zap', channelProfile?.pubkey, zapState.invoice, () => {
+    setZapState(defaultZapState)
     reset({
       message: '',
       amount: user?.defaultZapAmount || 1000,
@@ -123,7 +129,6 @@ export const Chat = ({
     mode: 'onChange',
     schema: z.object({
       message: z.string().max(MAX_MSG_LEN),
-      // amount: z.number().min(1).optional(),
       amount: z.number().min(1),
     }),
     // defaultValues: {
@@ -143,11 +148,7 @@ export const Chat = ({
   // True when < 640px (tailwind sm)
   const resetZapInfo = !useMediaQuery('(min-width: 640px)')
   useEffect(() => {
-    if (resetZapInfo) {
-      setZapInvoice(null)
-      setShowZapModule(false)
-      setShowZapChat(false)
-    }
+    if (resetZapInfo) setZapState(defaultZapState)
   }, [resetZapInfo])
 
   // Hacky patch to get the chat to scroll to bottom after mounting...
@@ -174,7 +175,7 @@ export const Chat = ({
 
   // auto parse for zap slash command
   useEffect(() => {
-    if (showZapChat) return
+    if (zapState.showZapChat) return
 
     const defaultZapRegex = /(?:\/zap|\/z)(?:\s+)([a-zA-Z])/
     const parsedDefaultAmount = defaultZapRegex.exec(message)
@@ -184,7 +185,12 @@ export const Chat = ({
         message: parsedDefaultAmount[1],
         amount: user?.defaultZapAmount || 1000,
       })
-      setShowZapChat(true)
+      setZapState((prev) => {
+        return {
+          ...prev,
+          showZapChat: true,
+        }
+      })
       return
     }
 
@@ -196,7 +202,12 @@ export const Chat = ({
         message: '',
         amount: Number(parsedAmount[1]),
       })
-      setShowZapChat(true)
+      setZapState((prev) => {
+        return {
+          ...prev,
+          showZapChat: true,
+        }
+      })
       return
     }
   }, [message])
@@ -224,37 +235,52 @@ export const Chat = ({
     )
     if (!invoice) throw new Error('Failed to fetch zap invoice')
 
-    setZapInvoice(invoice)
     if (weblnAvailable && (await weblnPay(invoice))) {
       console.debug('Invoice paid via WebLN!')
       return
     }
-    setZapLoading(false)
-    setShowZapModule(true)
+
+    setZapState((prev) => {
+      return {
+        ...prev,
+        invoice: invoice,
+        loading: false,
+        showZapModule: true,
+      }
+    })
   }
 
   const onSubmitMessage = async (data: { message: string; amount: number }) => {
     if (!pubkey) return
 
     const formattedMessage = data.message.trim()
-    if (!showZapChat && formattedMessage === '') return
+    if (!zapState.showZapChat && formattedMessage === '') return
 
     let regex = /(?:\/zap|\/z)(?:\s)?(\d+)?/
 
-    let parsedSlashCommand = showZapChat ? null : regex.exec(formattedMessage)
+    let parsedSlashCommand = zapState.showZapChat ? null : regex.exec(formattedMessage)
 
     // send a zap
-    if (parsedSlashCommand || showZapChat) {
-      setZapLoading(true)
+    if (parsedSlashCommand || zapState.showZapChat) {
+      setZapState((prev) => {
+        return {
+          ...prev,
+          loading: true,
+        }
+      })
 
       let finalAmount = data.amount
       let finalMessage = data.message
 
       if (parsedSlashCommand) {
-        console.debug('parsed slash command', parsedSlashCommand)
         finalMessage = ''
         finalAmount = parsedSlashCommand[1] ? Number(parsedSlashCommand[1]) : finalAmount
-        setShowZapChat(true)
+        setZapState((prev) => {
+          return {
+            ...prev,
+            showZapChat: true,
+          }
+        })
         reset({
           message: finalMessage,
           amount: finalAmount,
@@ -274,10 +300,8 @@ export const Chat = ({
       } catch (err: any) {
         // failure to sign, failure to get zap invoice, failure to webln pay
         console.error(err)
-        setZapLoading(false)
-        setZapInvoice(null)
-        setShowZapModule(false)
-        setShowZapChat(false)
+        // TODO: test errors... just leave existing state?
+        // setZapState(defaultZapState)
         toast.error(err.message, {
           position: 'bottom-center',
           autoClose: 5000,
@@ -398,14 +422,19 @@ export const Chat = ({
             return renderNote(note)
           }}
         />
-        {zapInvoice && showZapModule && (
+        {zapState.invoice && zapState.showZapModule && (
           <div className="absolute bottom-0 z-50 hidden max-h-[calc(100vh-12.5rem)] w-full overflow-x-hidden px-2 py-2 sm:block">
             <ZapInvoiceModule
-              invoice={zapInvoice}
+              invoice={zapState.invoice}
               type="chat"
               close={() => {
-                setZapInvoice(null)
-                setShowZapModule(false)
+                setZapState((prev) => {
+                  return {
+                    ...prev,
+                    invoice: null,
+                    showZapModule: false,
+                  }
+                })
               }}
             />
           </div>
@@ -432,30 +461,38 @@ export const Chat = ({
       <div className="z-1 flex w-full flex-row gap-1 px-3 pb-3 sm:flex-col">
         <MessageInput
           handleSubmitMessage={handleSubmit(onSubmitMessage)}
-          disabled={!canSign || zapLoading || showZapModule}
-          placeholder={`Send a ${showZapChat ? 'zap message' : 'message'}`}
-          showZapChat={showZapChat}
+          disabled={!canSign || zapState.loading || zapState.showZapModule}
+          placeholder={`Send a ${zapState.showZapChat ? 'zap message' : 'message'}`}
+          showZapChat={zapState.showZapChat}
           register={register}
         />
         <div className="mt-1 flex justify-between sm:mt-0">
           <div className="hidden gap-x-2 sm:flex">
             <ZapChatButton
               channelProfile={channelProfile}
-              showZapChat={showZapChat}
-              setShowZapChat={setShowZapChat}
-              setFocus={setFocus}
-              getValues={getValues}
-              close={() => {
-                setZapInvoice(null)
-                setShowZapModule(false)
-                setShowZapChat(false)
-                reset({
-                  message: '',
-                  amount: user?.defaultZapAmount || 1000,
+              showZapChat={zapState.showZapChat}
+              handleClick={() => {
+                if (!zapState.showZapChat && message === '') {
+                  setFocus('message')
+                }
+
+                if (zapState.showZapChat) {
+                  setZapState(defaultZapState)
+                  reset({
+                    message: '',
+                    amount: user?.defaultZapAmount || 1000,
+                  })
+                  return
+                }
+                setZapState((prev) => {
+                  return {
+                    ...prev,
+                    showZapChat: true,
+                  }
                 })
               }}
             />
-            {showZapChat && (
+            {zapState.showZapChat && (
               <div className="relative">
                 <div className="absolute top-2/4 right-3 grid -translate-y-2/4 ">
                   <span className="text-gray-400">sats</span>
@@ -465,7 +502,7 @@ export const Chat = ({
                   autoComplete="off"
                   spellCheck={false}
                   placeholder="1000"
-                  disabled={zapLoading || showZapModule}
+                  disabled={zapState.loading || zapState.showZapModule}
                   min={1}
                   className={`focus:shadow-outline h-8 w-32 resize-none appearance-none rounded border border-gray-500 bg-stone-700 py-2 px-3 leading-tight text-white shadow placeholder:italic focus:border-primary focus:bg-slate-900 focus:outline-none`}
                   {...register('amount', {
@@ -475,13 +512,14 @@ export const Chat = ({
               </div>
             )}
           </div>
-          {showZapChat ? (
+          {zapState.showZapChat ? (
             <Button
               onClick={handleSubmit(onSubmitMessage)}
               disabled={!canSign || !isValid}
               icon={
                 <LightningBolt
-                  className={`${zapInvoice || zapLoading ? 'animate-pulse' : ''}`}
+                  // className={`${zapInvoice || zapLoading ? 'animate-pulse' : ''}`}
+                  className={`${zapState.invoice || zapState.loading ? 'animate-pulse' : ''}`}
                   height={20}
                   width={20}
                   strokeWidth={1.5}

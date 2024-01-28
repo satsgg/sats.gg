@@ -2,23 +2,17 @@ import LightningBolt from '~/svgs/lightning-bolt.svg'
 import LightningBoltDisabled from '~/svgs/lightning-bolt-disabled.svg'
 import Exit from '~/svgs/x.svg'
 import { UserMetadataStore } from '~/store/db'
-import { Dispatch, SetStateAction } from 'react'
+import { Dispatch, MouseEventHandler, SetStateAction } from 'react'
 import useCanSign from '~/hooks/useCanSign'
 
 const ZapChatButton = ({
   channelProfile,
+  handleClick,
   showZapChat,
-  setShowZapChat,
-  setFocus,
-  getValues,
-  close,
 }: {
   channelProfile: UserMetadataStore | undefined
+  handleClick: MouseEventHandler<HTMLButtonElement>
   showZapChat: boolean
-  setShowZapChat: Dispatch<SetStateAction<boolean>>
-  setFocus: Function
-  getValues: Function
-  close: () => void
 }) => {
   const canSign = useCanSign()
   const disabled = () => {
@@ -31,24 +25,24 @@ const ZapChatButton = ({
     else return 'ready'
   }
 
-  const handleOnClick = () => {
-    if (!showZapChat && getValues('message') === '') {
-      setFocus('message')
-    }
+  // const handleOnClick = () => {
+  //   if (!showZapChat && getValues('message') === '') {
+  //     setFocus('message')
+  //   }
 
-    if (showZapChat) {
-      close()
-      return
-    }
-    setShowZapChat(true)
-  }
+  //   if (showZapChat) {
+  //     close()
+  //     return
+  //   }
+  //   setShowZapChat(true)
+  // }
 
   return (
     <button
       className={`${disabled() || showZapChat ? 'bg-stone-700' : 'bg-primary'}
       relative inline-flex h-8 items-center space-x-1 rounded px-3 py-1`}
       disabled={disabled()}
-      onClick={handleOnClick}
+      onClick={handleClick}
       data-tooltip={buttonState() === 'ready' ? 'Zap Chat' : null}
       data-position="right"
       data-delay
