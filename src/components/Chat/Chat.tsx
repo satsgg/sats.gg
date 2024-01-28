@@ -96,10 +96,13 @@ export const Chat = ({
 
   useFetchZap('chat-zap', channelProfile?.pubkey, zapState.invoice, () => {
     setZapState(defaultZapState)
-    reset({
-      message: '',
-      amount: user?.defaultZapAmount || 1000,
-    })
+    setValue('message', '')
+    setValue('amount', user?.defaultZapAmount || 1000)
+    setFocus('message')
+    // reset({
+    //   message: '',
+    //   amount: user?.defaultZapAmount || 1000,
+    // })
     console.debug('Zap successful, toasting!')
     toast.success('Zap successful!', {
       position: 'bottom-center',
@@ -178,11 +181,13 @@ export const Chat = ({
     const defaultZapRegex = /^(?:\/zap|\/z)(?:\s+)([a-zA-Z])/
     const parsedDefaultAmount = defaultZapRegex.exec(message)
 
-    if (parsedDefaultAmount) {
-      reset({
-        message: parsedDefaultAmount[1],
-        amount: user?.defaultZapAmount || 1000,
-      })
+    if (parsedDefaultAmount && parsedDefaultAmount[1]) {
+      // reset({
+      //   message: parsedDefaultAmount[1],
+      //   amount: user?.defaultZapAmount || 1000,
+      // })
+      setValue('message', parsedDefaultAmount[1])
+      setValue('amount', user?.defaultZapAmount || 1000)
       setZapState((prev) => {
         return {
           ...prev,
@@ -195,11 +200,13 @@ export const Chat = ({
     const amountRegex = /^(?:\/zap|\/z)(?:\s+)(\d+)\s/
     const parsedAmount = amountRegex.exec(message)
 
-    if (parsedAmount) {
-      reset({
-        message: '',
-        amount: Number(parsedAmount[1]),
-      })
+    if (parsedAmount && parsedAmount[1]) {
+      // reset({
+      //   message: '',
+      //   amount: Number(parsedAmount[1]),
+      // })
+      setValue('message', '')
+      setValue('amount', Number(parsedAmount[1]))
       setZapState((prev) => {
         return {
           ...prev,
@@ -235,11 +242,15 @@ export const Chat = ({
 
     if (weblnAvailable && (await weblnPay(invoice))) {
       console.debug('Invoice paid via WebLN!')
+      setFocus('message')
       setZapState(defaultZapState)
-      reset({
-        message: '',
-        amount: user?.defaultZapAmount || 1000,
-      })
+      setValue('message', '')
+      setValue('amount', user?.defaultZapAmount || 1000)
+      // reset({
+      //   message: '',
+      //   amount: user?.defaultZapAmount || 1000,
+      // })
+      console.debug('setting focus message')
       return
     }
 
@@ -251,6 +262,11 @@ export const Chat = ({
       }
     })
   }
+
+  useEffect(() => {
+    console.debug('set focus')
+    setFocus('message', { shouldSelect: true })
+  }, [setFocus])
 
   const onSubmitMessage = async (data: { message: string; amount: number }) => {
     if (!pubkey) return
@@ -283,10 +299,12 @@ export const Chat = ({
             showZapChat: true,
           }
         })
-        reset({
-          message: finalMessage,
-          amount: finalAmount,
-        })
+        setValue('message', finalMessage)
+        setValue('amount', finalAmount)
+        // reset({
+        //   message: finalMessage,
+        //   amount: finalAmount,
+        // })
       }
 
       const zapRequestArgs: ZapRequestArgs = {
@@ -345,7 +363,8 @@ export const Chat = ({
       })
     }
 
-    reset()
+    // reset()
+    setValue('message', '')
   }
 
   useEffect(() => {
@@ -479,10 +498,12 @@ export const Chat = ({
 
                 if (zapState.showZapChat) {
                   setZapState(defaultZapState)
-                  reset({
-                    message: '',
-                    amount: user?.defaultZapAmount || 1000,
-                  })
+                  setValue('message', '')
+                  setValue('amount', user?.defaultZapAmount || 1000)
+                  // reset({
+                  //   message: '',
+                  //   amount: user?.defaultZapAmount || 1000,
+                  // })
                   return
                 }
                 setZapState((prev) => {
