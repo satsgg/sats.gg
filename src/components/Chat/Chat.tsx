@@ -98,11 +98,9 @@ export const Chat = ({
     setZapState(defaultZapState)
     setValue('message', '')
     setValue('amount', user?.defaultZapAmount || 1000)
-    setFocus('message')
-    // reset({
-    //   message: '',
-    //   amount: user?.defaultZapAmount || 1000,
-    // })
+    setTimeout(() => {
+      setFocus('message')
+    }, 1)
     console.debug('Zap successful, toasting!')
     toast.success('Zap successful!', {
       position: 'bottom-center',
@@ -182,10 +180,6 @@ export const Chat = ({
     const parsedDefaultAmount = defaultZapRegex.exec(message)
 
     if (parsedDefaultAmount && parsedDefaultAmount[1]) {
-      // reset({
-      //   message: parsedDefaultAmount[1],
-      //   amount: user?.defaultZapAmount || 1000,
-      // })
       setValue('message', parsedDefaultAmount[1])
       setValue('amount', user?.defaultZapAmount || 1000)
       setZapState((prev) => {
@@ -201,10 +195,6 @@ export const Chat = ({
     const parsedAmount = amountRegex.exec(message)
 
     if (parsedAmount && parsedAmount[1]) {
-      // reset({
-      //   message: '',
-      //   amount: Number(parsedAmount[1]),
-      // })
       setValue('message', '')
       setValue('amount', Number(parsedAmount[1]))
       setZapState((prev) => {
@@ -242,15 +232,14 @@ export const Chat = ({
 
     if (weblnAvailable && (await weblnPay(invoice))) {
       console.debug('Invoice paid via WebLN!')
-      setFocus('message')
+
+      // NOTE: for whatever reason have to add this delay
+      setTimeout(() => {
+        setFocus('message')
+      }, 1)
       setZapState(defaultZapState)
       setValue('message', '')
       setValue('amount', user?.defaultZapAmount || 1000)
-      // reset({
-      //   message: '',
-      //   amount: user?.defaultZapAmount || 1000,
-      // })
-      console.debug('setting focus message')
       return
     }
 
@@ -262,11 +251,6 @@ export const Chat = ({
       }
     })
   }
-
-  useEffect(() => {
-    console.debug('set focus')
-    setFocus('message', { shouldSelect: true })
-  }, [setFocus])
 
   const onSubmitMessage = async (data: { message: string; amount: number }) => {
     if (!pubkey) return
@@ -301,10 +285,6 @@ export const Chat = ({
         })
         setValue('message', finalMessage)
         setValue('amount', finalAmount)
-        // reset({
-        //   message: finalMessage,
-        //   amount: finalAmount,
-        // })
       }
 
       const zapRequestArgs: ZapRequestArgs = {
@@ -363,7 +343,6 @@ export const Chat = ({
       })
     }
 
-    // reset()
     setValue('message', '')
   }
 

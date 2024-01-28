@@ -25,18 +25,6 @@ const ZapChatButton = ({
     else return 'ready'
   }
 
-  // const handleOnClick = () => {
-  //   if (!showZapChat && getValues('message') === '') {
-  //     setFocus('message')
-  //   }
-
-  //   if (showZapChat) {
-  //     close()
-  //     return
-  //   }
-  //   setShowZapChat(true)
-  // }
-
   return (
     <button
       className={`${disabled() || showZapChat ? 'bg-stone-700' : 'bg-primary'}
