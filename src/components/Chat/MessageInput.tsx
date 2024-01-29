@@ -1,4 +1,5 @@
 import React, { MouseEventHandler, useEffect, useRef } from 'react'
+import FaceSmile from '~/svgs/face-smile.svg'
 
 interface MessageInputProps {
   handleSubmitMessage: (e: any) => void
@@ -46,9 +47,12 @@ const MessageInput = ({
         }}
         {...register('message')}
       />
-      <button type="button" className="absolute right-3 bottom-0 -translate-y-2/4" onClick={handleEmojiClicked}>
-        😂
-      </button>
+      <div className="absolute -bottom-1.5 right-3 flex -translate-y-2/4 p-1 hover:rounded hover:bg-stone-500">
+        {/* <button type="button" className="absolute right-3 bottom-0 -translate-y-2/4" onClick={handleEmojiClicked}> */}
+        <button type="button" onClick={handleEmojiClicked}>
+          <FaceSmile height={22} width={22} strokeWidth={2.0} className="stroke-gray-400" />
+        </button>
+      </div>
     </form>
   )
 }
