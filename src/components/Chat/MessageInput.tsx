@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { MouseEventHandler, useEffect, useRef } from 'react'
 
 interface MessageInputProps {
   handleSubmitMessage: (e: any) => void
@@ -6,9 +6,17 @@ interface MessageInputProps {
   placeholder: string
   showZapChat: boolean
   register: Function
+  handleEmojiClicked: MouseEventHandler<HTMLButtonElement>
 }
 
-const MessageInput = ({ handleSubmitMessage, disabled, placeholder, showZapChat, register }: MessageInputProps) => {
+const MessageInput = ({
+  handleSubmitMessage,
+  disabled,
+  placeholder,
+  showZapChat,
+  register,
+  handleEmojiClicked,
+}: MessageInputProps) => {
   // TODO: Autogrow textarea...
   // const textAreaRef = useRef<HTMLTextAreaElement | null>(null)
 
@@ -21,11 +29,11 @@ const MessageInput = ({ handleSubmitMessage, disabled, placeholder, showZapChat,
   // }, [textAreaRef])
 
   return (
-    <form className="w-full" spellCheck={false} onSubmit={handleSubmitMessage}>
+    <form className="relative w-full" spellCheck={false} onSubmit={handleSubmitMessage}>
       <textarea
         className={`${
           showZapChat ? 'bg-stone-700 ' : 'bg-stone-700'
-        } focus:shadow-outline w-full resize-none appearance-none rounded border border-gray-500 bg-stone-700 py-2 px-3 leading-tight text-white shadow focus:border-primary focus:bg-slate-900 focus:outline-none`}
+        } focus:shadow-outline w-full resize-none appearance-none rounded border border-gray-500 bg-stone-700 py-2 pl-3 pr-12 leading-tight text-white shadow focus:border-primary focus:bg-slate-900 focus:outline-none`}
         id="chatMessage"
         placeholder={placeholder}
         autoComplete="off"
@@ -38,6 +46,9 @@ const MessageInput = ({ handleSubmitMessage, disabled, placeholder, showZapChat,
         }}
         {...register('message')}
       />
+      <button type="button" className="absolute right-3 bottom-0 -translate-y-2/4" onClick={handleEmojiClicked}>
+        😂
+      </button>
     </form>
   )
 }

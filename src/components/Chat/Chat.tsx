@@ -32,6 +32,7 @@ import Button from '../Button'
 import { MAX_MSG_LEN } from '~/utils/util'
 import ScrollToButtomButton from './ScollToBottomButton'
 import { Spinner } from '../Spinner'
+import EmojiPicker from 'emoji-picker-react'
 
 const eventOrder = {
   created_at: null,
@@ -79,6 +80,7 @@ export const Chat = ({
   const relays = useSettingsStore((state) => state.relays)
 
   const [zapState, setZapState] = useState<ZapState>(defaultZapState)
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
 
   const { available: weblnAvailable, weblnPay } = useWebln()
 
@@ -268,6 +270,7 @@ export const Chat = ({
 
   const onSubmitMessage = async (data: { message: string; amount: number }) => {
     if (!pubkey) return
+    setShowEmojiPicker(false)
 
     const formattedMessage = data.message.trim()
     if (!zapState.showZapChat && formattedMessage === '') return
@@ -469,6 +472,18 @@ export const Chat = ({
             </div>
           </div>
         )}
+        {showEmojiPicker && (
+          <div className="z-1 absolute bottom-0 left-1/2 w-full -translate-x-1/2 px-3">
+            <EmojiPicker
+              width="100%"
+              height={400}
+              theme="dark"
+              onEmojiClick={(emoji) => {
+                setValue('message', getValues().message + emoji.emoji)
+              }}
+            />
+          </div>
+        )}
       </div>
 
       <div className="z-1 flex w-full flex-row gap-1 px-3 pb-3 sm:flex-col">
@@ -485,6 +500,7 @@ export const Chat = ({
             }
           })()}
           showZapChat={zapState.showZapChat}
+          handleEmojiClicked={() => setShowEmojiPicker(!showEmojiPicker)}
           register={register}
         />
         <div className="mt-1 flex justify-between sm:mt-0">
