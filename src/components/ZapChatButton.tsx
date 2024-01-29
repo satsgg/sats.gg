@@ -2,18 +2,23 @@ import LightningBolt from '~/svgs/lightning-bolt.svg'
 import LightningBoltDisabled from '~/svgs/lightning-bolt-disabled.svg'
 import Exit from '~/svgs/x.svg'
 import { UserMetadataStore } from '~/store/db'
-import { Dispatch, MouseEventHandler, SetStateAction } from 'react'
+import { useState } from 'react'
 import useCanSign from '~/hooks/useCanSign'
 
 const ZapChatButton = ({
   channelProfile,
   handleClick,
+  setPermaZap,
   showZapChat,
 }: {
   channelProfile: UserMetadataStore | undefined
-  handleClick: MouseEventHandler<HTMLButtonElement>
+  handleClick: () => void
+  setPermaZap: Function
   showZapChat: boolean
 }) => {
+  const [timeoutId, setTimeoutId] = useState<number | null>(null)
+  const [mouseDownTime, setMouseDownTime] = useState<number | null>(null)
+
   const canSign = useCanSign()
   const disabled = () => {
     return !channelProfile || (!channelProfile.lud06 && !channelProfile.lud16) || !canSign
@@ -25,12 +30,42 @@ const ZapChatButton = ({
     else return 'ready'
   }
 
+  const handlePointerDown = () => {
+    setMouseDownTime(Date.now())
+    const id = window.setTimeout(() => {
+      setPermaZap()
+      setMouseDownTime(null)
+    }, 500)
+    setTimeoutId(id)
+  }
+
+  const handlePointerUp = () => {
+    const mouseUpTime = Date.now()
+    if (timeoutId) {
+      clearTimeout(timeoutId)
+      setTimeoutId(null)
+    }
+    // Check if it's a click (held for less than 500 ms)
+    if (mouseDownTime && mouseUpTime - mouseDownTime < 500) {
+      handleClick()
+    }
+  }
+
+  const handlePointerLeave = () => {
+    if (timeoutId) {
+      clearTimeout(timeoutId)
+      setTimeoutId(null)
+    }
+  }
+
   return (
     <button
       className={`${disabled() || showZapChat ? 'bg-stone-700' : 'bg-primary'}
       relative inline-flex h-8 items-center space-x-1 rounded px-3 py-1`}
       disabled={disabled()}
-      onClick={handleClick}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      onPointerLeave={handlePointerLeave}
       data-tooltip={buttonState() === 'ready' ? 'Zap Chat' : null}
       data-position="right"
       data-delay

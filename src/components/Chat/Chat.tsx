@@ -42,12 +42,14 @@ type ZapState = {
   invoice: string | null
   loading: boolean
   showZapChat: boolean
+  permaZap: boolean
 }
 
 const defaultZapState: ZapState = {
   invoice: null,
   loading: false,
   showZapChat: false,
+  permaZap: false,
 }
 
 export const Chat = ({
@@ -95,23 +97,23 @@ export const Chat = ({
   const notes = useSubscription(providerPubkey || channelPubkey, filters, false, 250)
 
   useFetchZap('chat-zap', channelProfile?.pubkey, zapState.invoice, () => {
-    setZapState(defaultZapState)
-    setValue('message', '')
-    setValue('amount', user?.defaultZapAmount || 1000)
     setTimeout(() => {
       setFocus('message')
     }, 1)
-    console.debug('Zap successful, toasting!')
-    toast.success('Zap successful!', {
-      position: 'bottom-center',
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: 'light',
-    })
+
+    setValue('message', '')
+    if (zapState.permaZap) {
+      setZapState((prev) => {
+        return {
+          ...prev,
+          invoice: null,
+          loading: false,
+        }
+      })
+      return
+    }
+    setZapState(defaultZapState)
+    setValue('amount', user?.defaultZapAmount || 1000)
   })
 
   const {
@@ -237,8 +239,20 @@ export const Chat = ({
       setTimeout(() => {
         setFocus('message')
       }, 1)
-      setZapState(defaultZapState)
+
       setValue('message', '')
+      if (zapState.permaZap) {
+        setZapState((prev) => {
+          return {
+            ...prev,
+            invoice: null,
+            loading: false,
+          }
+        })
+        return
+      }
+
+      setZapState(defaultZapState)
       setValue('amount', user?.defaultZapAmount || 1000)
       return
     }
@@ -461,7 +475,15 @@ export const Chat = ({
         <MessageInput
           handleSubmitMessage={handleSubmit(onSubmitMessage)}
           disabled={!canSign || zapState.loading || !!zapState.invoice}
-          placeholder={`Send a ${zapState.showZapChat ? 'zap message' : 'message'}`}
+          placeholder={(() => {
+            if (zapState.showZapChat && !zapState.permaZap) {
+              return 'Send a zap message'
+            } else if (zapState.showZapChat && zapState.permaZap) {
+              return 'Perma zap mode!'
+            } else {
+              return 'Send a message'
+            }
+          })()}
           showZapChat={zapState.showZapChat}
           register={register}
         />
@@ -470,6 +492,16 @@ export const Chat = ({
             <ZapChatButton
               channelProfile={channelProfile}
               showZapChat={zapState.showZapChat}
+              setPermaZap={() => {
+                if (message === '') setFocus('message')
+                setZapState((prev) => {
+                  return {
+                    ...prev,
+                    showZapChat: true,
+                    permaZap: true,
+                  }
+                })
+              }}
               handleClick={() => {
                 if (!zapState.showZapChat && message === '') {
                   setFocus('message')
@@ -479,10 +511,6 @@ export const Chat = ({
                   setZapState(defaultZapState)
                   setValue('message', '')
                   setValue('amount', user?.defaultZapAmount || 1000)
-                  // reset({
-                  //   message: '',
-                  //   amount: user?.defaultZapAmount || 1000,
-                  // })
                   return
                 }
                 setZapState((prev) => {
