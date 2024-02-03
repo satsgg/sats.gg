@@ -40,7 +40,9 @@ export const Navbar = ({ openAuthenticate }: HeaderProps) => {
     <nav className="flex w-full items-center justify-between bg-stone-900 py-1 text-gray-200 shadow-lg sm:py-2">
       <div className="flex w-full items-center justify-between px-2 sm:px-6">
         <Link href="/">
-          <h1 className="text-2xl font-bold text-white hover:cursor-pointer">SATS.GG</h1>
+          <a>
+            <h1 className="select-none text-2xl font-bold text-white hover:cursor-pointer">SATS.GG</h1>
+          </a>
         </Link>
 
         <div className="flex items-center gap-4">
@@ -100,7 +102,7 @@ export const Navbar = ({ openAuthenticate }: HeaderProps) => {
                         className="inline-flex w-full whitespace-nowrap rounded bg-transparent py-1 px-1 text-sm font-normal text-white hover:bg-stone-700"
                       >
                         <ChannelSVG width={20} height={20} className="mr-1" strokeWidth={1.5} />
-                        <span>My Channel</span>
+                        <span className="select-none">My Channel</span>
                       </Link>
                     </li>
                     {/* <li>
@@ -124,7 +126,7 @@ export const Navbar = ({ openAuthenticate }: HeaderProps) => {
                         className="inline-flex w-full whitespace-nowrap rounded bg-transparent py-1 px-1 text-sm font-normal text-white hover:bg-stone-700"
                       >
                         <SettingsSVG width={20} height={20} className="mr-1" strokeWidth={1.5} />
-                        <span>Settings</span>
+                        <span className="select-none">Settings</span>
                       </Link>
                     </li>
                     <hr className="my-2 rounded border-t border-gray-500"></hr>
@@ -135,7 +137,7 @@ export const Navbar = ({ openAuthenticate }: HeaderProps) => {
                           onClick={handleLogout}
                         >
                           <LogOutSVG width={20} height={20} className="mr-1" strokeWidth={1.5} />
-                          <span>Log Out</span>
+                          <span className="select-none">Log Out</span>
                         </a>
                       </Link>
                     </li>
