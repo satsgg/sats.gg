@@ -1,17 +1,30 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { Filter, Event } from 'nostr-tools'
 import { nostrClient } from '~/nostr/NostrClient'
 import useSettingsStore from './useSettingsStore'
+import { Follows } from '~/utils/nostr'
+import { SettingsState } from '~/store/settingsStore'
 
-// caching?
-// shallow? see zustand docs
+// TODO: Basic event format validation necessary?
+const parseFollowListEvent = (event: Event) => {
+  // if (!event.kind || event.kind !== 3 || !event.tags) return null
+  try {
+    const followsList = event.tags.map((t) => {
+      if (t[0] === 'p' && t[1]) return t[1]
+      throw new Error('invalid follows tags')
+    })
+    const follows: Follows = {
+      follows: followsList,
+      createdAt: event.created_at,
+    }
+    return follows
+  } catch (e: any) {
+    return null
+  }
+}
+
 const useFollows = (pubkey: string | undefined) => {
-  const [follows, setFollows, unsetFollows] = useSettingsStore((state) => [
-    state.follows,
-    state.setFollows,
-    state.unsetFollows,
-  ])
-  const [, setCurrentEvent] = useState<Event | undefined>(undefined)
+  const follows = useSettingsStore((state) => state.follows)
 
   const filters: Filter[] = [
     {
@@ -21,13 +34,18 @@ const useFollows = (pubkey: string | undefined) => {
   ]
 
   const onEventCallback = (event: Event) => {
-    setCurrentEvent((currentEvent) => {
-      if (!currentEvent || event.created_at > currentEvent.created_at) {
-        setFollows(event)
-        return event
-      }
+    const parsedFollowListEvent = parseFollowListEvent(event)
+    if (!parsedFollowListEvent) return
+    // TODO: setFollows with prev state access?
+    useSettingsStore.setState((prev: SettingsState) => {
+      if (parsedFollowListEvent.createdAt <= prev.follows.createdAt) return prev
 
-      return currentEvent
+      const newFollows = {
+        ...prev,
+        follows: parsedFollowListEvent,
+      }
+      window.localStorage.setItem('follows', JSON.stringify(newFollows))
+      return newFollows
     })
   }
 
@@ -38,9 +56,6 @@ const useFollows = (pubkey: string | undefined) => {
       return () => {
         nostrClient.unsubscribe('follows')
       }
-    } else {
-      unsetFollows()
-      setCurrentEvent(undefined)
     }
   }, [pubkey])
 

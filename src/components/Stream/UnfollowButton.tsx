@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { UnsignedEvent } from 'nostr-tools'
-import FollowHeartSVG from '~/svgs/follow-heart.svg'
+import UnfollowHeart from '~/svgs/unfollow-heart.svg'
+import FollowHeart from '~/svgs/follow-heart.svg'
 import { verifySignature, validateEvent } from 'nostr-tools'
 import { toast } from 'react-toastify'
 import { nostrClient } from '~/nostr/NostrClient'
@@ -8,7 +9,7 @@ import useAuthStore from '~/hooks/useAuthStore'
 import { Follows, signEventPrivkey } from '~/utils/nostr'
 import { Event as NostrEvent } from 'nostr-tools'
 
-export default function FollowButton({
+export default function UnfollowButton({
   pubkey,
   follows,
   setFollows,
@@ -19,16 +20,16 @@ export default function FollowButton({
 }) {
   const [myPubkey, view, privkey] = useAuthStore((state) => [state.pubkey, state.view, state.privkey])
 
-  const [followAnimation, setFollowAnimation] = useState(false)
+  const [hover, setHover] = useState(false)
 
-  const handleFollowClick = async () => {
+  const handleUnfollowClick = async () => {
     if (!myPubkey) return
-    // TODO: Follow animation not working any more. Fix or remove
-    setFollowAnimation(true)
     let newFollows = [...follows.follows]
-    newFollows.push(pubkey)
+    // unfollow
+    newFollows = newFollows.filter((f) => f !== pubkey)
 
     let tags = newFollows.map((f) => ['p', f])
+
     const createdAt = Math.floor(Date.now() / 1000)
     const event: UnsignedEvent = {
       kind: 3,
@@ -71,21 +72,21 @@ export default function FollowButton({
   return (
     <button
       className={`
-        relative hidden h-8 items-center space-x-1 rounded bg-primary px-3 py-1 sm:inline-flex
+        'bg-primary' relative hidden 
+        h-8 items-center space-x-1 rounded bg-stone-700 px-3 py-1 hover:bg-red-400 sm:inline-flex
       `}
-      onClick={handleFollowClick}
-      onAnimationEnd={() => {
-        setFollowAnimation(false)
-      }}
+      onClick={handleUnfollowClick}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      data-tooltip="Unfollow"
+      data-position="top"
+      data-arrow
     >
-      <FollowHeartSVG
-        height={20}
-        width={20}
-        strokeWidth={2.0}
-        fill={`${followAnimation ? 'white' : 'none'}`}
-        className={`${followAnimation && 'animate-wiggle'} stroke-white`}
-      />
-      <span className="text-sm font-semibold capitalize text-white">follow</span>
+      {hover ? (
+        <UnfollowHeart height={20} width={20} strokeWidth={2.0} fill="white" />
+      ) : (
+        <FollowHeart height={20} width={20} strokeWidth={2.0} fill="white" className="stroke-white" />
+      )}
     </button>
   )
 }

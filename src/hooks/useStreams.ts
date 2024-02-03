@@ -41,7 +41,6 @@ export const useStreams = (id: string, pubkeys: string[] | null = null, reverse 
       nostrClient.subscribe(id, filter, onEventCallback)
 
       return () => {
-        setStreams([])
         nostrClient.unsubscribe(id)
       }
     }

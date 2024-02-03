@@ -6,6 +6,8 @@ import HaloProfileImg from '../HaloProfileImg'
 import Participant from './Participant'
 import LiveUser from '~/svgs/live-user.svg'
 import { fmtNumber } from '~/utils/util'
+import useSettingsStore from '~/hooks/useSettingsStore'
+import UnfollowButton from './UnfollowButton'
 
 export const StreamBio = ({
   channelPubkey,
@@ -34,6 +36,9 @@ export const StreamBio = ({
   setZapInvoice: (invoice: string | null) => void
   setShowZapModule: (show: boolean) => void
 }) => {
+  const [follows, setFollows] = useSettingsStore((state) => [state.follows, state.setFollows])
+  const followsUser = follows.follows.includes(channelPubkey)
+
   return (
     <div
       id="streamBioWrapper"
@@ -67,7 +72,11 @@ export const StreamBio = ({
 
           <div className="flex flex-col gap-1">
             <div className="flex gap-2">
-              <FollowButton pubkey={channelPubkey} />
+              {followsUser ? (
+                <UnfollowButton pubkey={channelPubkey} follows={follows} setFollows={setFollows} />
+              ) : (
+                <FollowButton pubkey={channelPubkey} follows={follows} setFollows={setFollows} />
+              )}
               <ZapButton
                 channelPubkey={channelPubkey}
                 providerPubkey={providerPubkey}

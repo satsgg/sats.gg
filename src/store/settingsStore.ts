@@ -1,17 +1,17 @@
 import create from 'zustand/vanilla'
 import { nostrClient } from '~/nostr/NostrClient'
-import { nip19, Event } from 'nostr-tools'
+import { Follows } from '~/utils/nostr'
 
-type State = {
+export type SettingsState = {
   relays: string[]
-  follows: string[]
+  follows: Follows
 }
 
 type Actions = {
   init: () => void
   addRelay: (url: string) => void
   removeRelay: (url: string) => void
-  setFollows: (event: Event) => void
+  setFollows: (follows: Follows) => void
   unsetFollows: () => void
 }
 
@@ -27,10 +27,10 @@ export const DEFAULT_RELAYS = [
 
 const initialState = {
   relays: DEFAULT_RELAYS,
-  follows: [],
+  follows: { follows: [], createdAt: 0 },
 }
 
-const SettingsStore = create<State & Actions>((set, get) => ({
+const SettingsStore = create<SettingsState & Actions>((set, get) => ({
   ...initialState,
 
   init: () => {
@@ -86,15 +86,14 @@ const SettingsStore = create<State & Actions>((set, get) => ({
     nostrClient.removeRelay(url)
   },
 
-  setFollows: (event: Event) => {
-    if (!event.tags) return
-    const follows = event.tags.map((t) => t[1])
+  // TODO: setFollows with prev state for useFollows
+  setFollows: (follows: Follows) => {
     set({ follows: follows })
     window.localStorage.setItem('follows', JSON.stringify(follows))
   },
 
   unsetFollows: () => {
-    set({ follows: [] })
+    set({ follows: { follows: [], createdAt: 0 } })
     window.localStorage.removeItem('follows')
   },
 }))

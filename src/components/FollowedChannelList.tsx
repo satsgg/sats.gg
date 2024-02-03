@@ -6,6 +6,7 @@ import OpenRightSVG from '~/svgs/open-right.svg'
 import OpenLeftSVG from '~/svgs/open-left.svg'
 import { useStreams } from '~/hooks/useStreams'
 import { Stream } from '~/utils/nostr'
+import { useEffect } from 'react'
 
 export const FollowedChannelList = ({
   autoCollapse,
@@ -18,11 +19,12 @@ export const FollowedChannelList = ({
 }) => {
   const pubkey = useAuthStore((state) => state.pubkey)
   const follows = useFollows(pubkey)
-  const streams = useStreams('streams-followed', follows, false, follows.length)
+  const streams = useStreams('streams-followed', follows.follows, false, follows.follows.length)
 
+  // TODO: useMemo or something. Only calculate this if live streams changed
   const liveFollows = () => {
     let liveFollows: { pubkey: string; stream: Stream | null }[] = []
-    let allFollows = follows.slice()
+    let allFollows = follows.follows.slice()
     if (allFollows.length > 0 && streams.length > 0) {
       for (let stream of streams) {
         const index = allFollows.indexOf(stream.pubkey)
@@ -31,8 +33,8 @@ export const FollowedChannelList = ({
             pubkey: stream.pubkey,
             stream: stream,
           })
+          allFollows.splice(index, 1)
         }
-        allFollows.splice(index, 1)
       }
     }
     return liveFollows

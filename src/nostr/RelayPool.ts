@@ -148,6 +148,7 @@ export default class RelayPool {
     return () => this.listeners.delete(listener)
   }
 
+  // TODO: Should return relays seen on or something...
   async publish(event: Event) {
     let ps: Promise<unknown>[] = []
     for (const cr of this.connectedRelays) {

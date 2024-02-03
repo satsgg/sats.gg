@@ -485,3 +485,8 @@ const handleZapStream = (stream?: Stream) => {
   zapStream.p = []
   return zapStream
 }
+
+export type Follows = {
+  follows: string[]
+  createdAt: number
+}
