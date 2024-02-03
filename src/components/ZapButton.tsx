@@ -42,17 +42,6 @@ const ZapButton = ({
   useFetchZap('quick-zap', channelPubkey, zapInvoice, () => {
     setShowZapModule(false)
     setZapInvoice(null)
-    console.debug('Zap successful, toasting!')
-    toast.success('Zap successful!', {
-      position: 'bottom-center',
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: 'light',
-    })
   })
 
   const disabled = () => {
