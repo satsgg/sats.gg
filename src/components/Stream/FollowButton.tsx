@@ -19,12 +19,8 @@ export default function FollowButton({
 }) {
   const [myPubkey, view, privkey] = useAuthStore((state) => [state.pubkey, state.view, state.privkey])
 
-  const [followAnimation, setFollowAnimation] = useState(false)
-
   const handleFollowClick = async () => {
     if (!myPubkey) return
-    // TODO: Follow animation not working any more. Fix or remove
-    setFollowAnimation(true)
     let newFollows = [...follows.follows]
     newFollows.push(pubkey)
 
@@ -71,19 +67,17 @@ export default function FollowButton({
   return (
     <button
       className={`
-        relative hidden h-8 items-center space-x-1 rounded bg-primary px-3 py-1 sm:inline-flex
+        group relative hidden h-8 items-center space-x-1 rounded bg-primary px-3
+        py-1 sm:inline-flex
       `}
       onClick={handleFollowClick}
-      onAnimationEnd={() => {
-        setFollowAnimation(false)
-      }}
     >
       <FollowHeartSVG
         height={20}
         width={20}
         strokeWidth={2.0}
-        fill={`${followAnimation ? 'white' : 'none'}`}
-        className={`${followAnimation && 'animate-wiggle'} stroke-white`}
+        fill="none"
+        className={`transform stroke-white transition group-hover:scale-125 group-hover:fill-white`}
       />
       <span className="text-sm font-semibold capitalize text-white">follow</span>
     </button>
