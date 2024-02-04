@@ -40,12 +40,12 @@ const useFollows = (pubkey: string | undefined) => {
     useSettingsStore.setState((prev: SettingsState) => {
       if (parsedFollowListEvent.createdAt <= prev.follows.createdAt) return prev
 
-      const newFollows = {
+      const newState = {
         ...prev,
         follows: parsedFollowListEvent,
       }
-      window.localStorage.setItem('follows', JSON.stringify(newFollows))
-      return newFollows
+      window.localStorage.setItem('follows', JSON.stringify(parsedFollowListEvent))
+      return newState
     })
   }
 

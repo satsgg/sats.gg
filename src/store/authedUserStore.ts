@@ -76,7 +76,12 @@ const authedUserStore = create<AuthedUser>((set) => ({
       // relays: [],
     })
 
-    SettingsStore.setState({ follows: [] })
+    SettingsStore.setState({
+      follows: {
+        follows: [],
+        createdAt: 0,
+      },
+    })
     window.localStorage.removeItem('follows')
     window.localStorage.removeItem('token')
     window.localStorage.removeItem('view')

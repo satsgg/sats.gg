@@ -51,7 +51,13 @@ const SettingsStore = create<SettingsState & Actions>((set, get) => ({
 
     const follows = window.localStorage.getItem('follows')
     if (follows) {
-      set({ follows: JSON.parse(follows) })
+      const parsedFollows = JSON.parse(follows)
+      if (!parsedFollows.follows) {
+        set({ follows: { follows: [], createdAt: 0 } })
+        window.localStorage.removeItem('follows')
+      } else {
+        set({ follows: JSON.parse(follows) })
+      }
     }
   },
 
