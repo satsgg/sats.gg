@@ -68,7 +68,7 @@ const StreamSettings = ({ user, setUser }: { user: User; setUser: (user: User) =
             <p>Stream Key</p>
           </div>
           <div className="flex w-3/4 gap-x-4">
-            <button className="inline-flex w-32 items-center justify-center rounded bg-primary py-1 px-2 text-sm font-semibold text-white">
+            <button className="inline-flex w-32 items-center justify-center rounded bg-primary-500 py-1 px-2 text-sm font-semibold text-white">
               'Refresh Key'
             </button>
           </div>
@@ -105,7 +105,7 @@ const StreamSettings = ({ user, setUser }: { user: User; setUser: (user: User) =
             <button
               type="submit"
               // disabled={!canSign}
-              className="align-right inline-flex h-8 w-32 shrink-0 items-center justify-center rounded bg-primary px-2 py-1 text-sm font-semibold disabled:cursor-not-allowed disabled:bg-gray-500"
+              className="align-right inline-flex h-8 w-32 shrink-0 items-center justify-center rounded bg-primary-500 px-2 py-1 text-sm font-semibold disabled:cursor-not-allowed disabled:bg-gray-500"
               onClick={handleSubmitStreamInfo(onSubmitStreamInfo)}
             >
               Update

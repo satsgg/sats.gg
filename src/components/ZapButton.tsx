@@ -13,6 +13,7 @@ import useWebln from '~/hooks/useWebln'
 import useAuthStore from '~/hooks/useAuthStore'
 import useCanSign from '~/hooks/useCanSign'
 import { fmtNumber } from '~/utils/util'
+import Button from './Button'
 
 const ZapButton = ({
   channelPubkey,
@@ -154,15 +155,8 @@ const ZapButton = ({
 
     setZapLoading(false)
   }
-
   return (
-    <button
-      className={`
-        ${disabled() ? 'bg-stone-700' : 'bg-primary'}
-        hidden h-8 items-center space-x-0.5 rounded px-3 py-1 sm:inline-flex`}
-      disabled={disabled()}
-      onClick={handleZapClick}
-    >
+    <Button className="hidden gap-0.5 sm:inline-flex" disabled={disabled()} onClick={handleZapClick}>
       {
         {
           disabled: <LightningBoltDisabled height={18} width={18} strokeWidth={1.5} />,
@@ -171,7 +165,7 @@ const ZapButton = ({
         }[buttonState()]
       }
       <p className="text-sm font-semibold capitalize">{fmtNumber(user?.defaultZapAmount || 1000, true)}</p>
-    </button>
+    </Button>
   )
 }
 

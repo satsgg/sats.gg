@@ -477,6 +477,7 @@ export const Chat = ({
             <EmojiPicker
               width="100%"
               height={400}
+              // @ts-ignore
               theme="dark"
               onEmojiClick={(emoji) => {
                 setValue('message', getValues().message + emoji.emoji)
@@ -549,7 +550,7 @@ export const Chat = ({
                   placeholder="1000"
                   disabled={zapState.loading || !!zapState.invoice}
                   min={1}
-                  className={`focus:shadow-outline h-8 w-32 resize-none appearance-none rounded border border-gray-500 bg-stone-700 py-2 px-3 leading-tight text-white shadow placeholder:italic focus:border-primary focus:bg-slate-900 focus:outline-none`}
+                  className={`focus:shadow-outline h-8 w-32 resize-none appearance-none rounded border border-gray-500 bg-stone-700 py-2 px-3 leading-tight text-white shadow placeholder:italic focus:border-primary-500 focus:bg-slate-900 focus:outline-none`}
                   {...register('amount', {
                     valueAsNumber: true,
                   })}

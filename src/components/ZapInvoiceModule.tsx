@@ -31,7 +31,7 @@ const ZapInvoiceModule = ({ invoice, type, close }: { invoice: string; type: str
           height={'100%'}
           width={'100%'}
           includeMargin
-          className="rounded border-8 border-primary"
+          className="rounded border-8 border-primary-500"
           // imageSettings={{
           //   src: LNAuthImg.src,
           //   height: 48,

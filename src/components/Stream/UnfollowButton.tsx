@@ -72,8 +72,8 @@ export default function UnfollowButton({
   return (
     <button
       className={`
-        'bg-primary' relative hidden 
-        h-8 items-center space-x-1 rounded bg-stone-700 px-3 py-1 hover:bg-red-400 sm:inline-flex
+        relative hidden h-8 
+        items-center space-x-1 rounded bg-stone-700 px-3 py-1 hover:bg-red-400 sm:inline-flex
       `}
       onClick={handleUnfollowClick}
       onMouseEnter={() => setHover(true)}

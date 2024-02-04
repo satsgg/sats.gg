@@ -15,7 +15,7 @@ const HaloProfileImg = ({
       target="_blank"
       // NOTE: Outline to prevent profile img from shrinking on hover?
       className={`
-        ${liveBorder ? 'border-primary' : 'border-gray-500'}
+        ${liveBorder ? 'border-primary-500' : 'border-gray-500'}
         block h-full w-full rounded-[50%] border-2 p-0.5 hover:border-[3px]
       `}
     >

@@ -51,7 +51,7 @@ export const PollingQRCode = ({ bolt11 }: PollingQRCodeProps) => {
           level={'Q'}
           size={300}
           includeMargin
-          className="rounded border-8 border-primary"
+          className="rounded border-8 border-primary-500"
           // imageSettings={{
           //   src: LNAuthImg.src,
           //   height: 48,
@@ -64,11 +64,11 @@ export const PollingQRCode = ({ bolt11 }: PollingQRCodeProps) => {
       <div className="w-max-full inline-flex w-full">
         <input
           type="button"
-          className="min-w-0 rounded-l border-2 border-r-0 border-gray-500 bg-stone-700 p-1 focus:border-primary focus:bg-slate-900"
+          className="min-w-0 rounded-l border-2 border-r-0 border-gray-500 bg-stone-700 p-1 focus:border-primary-500 focus:bg-slate-900"
           onClick={handleUrlStringClick}
           value={bolt11}
         />
-        <button className="rounded-r bg-primary p-2 text-white" onClick={handleUrlStringClick}>
+        <button className="rounded-r bg-primary-500 p-2 text-white" onClick={handleUrlStringClick}>
           {showCopied ? (
             <CheckmarkSVG width={24} height={24} strokeWidth={1.5} />
           ) : (

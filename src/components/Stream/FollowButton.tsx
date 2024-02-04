@@ -7,6 +7,7 @@ import { nostrClient } from '~/nostr/NostrClient'
 import useAuthStore from '~/hooks/useAuthStore'
 import { Follows, signEventPrivkey } from '~/utils/nostr'
 import { Event as NostrEvent } from 'nostr-tools'
+import Button from '../Button'
 
 export default function FollowButton({
   pubkey,
@@ -63,23 +64,21 @@ export default function FollowButton({
       })
     }
   }
-
   return (
-    <button
-      className={`
-        group relative hidden h-8 items-center space-x-1 rounded bg-primary px-3
-        py-1 sm:inline-flex
-      `}
+    <Button
+      className="group hidden sm:inline-flex"
+      icon={
+        <FollowHeartSVG
+          height={20}
+          width={20}
+          strokeWidth={2.0}
+          fill="none"
+          className={`transform stroke-white transition group-hover:scale-125 group-hover:fill-white`}
+        />
+      }
       onClick={handleFollowClick}
     >
-      <FollowHeartSVG
-        height={20}
-        width={20}
-        strokeWidth={2.0}
-        fill="none"
-        className={`transform stroke-white transition group-hover:scale-125 group-hover:fill-white`}
-      />
       <span className="text-sm font-semibold capitalize text-white">follow</span>
-    </button>
+    </Button>
   )
 }

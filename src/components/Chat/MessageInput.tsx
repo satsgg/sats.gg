@@ -34,7 +34,7 @@ const MessageInput = ({
       <textarea
         className={`${
           showZapChat ? 'bg-stone-700 ' : 'bg-stone-700'
-        } focus:shadow-outline w-full resize-none appearance-none rounded border border-gray-500 bg-stone-700 py-2 pl-3 pr-12 leading-tight text-white shadow focus:border-primary focus:bg-slate-900 focus:outline-none`}
+        } focus:shadow-outline w-full resize-none appearance-none rounded border border-gray-500 bg-stone-700 py-2 pl-3 pr-12 leading-tight text-white shadow focus:border-primary-500 focus:bg-slate-900 focus:outline-none`}
         id="chatMessage"
         placeholder={placeholder}
         autoComplete="off"

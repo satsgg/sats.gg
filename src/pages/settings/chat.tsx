@@ -241,7 +241,7 @@ const ChatSettings = () => {
             <button
               type="submit"
               disabled={!canSign}
-              className="align-right inline-flex h-8 w-32 shrink-0 items-center justify-center rounded bg-primary px-2 py-1 text-sm font-semibold disabled:cursor-not-allowed disabled:bg-gray-500"
+              className="align-right inline-flex h-8 w-32 shrink-0 items-center justify-center rounded bg-primary-500 px-2 py-1 text-sm font-semibold disabled:cursor-not-allowed disabled:bg-gray-500"
               onClick={handleSubmitCreate(onSubmitCreate)}
             >
               Create
@@ -259,7 +259,7 @@ const ChatSettings = () => {
               placeholder="Existing kind 40 event ID..."
             />
             <button
-              className="inline-flex w-32 shrink-0 items-center justify-center rounded bg-primary py-1 px-2 text-sm font-semibold text-white"
+              className="inline-flex w-32 shrink-0 items-center justify-center rounded bg-primary-500 py-1 px-2 text-sm font-semibold text-white"
               onClick={handleSubmitId(onSubmitById)}
             >
               Save
@@ -302,7 +302,7 @@ const ChatSettings = () => {
                 <button
                   type="submit"
                   disabled={!canSign}
-                  className="align-right inline-flex h-8 w-32 shrink-0 items-center justify-center rounded bg-primary px-2 py-1 text-sm font-semibold disabled:cursor-not-allowed disabled:bg-gray-500"
+                  className="align-right inline-flex h-8 w-32 shrink-0 items-center justify-center rounded bg-primary-500 px-2 py-1 text-sm font-semibold disabled:cursor-not-allowed disabled:bg-gray-500"
                   onClick={handleSubmitUpdate(onSubmitUpdate)}
                 >
                   Update

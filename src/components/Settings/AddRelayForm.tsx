@@ -42,19 +42,18 @@ const AddRelayForm = ({ relays }: { relays: string[] }) => {
           <input
             className={`${
               errors.newRelay && 'focus:border-red-500'
-            } focus:shadow-outline w-full min-w-[20ch] resize-none appearance-none rounded border border-gray-500 bg-stone-700 py-2 px-3 leading-tight text-white shadow focus:border-primary focus:bg-slate-900 focus:outline-none`}
+            } focus:shadow-outline w-full min-w-[20ch] resize-none appearance-none rounded border border-gray-500 bg-stone-700 py-2 px-3 leading-tight text-white shadow focus:border-primary-500 focus:bg-slate-900 focus:outline-none`}
             type="text"
             placeholder="wss://relay.current.fyi"
             autoComplete="off"
             {...register('newRelay')}
           />
         </form>
-        {/* <button className="">ADD</button> */}
         <button
           type="submit"
           className={`${
             errors.newRelay ? 'bg-gray-500' : ''
-          } align-right inline-flex items-center justify-center rounded bg-primary px-3 py-2 text-sm font-semibold shadow-md transition duration-150 ease-in-out hover:bg-primary hover:shadow-lg focus:bg-primary focus:shadow-lg focus:outline-none focus:ring-0 active:bg-primary active:shadow-lg`}
+          } align-right inline-flex items-center justify-center rounded bg-primary-500 px-3 py-2 text-sm font-semibold shadow-md transition duration-150 ease-in-out hover:bg-primary-600 hover:shadow-lg focus:bg-primary-500 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-primary-700 active:shadow-lg`}
           disabled={errors.newRelay ? true : false}
           onClick={handleSubmit(onSubmit)}
         >

@@ -77,14 +77,14 @@ const Zaps = ({ user, setUser }: { user: User; setUser: (user: User) => void }) 
                         spellCheck={false}
                         placeholder="1 -> 2100000000"
                         min={1}
-                        className={`focus:shadow-outline h-8 w-full resize-none appearance-none rounded border border-gray-500 bg-stone-700 py-2 px-3 leading-tight text-white shadow placeholder:italic focus:border-primary focus:bg-slate-900 focus:outline-none`}
+                        className={`focus:shadow-outline h-8 w-full resize-none appearance-none rounded border border-gray-500 bg-stone-700 py-2 px-3 leading-tight text-white shadow placeholder:italic focus:border-primary-500 focus:bg-slate-900 focus:outline-none`}
                         {...register('amount', {
                           valueAsNumber: true,
                         })}
                       />
                     </div>
                     <button
-                      className="inline-flex w-32 items-center justify-center rounded bg-primary py-1 px-2 text-sm font-semibold text-white"
+                      className="inline-flex w-32 items-center justify-center rounded bg-primary-500 py-1 px-2 text-sm font-semibold text-white"
                       onClick={handleSubmit(onSubmitSetDefaultZapAmount)}
                     >
                       Update
