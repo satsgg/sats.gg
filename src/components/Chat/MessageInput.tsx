@@ -1,4 +1,5 @@
 import React, { MouseEventHandler, useEffect, useRef } from 'react'
+import { UseFormRegister } from 'react-hook-form'
 import FaceSmile from '~/svgs/face-smile.svg'
 
 interface MessageInputProps {
@@ -6,7 +7,12 @@ interface MessageInputProps {
   disabled: boolean
   placeholder: string
   showZapChat: boolean
-  register: Function
+  // register: Function
+  message: string
+  register: UseFormRegister<{
+    message: string
+    amount: number
+  }>
   handleEmojiClicked: MouseEventHandler<HTMLButtonElement>
 }
 
@@ -15,19 +21,21 @@ const MessageInput = ({
   disabled,
   placeholder,
   showZapChat,
+  message,
   register,
   handleEmojiClicked,
 }: MessageInputProps) => {
-  // TODO: Autogrow textarea...
-  // const textAreaRef = useRef<HTMLTextAreaElement | null>(null)
+  const textAreaRef = useRef<HTMLTextAreaElement | null>(null)
+  const { ref, ...rest } = register('message')
 
-  // useEffect(() => {
-  //   const textArea = textAreaRef.current
-  //   textArea?.addEventListener('keydown', () => {
-  //     console.log(textArea.scrollHeight)
-  //   })
-
-  // }, [textAreaRef])
+  useEffect(() => {
+    const textarea = textAreaRef.current
+    if (!textarea) return
+    textarea.style.height = 'auto' // Reset height to enable shrink
+    // 20px currently, based off leading-tight (line height based off font size)
+    const maxHeight = 20 * 6 // 6 rows of text
+    textarea.style.height = `${Math.min(textarea.scrollHeight, maxHeight)}px`
+  }, [message])
 
   return (
     <form className="relative w-full" spellCheck={false} onSubmit={handleSubmitMessage}>
@@ -45,7 +53,12 @@ const MessageInput = ({
             handleSubmitMessage(e)
           }
         }}
-        {...register('message')}
+        {...rest}
+        // share react-hook-form ref
+        ref={(e) => {
+          ref(e)
+          textAreaRef.current = e
+        }}
       />
       <div className="absolute -bottom-1.5 right-2 flex -translate-y-2/4 p-1 hover:rounded hover:bg-stone-500">
         <button type="button" onClick={handleEmojiClicked}>

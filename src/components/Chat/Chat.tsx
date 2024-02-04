@@ -502,6 +502,7 @@ export const Chat = ({
           })()}
           showZapChat={zapState.showZapChat}
           handleEmojiClicked={() => setShowEmojiPicker(!showEmojiPicker)}
+          message={message}
           register={register}
         />
         <div className="mt-1 flex justify-between sm:mt-0">
