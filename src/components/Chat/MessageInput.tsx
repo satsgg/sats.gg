@@ -34,7 +34,8 @@ const MessageInput = ({
     textarea.style.height = 'auto' // Reset height to enable shrink
     // 20px currently, based off leading-tight (line height based off font size)
     const maxHeight = 20 * 6 // 6 rows of text
-    textarea.style.height = `${Math.min(textarea.scrollHeight, maxHeight)}px`
+    // using offsetHeight instead of scrollHeight, offsetHeight includes the border
+    textarea.style.height = `${Math.min(textarea.offsetHeight, maxHeight)}px`
   }, [message])
 
   return (
