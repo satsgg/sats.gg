@@ -34,12 +34,13 @@ const MessageInput = ({
     textarea.style.height = 'auto' // Reset height to enable shrink
     // 20px currently, based off leading-tight (line height based off font size)
     const maxHeight = 20 * 6 // 6 rows of text
-    // using offsetHeight instead of scrollHeight, offsetHeight includes the border
-    textarea.style.height = `${Math.min(textarea.offsetHeight, maxHeight)}px`
+    // scroll height: 36 -> 56 (+20 per row)
+    // want initial height to be offsetHeight (38)
+    textarea.style.height = `${Math.min(textarea.scrollHeight + 2, maxHeight)}px`
   }, [message])
 
   return (
-    <form className="relative w-full" spellCheck={false} onSubmit={handleSubmitMessage}>
+    <form className="relative flex w-full" spellCheck={false} onSubmit={handleSubmitMessage}>
       <textarea
         className={`${
           showZapChat ? 'bg-stone-700 ' : 'bg-stone-700'
@@ -61,7 +62,7 @@ const MessageInput = ({
           textAreaRef.current = e
         }}
       />
-      <div className="absolute -bottom-1.5 right-2 flex -translate-y-2/4 p-1 hover:rounded hover:bg-stone-500">
+      <div className="absolute right-2 bottom-[.25rem] flex p-1 hover:rounded hover:bg-stone-500">
         <button type="button" onClick={handleEmojiClicked}>
           <FaceSmile height={22} width={22} strokeWidth={2.0} className="stroke-gray-300" />
         </button>

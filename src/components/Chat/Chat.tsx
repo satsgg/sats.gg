@@ -487,7 +487,7 @@ export const Chat = ({
         )}
       </div>
 
-      <div className="z-1 flex w-full flex-row gap-1 px-3 pb-3 sm:flex-col">
+      <div className="z-1 flex w-full flex-row gap-2.5 px-2.5 pb-2.5 sm:flex-col">
         <MessageInput
           handleSubmitMessage={handleSubmit(onSubmitMessage)}
           disabled={!canSign || zapState.loading || !!zapState.invoice}
@@ -505,7 +505,7 @@ export const Chat = ({
           message={message}
           register={register}
         />
-        <div className="mt-1 flex justify-between sm:mt-0">
+        <div className="flex justify-between">
           <div className="hidden gap-x-2 sm:flex">
             <ZapChatButton
               channelProfile={channelProfile}
@@ -575,7 +575,7 @@ export const Chat = ({
               <span>chat</span>
             </Button>
           ) : (
-            <Button disabled={!canSign} onClick={handleSubmit(onSubmitMessage)}>
+            <Button className="mb-0.5 self-end sm:mb-0" disabled={!canSign} onClick={handleSubmit(onSubmitMessage)}>
               <span>chat</span>
             </Button>
           )}
