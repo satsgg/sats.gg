@@ -463,7 +463,7 @@ export const Chat = ({
           </div>
         )}
         {chatLoading && (
-          <div className="absolute bottom-0 left-1/2 z-0 w-full -translate-x-1/2 px-3 pt-3">
+          <div className="absolute bottom-0 left-1/2 z-0 hidden w-full -translate-x-1/2 px-3 pt-3 sm:block">
             <div className="w-full rounded border-l border-r border-t border-gray-500 bg-stone-900/75 px-3 py-1">
               <div className="flex gap-2">
                 <Spinner height={4} width={4} />
