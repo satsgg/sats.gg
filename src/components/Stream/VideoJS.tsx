@@ -30,7 +30,6 @@ export const VideoJS = ({ options, onReady }: { options: any; onReady: Function 
       // on prop change, for example:
     } else {
       const player = playerRef.current
-
       player.autoplay(options.autoplay)
       player.src(options.sources)
     }
@@ -67,7 +66,8 @@ export const VideoJS = ({ options, onReady }: { options: any; onReady: Function 
 
   return (
     <div data-vjs-player className="h-full">
-      <div className="h-full" ref={videoRef} />
+      {/* <div className="h-full" ref={videoRef} /> */}
+      <div className="vjs-matrix vjs-big-play-centered vjs-show-big-play-button-on-pause h-full" ref={videoRef} />
     </div>
   )
 }

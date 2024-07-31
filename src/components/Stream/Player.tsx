@@ -15,7 +15,8 @@ const VideoPlayer = ({ url }: { url: string }) => {
     controls: true,
     responsive: true,
     fill: true,
-    liveui: true,
+    liveui: false,
+    // inactivityTimeout: 100,
     playsinline: true,
     sources: [
       {
@@ -43,6 +44,16 @@ const VideoPlayer = ({ url }: { url: string }) => {
     // player.on('volumechange', () => {
     //   console.debug('volume change', player.volume())
     // })
+    const handlePause = () => {
+      const seekToLive = () => {
+        if (player.duration() === Infinity) {
+          player.currentTime(player.seekable().end(0))
+        }
+      }
+
+      player.on('play', seekToLive)
+    }
+    player.on('pause', handlePause)
 
     player.volume(volume)
   }

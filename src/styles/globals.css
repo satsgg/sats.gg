@@ -123,3 +123,32 @@ input[type='number'] {
     }
   }
 }
+
+.vjs-matrix .video-js {
+  /* color: #00ff00; */
+  font-size: 0.8rem;
+}
+
+.vjs-matrix .vjs-big-play-button {
+  border-color: #00ff00;
+}
+
+.vjs-matrix .vjs-volume-level,
+.vjs-matrix .vjs-play-progress,
+.vjs-matrix .vjs-slider-bar {
+  background: #00ff00;
+}
+
+.vjs-seek-to-live-control.vjs-control.vjs-at-live-edge .vjs-icon-placeholder {
+  color: var(--theme-color-components-video-live-indicator) !important;
+}
+
+.vjs-control-bar {
+  background: linear-gradient(to top, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0)) !important;
+  transition: opacity 0.1s ease-in-out !important; /* Adjust the fade-in speed here */
+}
+
+.vjs-user-inactive .vjs-control-bar {
+  opacity: 0 !important;
+  transition: opacity 0.1s ease-in-out !important; /* Adjust the fade-out speed here */
+}
