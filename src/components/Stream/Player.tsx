@@ -1,4 +1,4 @@
-import { useRef, memo } from 'react'
+import { useRef, memo, useEffect } from 'react'
 import usePlayerStore from '~/store/playerStore'
 
 // This imports the functional component from the previous sample.
@@ -6,9 +6,32 @@ import VideoJS from './VideoJS'
 import videojs from 'video.js'
 import type Player from 'video.js/dist/types/player'
 
+import { Parser } from 'm3u8-parser'
+
 const VideoPlayer = ({ url }: { url: string }) => {
   const playerRef = useRef<Player | null>(null)
   const volume = usePlayerStore((state) => state.volume)
+
+  useEffect(() => {
+    fetch(url)
+      .then((res) => res.text())
+      .then((m3u8Text) => {
+        console.debug(m3u8Text)
+        let parser = new Parser()
+        parser.addParser({
+          expression: /#EXT-X-PRICE:(\d+)/,
+          customType: 'price',
+          dataParser: (line) => {
+            const match = /#EXT-X-PRICE:(\d+)/.exec(line)
+            return match && match[1] ? parseInt(match[1], 10) : null
+          },
+          segment: true,
+        })
+        parser.push(m3u8Text)
+        parser.end()
+        console.debug('parsedManifest', parser.manifest)
+      })
+  }, [url])
 
   const videoJsOptions = {
     autoplay: true,
@@ -26,9 +49,6 @@ const VideoPlayer = ({ url }: { url: string }) => {
       },
     ],
   }
-
-  // console.debug('player rendered', url)
-  // console.debug('volume', volume)
 
   const handlePlayerReady = (player: Player) => {
     playerRef.current = player
