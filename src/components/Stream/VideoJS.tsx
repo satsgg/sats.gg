@@ -23,6 +23,20 @@ export const VideoJS = ({ options, onReady }: { options: any; onReady: Function 
 
       const player = (playerRef.current = videojs(videoElement, options, () => {
         videojs.log('player is ready')
+        // player?.httpSourceSelector()
+        let tech = player.tech({ IWillNotUseThisInPlugins: true })
+        console.debug('tech', tech)
+        if (tech) {
+          tech.on('loadedplaylist', () => {
+            console.debug('vhs loadedplaylist')
+          })
+          tech.on('loadedmetadata', () => {
+            console.debug('vhs loadedmetadata ')
+          })
+        }
+        player?.play().then(() => {
+          player.pause()
+        })
         onReady && onReady(player)
       }))
 
@@ -30,6 +44,7 @@ export const VideoJS = ({ options, onReady }: { options: any; onReady: Function 
       // on prop change, for example:
     } else {
       const player = playerRef.current
+      console.debug('vhs else')
       player.autoplay(options.autoplay)
       player.src(options.sources)
     }
