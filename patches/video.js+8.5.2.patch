@@ -1,12 +1,13 @@
 diff --git a/node_modules/video.js/dist/video.es.js b/node_modules/video.js/dist/video.es.js
-index a5ff244..a76ce97 100644
+index a5ff244..405ea51 100644
 --- a/node_modules/video.js/dist/video.es.js
 +++ b/node_modules/video.js/dist/video.es.js
-@@ -26063,6 +26063,7 @@ class QualityLevel {
+@@ -26063,6 +26063,8 @@ class QualityLevel {
      level.bitrate = representation.bandwidth;
      level.frameRate = representation.frameRate;
      level.enabled_ = representation.enabled;
 +    level.price = representation.playlist.custom?.price;
++    level.resolvedUri = representation.playlist.resolvedUri;
      Object.defineProperty(level, 'enabled', {
        /**
         * Get whether the QualityLevel is enabled.
