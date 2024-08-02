@@ -125,10 +125,14 @@ export default function Channel() {
     controls: true,
     responsive: true,
     fill: true,
-    enableLowInitialPlaylist: true,
     liveui: false,
     // inactivityTimeout: 100,
     playsinline: true,
+    html5: {
+      vhs: {
+        enableLowInitialPlaylist: true,
+      },
+    },
     sources: [
       {
         // src: 'https://d2zihajmogu5jn.cloudfront.net/bipbop-advanced/bipbop_16x9_variant.m3u8',
@@ -138,7 +142,7 @@ export default function Channel() {
           {
             expression: /#EXT-X-PRICE:(\d+)/,
             customType: 'price',
-            dataParser: (line) => {
+            dataParser: (line: string) => {
               const match = /#EXT-X-PRICE:(\d+)/.exec(line)
               return match && match[1] ? parseInt(match[1], 10) : null
             },
