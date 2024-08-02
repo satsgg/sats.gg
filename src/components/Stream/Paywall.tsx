@@ -9,6 +9,7 @@ type QualityLevel = {
   price?: number
   height: number
   width: number
+  resolvedUri: string
 }
 
 const defaultMinutes = 1
@@ -24,23 +25,34 @@ const Paywall = ({
   close: () => void
 }) => {
   const [modal, setModal] = useState<'quality' | 'duration' | 'payment' | 'none'>('quality')
-  const [selectedQuality, setSelectedQuality] = useState(0)
+  const [selectedQuality, setSelectedQuality] = useState(qualityLevels[0])
   const [minutes, setMinutes] = useState(defaultMinutes)
   const [price, setPrice] = useState(0) // total price in millisatoshis per second for duration
 
   useEffect(() => {
-    const selectedQualityPrice = qualityLevels[selectedQuality]?.price
+    // const selectedQualityPrice = qualityLevels[selectedQuality]?.price
+    const selectedQualityPrice = selectedQuality?.price
     if (!selectedQualityPrice) return
     setPrice(selectedQualityPrice * minutes * 60)
   }, [minutes])
 
   const requestInvoice = async () => {
+    const uri = selectedQuality?.resolvedUri
+    if (!uri) return
     console.debug('requesting invoice')
-    // TODO: Get URI
-    // // if (!selectedQualityIndex) return;
-    // if (!selectedQuality) return;
-    // // const l402Challenge = await L402Service.fetchInvoice(selectedQualityIndex, minutes * 60);
-    // const l402Challenge = await L402Service.fetchInvoice(selectedQuality.index, minutes * 60);
+    console.debug('uri', selectedQuality.resolvedUri)
+    try {
+      let res = await fetch(`${uri}?t=${minutes * 60}`)
+      if (res.status !== 402) throw new Error('Some other shit happened')
+
+      console.debug('WWW-Authenticate', res.headers.get('WWW-Authenticate'))
+      // const l402 = Lsat.fromHeader(res.headers.get('WWW-Authenticate'));
+
+      // return l402;
+    } catch (e: any) {
+      console.error('somethign else happened')
+      // pop up error thing
+    }
     // if (!l402Challenge) {
     //   console.error('handle l402Challenge error in ui');
     //   return;
@@ -80,7 +92,7 @@ const Paywall = ({
                           }
                           console.debug('setting price', 60 * q.price)
                           setPrice(q.price * minutes * 60) // default 1 min price
-                          setSelectedQuality(p)
+                          setSelectedQuality(q)
                           setModal('duration')
                         }}
                       >

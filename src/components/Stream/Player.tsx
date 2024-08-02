@@ -18,6 +18,7 @@ type QualityLevel = {
   price?: number
   height: number
   width: number
+  resolvedUri: string
 }
 
 const VideoPlayer = ({ options }: { options: any }) => {
