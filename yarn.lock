@@ -2189,10 +2189,22 @@
   resolved "https://registry.yarnpkg.com/@types/tough-cookie/-/tough-cookie-4.0.2.tgz#6286b4c7228d58ab7866d19716f3696e03a09397"
   integrity sha512-Q5vtl1W5ue16D+nIaW8JWebSSraJVlK+EthKn7e7UcD4KWsaSJ8BqGPXNaPghgtcn/fhvrN17Tv8ksUsQpiplw==
 
+"@types/video.js@*":
+  version "7.3.58"
+  resolved "https://registry.yarnpkg.com/@types/video.js/-/video.js-7.3.58.tgz#7e8cdafee25c75d6eb18f530b93ac52edff53c03"
+  integrity sha512-1CQjuSrgbv1/dhmcfQ83eVyYbvGyqhTvb2Opxr0QCV+iJ4J6/J+XWQ3Om59WiwCd1MN3rDUHasx5XRrpUtewYQ==
+
 "@types/video.js@^7.3.55":
   version "7.3.55"
   resolved "https://registry.yarnpkg.com/@types/video.js/-/video.js-7.3.55.tgz#4cfd017347f16f59748906ff836c82c75995b729"
   integrity sha512-uMHaGOM3D6KBFedNUXpGsv6e5R0FSZAk9B4KSxwFV7FN6w/XSfc5JSyvQ4zR6vvcDEV9ofyMpKfqybDvCluknQ==
+
+"@types/videojs-contrib-quality-levels@^2.0.4":
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/@types/videojs-contrib-quality-levels/-/videojs-contrib-quality-levels-2.0.4.tgz#d35e3ad82d085d79c91402caa57382268fa91891"
+  integrity sha512-aSI//AyVaL0pmcs2EKBmZy89z8XUBklQzhPea1nsKU35DA9VF9bNOe7WfDZ3oxGW4t1klvzv3lILV4C2vOveJg==
+  dependencies:
+    "@types/video.js" "*"
 
 "@types/ws@8.5.3":
   version "8.5.3"
