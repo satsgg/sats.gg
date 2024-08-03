@@ -6,11 +6,10 @@ import VideoJS from './VideoJS'
 import videojs from 'video.js'
 import type Player from 'video.js/dist/types/player'
 import './videojs-hls-quality-selector'
-import Exit from '~/svgs/x.svg'
 
 import { Manifest, Parser } from 'm3u8-parser'
-import Button from '../Button'
 import Paywall from './Paywall'
+import { Lsat } from 'lsat-js'
 
 type QualityLevel = {
   bitrate: number
@@ -26,6 +25,7 @@ const VideoPlayer = ({ options }: { options: any }) => {
   const qualityLevelsRef = useRef(null)
   const qualitySelectorRef = useRef(null)
   const volume = usePlayerStore((state) => state.volume)
+  const [l402, setL402] = useState<Lsat | null>(null)
   const [manifest, setManifest] = useState<Manifest | null>(null)
   const [selectedQualityIndex, setSelectedQualityIndex] = useState<number>(-1)
   const [qualityLevels, setQualityLevels] = useState<QualityLevel[]>([])
@@ -94,23 +94,25 @@ const VideoPlayer = ({ options }: { options: any }) => {
   // }
 
   useEffect(() => {
-    console.debug('firing')
-    console.debug('selectedQualityIndex', selectedQualityIndex)
-    console.debug('qualityLevels.length', qualityLevels.length)
     const selectedQuality = qualityLevels[selectedQualityIndex]
-    console.debug('selectedQualityLevel', selectedQuality)
-    console.debug('qualityLevels', qualityLevels)
-    console.debug('ref qualityLevels', qualityLevelsRef.current)
-    // if (selectedQualityIndex > -1 || qualityLevels.length === 0) return
-    if (!selectedQuality) return
-    console.debug('EHERE')
-    // console.debug('selectedQualityIndex', selectedQualityIndex)
-    // const selectedQuality = qualityLevels[selectedQualityIndex]
-    if (selectedQuality?.price && selectedQuality.price > 0) {
-      console.debug('setting open paywall')
+    if (!selectedQuality || !selectedQuality.price || selectedQuality.price === 0) return
+
+    console.debug('l402', l402)
+    if (!l402 || !validL402(selectedQuality, l402)) {
       setOpenPaywall(true)
     }
-  }, [selectedQualityIndex, qualityLevels])
+  }, [selectedQualityIndex, qualityLevels, l402])
+
+  const validL402 = (selectedQuality: QualityLevel, l402: Lsat) => {
+    // check bandwidth and expiration
+    console.debug('l402.isExpired', l402.isExpired()) // doesn't work
+    console.debug('manual expired check', Math.floor(Date.now() / 1000) > l402.validUntil)
+    if (Math.floor(Date.now() / 1000) > l402.validUntil) return false
+
+    // TODO: Parse out bitrate
+    // if (selectedQuality.bitrate > l402)
+    return true
+  }
 
   const handlePlayerReady = useCallback(
     (player: Player) => {
@@ -151,7 +153,6 @@ const VideoPlayer = ({ options }: { options: any }) => {
 
       // console.debug('quality selector', player.hlsQualitySelector())
 
-      // You can handle player events here, for example:
       player.on('waiting', () => {
         videojs.log('player is waiting')
       })
@@ -196,12 +197,13 @@ const VideoPlayer = ({ options }: { options: any }) => {
 
   return (
     <>
-      <VideoJS options={options} onReady={handlePlayerReady} />
+      <VideoJS options={options} onReady={handlePlayerReady} l402={l402} />
       {openPaywall && (
         <Paywall
           playerRef={playerRef}
           qualitySelectorRef={qualitySelectorRef}
           qualityLevels={qualityLevels}
+          setL402={setL402}
           close={() => setOpenPaywall(false)}
         />
       )}

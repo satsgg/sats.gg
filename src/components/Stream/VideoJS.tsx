@@ -1,3 +1,4 @@
+import { Lsat } from 'lsat-js'
 import { useRef, useEffect, memo } from 'react'
 import videojs from 'video.js'
 import type Player from 'video.js/dist/types/player'
@@ -10,7 +11,15 @@ import usePlayerStore from '~/store/playerStore'
 // videojs.registerPlugin('hlsQualitySelector', hlsQualitySelector)
 
 // export const VideoJS = (props) => {
-export const VideoJS = ({ options, onReady }: { options: Player['options']; onReady: Function }) => {
+export const VideoJS = ({
+  options,
+  onReady,
+  l402,
+}: {
+  options: Player['options']
+  onReady: Function
+  l402: Lsat | null
+}) => {
   const videoRef = useRef<Video | null>(null)
   const playerRef = useRef<Player | null>(null)
   const adjustVolume = usePlayerStore((state) => state.adjustVolume)
@@ -26,34 +35,37 @@ export const VideoJS = ({ options, onReady }: { options: Player['options']; onRe
       videoRef.current?.appendChild(videoElement)
       const player = (playerRef.current = videojs(videoElement, options, () => {
         videojs.log('player is ready')
-        // player?.httpSourceSelector()
-        // videojs.registerPlugin('hlsQualitySelector', hlsQualitySelector)
-        let tech = player.tech({ IWillNotUseThisInPlugins: true })
-        console.debug('tech', tech)
-        if (tech) {
-          tech.on('loadedplaylist', () => {
-            console.debug('vhs loadedplaylist')
-          })
-          tech.on('loadedmetadata', () => {
-            console.debug('vhs loadedmetadata ')
-          })
-        }
-        // player?.play().then(() => {
-        //   player.pause()
-        // })
-        // console.debug('quality selector', player.hlsQualitySelector())
         onReady && onReady(player)
       }))
-
-      // You could update an existing player in the `else` block here
-      // on prop change, for example:
-    } else {
-      const player = playerRef.current
-      console.debug('vhs else')
-      player.autoplay(options.autoplay)
-      player.src(options.sources)
     }
+    // You could update an existing player in the `else` block here
+    // on prop change, for example:
+    // } else {
+    //   const player = playerRef.current
+    //   console.debug('vhs else')
+    //   player.autoplay(options.autoplay)
+    //   player.src(options.sources)
+    // }
   }, [options, videoRef])
+
+  useEffect(() => {
+    // console.debug('effect l402')
+    // console.debug('effect videoRef.current', videoRef.current)
+    // console.debug('effect playerRef.current', playerRef.current)
+    if (!playerRef.current || !l402) return
+    let tech = playerRef.current.tech({ IWillNotUseThisInPlugins: true }) as any
+    if (tech.vhs) {
+      // // console.debug('effect in tech vhs')
+      tech.vhs.xhr.beforeRequest = (o: { uri: string }) => {
+        //   console.debug('effect in onRequest')
+        if (o.uri.match('ts') && l402) {
+          o.uri = `${o.uri}?l402=${encodeURIComponent(l402.toToken())}`
+        }
+        return o
+      }
+    }
+    // somehow update the beforeRequest
+  }, [playerRef, l402])
 
   // Save volume in local storage before any refresh
   window.addEventListener('beforeunload', (event) => {

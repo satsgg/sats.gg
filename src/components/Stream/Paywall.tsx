@@ -1,4 +1,4 @@
-import { MutableRefObject, useEffect, useMemo, useState } from 'react'
+import { Dispatch, MutableRefObject, SetStateAction, useEffect, useMemo, useState } from 'react'
 import Button from '../Button'
 import Exit from '~/svgs/x.svg'
 import type Player from 'video.js/dist/types/player'
@@ -30,11 +30,13 @@ const Paywall = ({
   playerRef,
   qualitySelectorRef,
   qualityLevels,
+  setL402,
   close,
 }: {
   playerRef: MutableRefObject<Player | null>
   qualitySelectorRef: MutableRefObject<null>
   qualityLevels: QualityLevel[]
+  setL402: Dispatch<SetStateAction<Lsat | null>>
   close: () => void
 }) => {
   const [modal, setModal] = useState<'quality' | 'duration' | 'payment' | 'none'>('quality')
@@ -42,7 +44,7 @@ const Paywall = ({
   const [minutes, setMinutes] = useState(defaultMinutes)
   const [price, setPrice] = useState(0) // total price in millisatoshis per second for duration
   const [l402Challenge, setL402Challenge] = useState<Lsat | null>(null)
-  const [l402, setL402] = useState<Lsat | null>(null)
+  // TODO: Skip quality selection if a one was chosen via selector
 
   useEffect(() => {
     const selectedQualityPrice = selectedQuality?.price
@@ -99,8 +101,10 @@ const Paywall = ({
         return
       }
       l402.setPreimage(payment.preimage)
+      console.debug('finished l402', l402)
       setL402(l402)
-      // setL402(l402Challenge.toToken());
+      close()
+      // TODO: Set player to quality level chosen
     }
     awaitPayment()
   }, [l402Challenge])
