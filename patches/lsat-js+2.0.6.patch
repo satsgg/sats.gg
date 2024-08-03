@@ -1,8 +1,26 @@
 diff --git a/node_modules/lsat-js/dist/lsat.js b/node_modules/lsat-js/dist/lsat.js
-index 2d4f81c..260cc59 100644
+index 2d4f81c..13a9143 100644
 --- a/node_modules/lsat-js/dist/lsat.js
 +++ b/node_modules/lsat-js/dist/lsat.js
-@@ -90,7 +90,7 @@ class Lsat extends bufio.Struct {
+@@ -55,6 +55,7 @@ class Lsat extends bufio.Struct {
+         super(options);
+         this.id = '';
+         this.validUntil = 0;
++        this.maxBandwidth = 0;
+         this.invoice = '';
+         this.baseMacaroon = '';
+         this.paymentHash = Buffer.alloc(32).toString('hex');
+@@ -76,6 +77,9 @@ class Lsat extends bufio.Struct {
+         const expiration = this.getExpirationFromMacaroon(options.baseMacaroon);
+         if (expiration)
+             this.validUntil = expiration;
++        const maxBandwidth = this.getMaxBandwidthFromMacaroon(options.baseMacaroon);
++        if (maxBandwidth)
++            this.maxBandwidth = maxBandwidth;
+         if (options.invoice) {
+             this.addInvoice(options.invoice);
+         }
+@@ -90,7 +94,7 @@ class Lsat extends bufio.Struct {
          return this;
      }
      /**
@@ -11,7 +29,7 @@ index 2d4f81c..260cc59 100644
       * `validUntil` property of the lsat which is evaluated at creation time
       * based on the macaroon and any existing expiration caveats
       * @returns {boolean}
-@@ -132,10 +132,10 @@ class Lsat extends bufio.Struct {
+@@ -132,10 +136,10 @@ class Lsat extends bufio.Struct {
          return Macaroon.importMacaroon(this.baseMacaroon)._exportAsJSONObjectV2();
      }
      /**
@@ -24,16 +42,40 @@ index 2d4f81c..260cc59 100644
       * @returns {number} expiration date
       */
      getExpirationFromMacaroon(macaroon) {
-@@ -162,7 +162,7 @@ class Lsat extends bufio.Struct {
+@@ -161,8 +165,31 @@ class Lsat extends bufio.Struct {
+         // want to return the last expiration caveat
          return Number(expirationCaveats[expirationCaveats.length - 1].value);
      }
++    getMaxBandwidthFromMacaroon(macaroon) {
++        if (!macaroon)
++            macaroon = this.baseMacaroon;
++        assert(macaroon, 'Missing macaroon');
++        const caveatPackets = Macaroon.importMacaroon(macaroon)._exportAsJSONObjectV2().c;
++        const maxBandwidthCaveats = [];
++        if (caveatPackets == undefined) {
++            return 0;
++        }
++        for (const cav of caveatPackets) {
++            if (cav.i == undefined) {
++                continue;
++            }
++            const caveat = _1.Caveat.decode(cav.i);
++            if (caveat.condition === 'max_bandwidth')
++                maxBandwidthCaveats.push(caveat);
++        }
++        // return zero if no expiration caveat
++        if (!maxBandwidthCaveats.length)
++            return 0;
++        // want to return the last expiration caveat
++        return Number(maxBandwidthCaveats[maxBandwidthCaveats.length - 1].value);
++    }
      /**
 -     * @description A utility for setting the preimage for an LSAT. This method will validate the preimage and throw
 +     * @description A utility for setting the preimage for an L402. This method will validate the preimage and throw
       * if it is either of the incorrect length or does not match the paymentHash
       * @param {string} preimage - 32-byte hex string of the preimage that is used as proof of payment of a lightning invoice
       */
-@@ -172,7 +172,7 @@ class Lsat extends bufio.Struct {
+@@ -172,7 +199,7 @@ class Lsat extends bufio.Struct {
              .createHash('sha256')
              .update(Buffer.from(preimage, 'hex'))
              .digest('hex');
@@ -42,7 +84,7 @@ index 2d4f81c..260cc59 100644
          this.paymentPreimage = preimage;
      }
      /**
-@@ -209,25 +209,25 @@ class Lsat extends bufio.Struct {
+@@ -209,30 +236,31 @@ class Lsat extends bufio.Struct {
          return caveats;
      }
      /**
@@ -75,7 +117,13 @@ index 2d4f81c..260cc59 100644
      }
      toJSON() {
          return {
-@@ -246,29 +246,29 @@ class Lsat extends bufio.Struct {
+             id: this.id,
+             validUntil: this.validUntil,
++            maxBandwidth: this.maxBandwidth,
+             invoice: this.invoice,
+             baseMacaroon: this.baseMacaroon,
+             paymentHash: this.paymentHash,
+@@ -246,29 +274,29 @@ class Lsat extends bufio.Struct {
          };
      }
      addInvoice(invoice) {
@@ -110,7 +158,7 @@ index 2d4f81c..260cc59 100644
          let id, identifier;
          try {
              identifier = (0, _1.decodeIdentifierFromMacaroon)(macaroon);
-@@ -289,14 +289,14 @@ class Lsat extends bufio.Struct {
+@@ -289,14 +317,14 @@ class Lsat extends bufio.Struct {
          return lsat;
      }
      /**
@@ -129,7 +177,7 @@ index 2d4f81c..260cc59 100644
          token = token.slice(this.type.length).trim();
          const [macaroon, preimage] = token.split(':');
          const lsat = Lsat.fromMacaroon(macaroon, invoice);
-@@ -305,8 +305,8 @@ class Lsat extends bufio.Struct {
+@@ -305,8 +333,8 @@ class Lsat extends bufio.Struct {
          return lsat;
      }
      /**
@@ -140,7 +188,7 @@ index 2d4f81c..260cc59 100644
       * @param {string} challenge
       * @returns {Lsat}
       */
-@@ -319,7 +319,7 @@ class Lsat extends bufio.Struct {
+@@ -319,7 +347,7 @@ class Lsat extends bufio.Struct {
          if (challenges.length < 2)
              challenges = challenge.split(' ');
          // if we still don't have at least two, then there was a malformed header/challenge
@@ -149,7 +197,7 @@ index 2d4f81c..260cc59 100644
          let macaroon = '', invoice = '';
          // get the indexes of the challenge strings so that we can split them
          // kind of convoluted but it takes into account challenges being in the wrong order
-@@ -344,7 +344,7 @@ class Lsat extends bufio.Struct {
+@@ -344,7 +372,7 @@ class Lsat extends bufio.Struct {
                  }
              }
              // if there are other challenges but we have mac and invoice then we can break
@@ -158,7 +206,7 @@ index 2d4f81c..260cc59 100644
              if (invoice.length && macaroon.length)
                  break;
          }
-@@ -359,16 +359,16 @@ class Lsat extends bufio.Struct {
+@@ -359,16 +387,16 @@ class Lsat extends bufio.Struct {
          });
      }
      /**
