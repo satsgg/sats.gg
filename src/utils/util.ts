@@ -7,7 +7,7 @@ export interface InvoiceDetails {
   timestamp?: number
   description?: string
   // descriptionHash?: string
-  // paymentHash?: string
+  paymentHash?: string
   expired: boolean
 }
 
@@ -26,14 +26,14 @@ export function decodeInvoice(pr: string): InvoiceDetails | undefined {
     const expire = expirySection ? Number(expirySection.value as number | string) : undefined
     const descriptionSection = parsed.sections.find((a) => a.name === 'description')?.value
     // const descriptionHashSection = parsed.sections.find((a) => a.name === 'description_hash')?.value
-    // const paymentHashSection = parsed.sections.find((a) => a.name === 'payment_hash')?.value
+    const paymentHashSection = parsed.sections.find((a: { name: string }) => a.name === 'payment_hash')?.value
     const ret = {
       amount: amount,
       expire: timestamp && expire ? timestamp + expire : undefined,
       timestamp: timestamp,
       description: descriptionSection as string | undefined,
       // descriptionHash: descriptionHashSection ? bytesToHex(descriptionHashSection as Uint8Array) : undefined,
-      // paymentHash: paymentHashSection ? bytesToHex(paymentHashSection as Uint8Array) : undefined,
+      paymentHash: paymentHashSection as string | undefined,
       expired: false,
     }
     if (ret.expire) {

@@ -55,6 +55,7 @@
     "jsonwebtoken": "^8.5.1",
     "light-bolt11-decoder": "^3.0.0",
     "lightning": "^6.2.3",
+    "lsat-js": "^2.0.6",
     "m3u8-parser": "^7.1.0",
     "next": "^12.3.1",
     "nextjs-cors": "^2.1.1",

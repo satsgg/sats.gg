@@ -1,0 +1,180 @@
+diff --git a/node_modules/lsat-js/dist/lsat.js b/node_modules/lsat-js/dist/lsat.js
+index 2d4f81c..260cc59 100644
+--- a/node_modules/lsat-js/dist/lsat.js
++++ b/node_modules/lsat-js/dist/lsat.js
+@@ -90,7 +90,7 @@ class Lsat extends bufio.Struct {
+         return this;
+     }
+     /**
+-     * @description Determine if the LSAT is expired or not. This is based on the
++     * @description Determine if the L402 is expired or not. This is based on the
+      * `validUntil` property of the lsat which is evaluated at creation time
+      * based on the macaroon and any existing expiration caveats
+      * @returns {boolean}
+@@ -132,10 +132,10 @@ class Lsat extends bufio.Struct {
+         return Macaroon.importMacaroon(this.baseMacaroon)._exportAsJSONObjectV2();
+     }
+     /**
+-     * @description A utility for returning the expiration date of the LSAT's macaroon based on
++     * @description A utility for returning the expiration date of the L402's macaroon based on
+      * an optional caveat
+      * @param {string} [macaroon] - raw macaroon to get expiration date from if exists as a caveat. If
+-     * none is provided then it will use LSAT's base macaroon. Will throw if neither exists
++     * none is provided then it will use L402's base macaroon. Will throw if neither exists
+      * @returns {number} expiration date
+      */
+     getExpirationFromMacaroon(macaroon) {
+@@ -162,7 +162,7 @@ class Lsat extends bufio.Struct {
+         return Number(expirationCaveats[expirationCaveats.length - 1].value);
+     }
+     /**
+-     * @description A utility for setting the preimage for an LSAT. This method will validate the preimage and throw
++     * @description A utility for setting the preimage for an L402. This method will validate the preimage and throw
+      * if it is either of the incorrect length or does not match the paymentHash
+      * @param {string} preimage - 32-byte hex string of the preimage that is used as proof of payment of a lightning invoice
+      */
+@@ -172,7 +172,7 @@ class Lsat extends bufio.Struct {
+             .createHash('sha256')
+             .update(Buffer.from(preimage, 'hex'))
+             .digest('hex');
+-        assert(hash === this.paymentHash, "Hash of preimage did not match LSAT's paymentHash");
++        assert(hash === this.paymentHash, "Hash of preimage did not match L402's paymentHash");
+         this.paymentPreimage = preimage;
+     }
+     /**
+@@ -209,25 +209,25 @@ class Lsat extends bufio.Struct {
+         return caveats;
+     }
+     /**
+-     * @description Converts the lsat into a valid LSAT token for use in an http
+-     * Authorization header. This will return a string in the form: "LSAT [macaroon]:[preimage?]".
++     * @description Converts the lsat into a valid L402 token for use in an http
++     * Authorization header. This will return a string in the form: "L402 [macaroon]:[preimage?]".
+      *  If no preimage is available the last character should be a colon, which would be
+-     * an "incomplete" LSAT
++     * an "incomplete" L402
+      * @returns {string}
+      */
+     toToken() {
+-        return `LSAT ${this.baseMacaroon}:${this.paymentPreimage || ''}`;
++        return `L402 ${this.baseMacaroon}:${this.paymentPreimage || ''}`;
+     }
+     /**
+-     * @description Converts LSAT into a challenge header to return in the WWW-Authenticate response
++     * @description Converts L402 into a challenge header to return in the WWW-Authenticate response
+      * header. Returns base64 encoded string with macaroon and invoice information prefixed with
+-     * authentication type ("LSAT")
++     * authentication type ("L402")
+      * @returns {string}
+      */
+     toChallenge() {
+         assert(this.invoice, `Can't create a challenge without a payment request/invoice`);
+         const challenge = `macaroon="${this.baseMacaroon}", invoice="${this.invoice}"`;
+-        return `LSAT ${challenge}`;
++        return `L402 ${challenge}`;
+     }
+     toJSON() {
+         return {
+@@ -246,29 +246,29 @@ class Lsat extends bufio.Struct {
+         };
+     }
+     addInvoice(invoice) {
+-        assert(this.paymentHash, 'Cannot add invoice data to an LSAT without paymentHash');
++        assert(this.paymentHash, 'Cannot add invoice data to an L402 without paymentHash');
+         try {
+             const data = (0, helpers_1.decode)(invoice);
+             const { satoshis: tokens } = data;
+             const hashTag = data.tags.find((tag) => tag.tagName === 'payment_hash');
+             assert(hashTag, 'Could not find payment hash on invoice request');
+             const paymentHash = hashTag === null || hashTag === void 0 ? void 0 : hashTag.data;
+-            assert(paymentHash === this.paymentHash, 'paymentHash from invoice did not match LSAT');
++            assert(paymentHash === this.paymentHash, 'paymentHash from invoice did not match L402');
+             this.invoiceAmount = tokens || 0;
+             this.invoice = invoice;
+         }
+         catch (e) {
+-            throw new Error(`Problem adding invoice data to LSAT: ${e.message}`);
++            throw new Error(`Problem adding invoice data to L402: ${e.message}`);
+         }
+     }
+     // Static API
+     /**
+-     * @description generates a new LSAT from an invoice and an optional invoice
++     * @description generates a new L402 from an invoice and an optional invoice
+      * @param {string} macaroon - macaroon to parse and generate relevant lsat properties from
+      * @param {string} [invoice] - optional invoice which can provide other relevant information for the lsat
+      */
+     static fromMacaroon(macaroon, invoice) {
+-        assert(typeof macaroon === 'string', 'Requires a raw macaroon string for macaroon to generate LSAT');
++        assert(typeof macaroon === 'string', 'Requires a raw macaroon string for macaroon to generate L402');
+         let id, identifier;
+         try {
+             identifier = (0, _1.decodeIdentifierFromMacaroon)(macaroon);
+@@ -289,14 +289,14 @@ class Lsat extends bufio.Struct {
+         return lsat;
+     }
+     /**
+-     * @description Create an LSAT from an http Authorization header. A useful utility
+-     * when trying to parse an LSAT sent in a request and determining its validity
+-     * @param {string} token - LSAT token sent in request
++     * @description Create an L402 from an http Authorization header. A useful utility
++     * when trying to parse an L402 sent in a request and determining its validity
++     * @param {string} token - L402 token sent in request
+      * @param {string} invoice - optional payment request information to intialize lsat with
+      * @returns {Lsat}
+      */
+     static fromToken(token, invoice) {
+-        assert(token.includes(this.type), 'Token must include LSAT prefix');
++        assert(token.includes(this.type), 'Token must include L402 prefix');
+         token = token.slice(this.type.length).trim();
+         const [macaroon, preimage] = token.split(':');
+         const lsat = Lsat.fromMacaroon(macaroon, invoice);
+@@ -305,8 +305,8 @@ class Lsat extends bufio.Struct {
+         return lsat;
+     }
+     /**
+-     * @description Validates and converts an LSAT challenge from a WWW-Authenticate header
+-     * response into an LSAT object. This method expects an invoice and a macaroon in the challenge
++     * @description Validates and converts an L402 challenge from a WWW-Authenticate header
++     * response into an L402 object. This method expects an invoice and a macaroon in the challenge
+      * @param {string} challenge
+      * @returns {Lsat}
+      */
+@@ -319,7 +319,7 @@ class Lsat extends bufio.Struct {
+         if (challenges.length < 2)
+             challenges = challenge.split(' ');
+         // if we still don't have at least two, then there was a malformed header/challenge
+-        assert(challenges.length >= 2, 'Expected at least two challenges in the LSAT: invoice and macaroon');
++        assert(challenges.length >= 2, 'Expected at least two challenges in the L402: invoice and macaroon');
+         let macaroon = '', invoice = '';
+         // get the indexes of the challenge strings so that we can split them
+         // kind of convoluted but it takes into account challenges being in the wrong order
+@@ -344,7 +344,7 @@ class Lsat extends bufio.Struct {
+                 }
+             }
+             // if there are other challenges but we have mac and invoice then we can break
+-            // as they are not LSAT relevant anyway
++            // as they are not L402 relevant anyway
+             if (invoice.length && macaroon.length)
+                 break;
+         }
+@@ -359,16 +359,16 @@ class Lsat extends bufio.Struct {
+         });
+     }
+     /**
+-     * @description Given an LSAT WWW-Authenticate challenge header (with token type, "LSAT", prefix)
++     * @description Given an L402 WWW-Authenticate challenge header (with token type, "L402", prefix)
+      * will return an Lsat.
+      * @param header
+      */
+     static fromHeader(header) {
+         // remove the token type prefix to get the challenge
+         const challenge = header.slice(this.type.length).trim();
+-        assert(header.length !== challenge.length, 'header missing token type prefix "LSAT"');
++        assert(header.length !== challenge.length, 'header missing token type prefix "L402"');
+         return Lsat.fromChallenge(challenge);
+     }
+ }
+ exports.Lsat = Lsat;
+-Lsat.type = 'LSAT';
++Lsat.type = 'L402';
