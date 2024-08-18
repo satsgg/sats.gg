@@ -151,6 +151,8 @@ const Paywall = ({
                             return
                           }
                           console.debug('setting price', 60 * q.price)
+                          // TODO: Prevent playing a quality until we paid for it
+                          // need to handle exclusion better
                           qualitySelectorRef.current._qualityButton.items[p].handleClick()
                           playerRef.current!.play()
                           setPrice(q.price * minutes * 60) // default 1 min price

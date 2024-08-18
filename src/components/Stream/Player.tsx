@@ -93,45 +93,38 @@ const VideoPlayer = ({ options }: { options: any }) => {
   //   },
   // }
 
-  // useEffect(() => {
-  //   console.debug('quality levels', qualityLevelsRef.current)
-  //   if (!qualityLevelsRef.current) return
-  //   for (let i = 0; i < qualityLevelsRef.current.length; i++) {
-  //     const qualityLevel = qualityLevelsRef.current[i]
-  //     console.debug('Quality Level', i, 'enabled:', qualityLevel.enabled)
-  //   }
-  // }, [qualityLevelsRef.current])
-  // useEffect(() => {
-  //   console.debug('quality levels', qualityLevels)
-  //   for (let i = 0; i < qualityLevels.length; i++) {
-  //     const qualityLevel = qualityLevels[i]
-  //     console.debug('Quality Level', i, 'enabled:', qualityLevel.enabled)
-  //   }
-  // }, [JSON.stringify(qualityLevels)])
-
-  // useEffect(() => {
-  //   for (let i = 0; i < qualityLevels.length; i++) {
-  //     const qualityLevel = qualityLevels[i]
-  //     console.debug('on change Quality Level', i, 'enabled:', qualityLevel.enabled)
-  //   }
-  // }, [selectedQualityIndex])
-
-  // useEffect(() => {
-  //   const selectedQuality = qualityLevels[selectedQualityIndex]
-  //   if (!selectedQuality || !selectedQuality.price || selectedQuality.price === 0) return
-
-  //   console.debug('l402', l402)
-  //   if (!l402 || !validL402(selectedQuality, l402)) {
-  //     setOpenPaywall(true)
-  //   }
-  // }, [selectedQualityIndex, qualityLevels, l402])
-
   useEffect(() => {
     if (!playerRef.current) return
-    // console.debug('vhs loadedplaylist representations', playerRef.current.tech().vhs?.representations())
     playerRef.current.l402 = l402
-    // console.debug('playerRef.current', playerRef.current)
   }, [l402])
+
+  // use to debug exclusion
+  // useEffect(() => {
+  //   let timer = setInterval(() => {
+  //     if (!playerRef.current) return
+  //     let reps = playerRef.current.tech().vhs?.representations()
+  //     for (let i = 0; i < reps.length; i++) {
+  //       const rep = reps[i]
+  //       let excluded = false
+  //       if (rep.playlist.excludeUntil) {
+  //         excluded = Date.now() < rep.playlist.excludeUntil
+  //       }
+  //       console.debug(
+  //         'rep',
+  //         rep.height,
+  //         'enabled: ',
+  //         !rep.playlist.disabled,
+  //         'excludeUntil',
+  //         rep.playlist.excludeUntil,
+  //         'excluded:',
+  //         excluded,
+  //       )
+  //     }
+  //   }, 5000)
+  //   return () => {
+  //     clearInterval(timer)
+  //   }
+  // }, [playerRef.current])
 
   // const validL402 = (selectedQuality: QualityLevel, l402: Lsat) => {
   //   // check bandwidth and expiration
@@ -178,6 +171,7 @@ const VideoPlayer = ({ options }: { options: any }) => {
         }
       })
 
+      // never fires...
       // player.on('xhr-hooks-ready', () => {
       // console.debug('xhr hooks ready')
       // videojs.log('xhr hooks are ready')
