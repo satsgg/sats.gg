@@ -35,6 +35,17 @@ export const VideoJS = ({
       videoRef.current?.appendChild(videoElement)
       const player = (playerRef.current = videojs(videoElement, options, () => {
         videojs.log('player is ready')
+        // let tech = playerRef.current.tech({ IWillNotUseThisInPlugins: true }) as any
+        player.on('xhr-hooks-ready', () => {
+          console.debug('xhr hooks ready')
+          const playerResponseHook = (request, error, response) => {
+            const bar = response.headers.foo
+            console.debug('on response', error, response)
+          }
+          if (player.tech().vhs) {
+            player.tech().vhs.xhr.onResponse(playerResponseHook)
+          }
+        })
         onReady && onReady(player)
       }))
     }
@@ -49,22 +60,41 @@ export const VideoJS = ({
   }, [options, videoRef])
 
   useEffect(() => {
-    // console.debug('effect l402')
-    // console.debug('effect videoRef.current', videoRef.current)
-    // console.debug('effect playerRef.current', playerRef.current)
     if (!playerRef.current || !l402) return
     let tech = playerRef.current.tech({ IWillNotUseThisInPlugins: true }) as any
+    const playerRequestHook = (options: { uri: string }) => {
+      const l402Uri = new URL(options.uri)
+
+      // let l402Uri = options.uri
+      if (options.uri.match('ts') && l402) {
+        l402Uri = `${l402Uri}?l402=${encodeURIComponent(l402.toToken())}`
+      }
+      options.uri = l402Uri
+      return options
+    }
+
     if (tech.vhs) {
-      // // console.debug('effect in tech vhs')
-      tech.vhs.xhr.beforeRequest = (o: { uri: string }) => {
-        //   console.debug('effect in onRequest')
-        if (o.uri.match('ts') && l402) {
-          o.uri = `${o.uri}?l402=${encodeURIComponent(l402.toToken())}`
-        }
-        return o
+      // on second payment, the l402uri is concatenating to expired l402
+      // need to refresh this...
+      // const playerRequestHook = (options: { uri: string }) => {
+      //   const l402Uri = new URL(options.uri)
+
+      //   // let l402Uri = options.uri
+      //   if (options.uri.match('ts') && l402) {
+      //     l402Uri = `${l402Uri}?l402=${encodeURIComponent(l402.toToken())}`
+      //   }
+      //   options.uri = l402Uri
+      //   return options
+      // }
+      tech.vhs.xhr.onRequest(playerRequestHook)
+    }
+    return () => {
+      if (!playerRef.current || !l402) return
+      let tech = playerRef.current.tech({ IWillNotUseThisInPlugins: true }) as any
+      if (tech.vhs) {
+        tech.vhs.xhr.offRequest(playerRequestHook)
       }
     }
-    // somehow update the beforeRequest
   }, [playerRef, l402])
 
   // Save volume in local storage before any refresh

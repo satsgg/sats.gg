@@ -152,3 +152,18 @@ input[type='number'] {
   opacity: 0 !important;
   transition: opacity 0.1s ease-in-out !important; /* Adjust the fade-out speed here */
 }
+
+.video-js .vjs-menu {
+  width: 15em;
+  left: -5em;
+  color: #ffaa00;
+}
+.video-js .vjs-menu-button .vjs-menu-content {
+  background-color: red;
+  width: 15em;
+}
+
+.vjs-menu-button-popup .vjs-menu {
+  width: 15em;
+  left: -5em;
+}

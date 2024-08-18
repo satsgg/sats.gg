@@ -46,7 +46,7 @@
      */
     constructor(player) {
       super(player, {
-        title: player.localize('Quality'),
+        title: player.localize('Quality, sats/min'),
         name: 'QualityButton',
       })
     }
@@ -134,6 +134,7 @@
       // Set this menu item to selected, and set quality.
       this.plugin.setQuality(this.item.value)
       this.selected(true)
+      console.debug('quality handleClick', this.item.value)
     }
   }
 
@@ -236,7 +237,7 @@
       const levels = qualityList.levels_ || []
       const levelItems = []
       for (let i = 0; i < levels.length; ++i) {
-        const { width, height } = levels[i]
+        const { width, height, price } = levels[i]
         const pixels = width > height ? height : width
         if (!pixels) {
           continue
@@ -246,8 +247,11 @@
             return _existingItem.item && _existingItem.item.value === pixels
           }).length
         ) {
+          const convertedPrice = price ? `${Math.floor((price * 60) / 1000)} ` : 'free'
+          const label = `${pixels}p, ${convertedPrice}`
           const levelItem = this.getQualityMenuItem.call(this, {
-            label: pixels + 'p',
+            // label: pixels + 'p' + ' free',
+            label: label,
             value: pixels,
           })
           levelItems.push(levelItem)
@@ -287,16 +291,49 @@
      */
     setQuality(quality) {
       const qualityList = this.player.qualityLevels()
+      console.debug('setQuality quality levels', qualityList)
 
       // Set quality on plugin
       this._currentQuality = quality
       if (this.options.displayCurrentQuality) {
         this.setButtonInnerText(quality === 'auto' ? this.player.localize('Auto') : `${quality}p`)
       }
+      // when you click auto, it enables all qualities.
+      // when you click a specific quality, it enables that quality and disabled all others
+      // enabled is what the abr handler looks at when selecting quality
+      // WANT: should support abr even if they pay for high quality
+      // TODO: If quality selected is 'auto', need to only enable
+      // qualities that match the bitrate purchased
+      const l402 = this.player.l402
+      // if (Math.floor(Date.now() / 1000) > l402.validUntil) return false
+      // console.debug('bitrate comparison', selectedQuality.bitrate > l402.maxBandwidth)
+      // if (selectedQuality.bitrate > l402.maxBandwidth) return false
       for (let i = 0; i < qualityList.length; ++i) {
         const { width, height } = qualityList[i]
         const pixels = width > height ? height : width
-        qualityList[i].enabled = pixels === quality || quality === 'auto'
+        // if it's auto, enable all free and paid for qualities
+        if (quality === 'auto') {
+          if (!qualityList[i].price || qualityList[i].price === 0) {
+            console.debug("it's free, enable it")
+            // if it's a free quality enable
+            qualityList[i].enabled = true
+          } else if (
+            l402 &&
+            l402.maxBandwidth >= qualityList[i].bitrate &&
+            Math.floor(Date.now() / 1000) <= l402.validUntil
+          ) {
+            // otherwise, enable if we have a valid l402 for it
+            console.debug('we paid for it, enable')
+            qualityList[i].enabled = true
+          } else {
+            console.debug('we did NOT paid for it, disable')
+            qualityList[i].enabled = false
+          }
+        } else {
+          qualityList[i].enabled = pixels === quality
+        }
+        // qualityList[i].enabled = pixels === quality || quality === 'auto'
+        console.debug('setQuality, setting quality', qualityList[i], qualityList[i].enabled)
       }
       this._qualityButton.unpressButton()
     }

@@ -18,3 +18,13 @@
 .vjs-seek-to-live-control.vjs-control.vjs-at-live-edge .vjs-icon-placeholder {
   color: var(--theme-color-components-video-live-indicator) !important;
 }
+
+.vjs-menu-button-popup .vjs-menu {
+  width: '15em';
+  left: '-5em';
+}
+
+.vjs-menu {
+  width: '15em';
+  left: '-5em';
+}

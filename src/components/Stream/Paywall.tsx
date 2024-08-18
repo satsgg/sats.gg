@@ -71,6 +71,13 @@ const Paywall = ({
     }
   }
 
+  // useEffect(() => {
+  //   for (let i = 0; i < qualityLevels.length; i++) {
+  //     const qualityLevel = qualityLevels[i]
+  //     console.debug('debug Quality Level', i, 'enabled:', qualityLevel.enabled)
+  //   }
+  // }, [qualityLevels])
+
   useEffect(() => {
     const uri = selectedQuality?.resolvedUri
     if (!l402Challenge || !uri) return
@@ -104,6 +111,11 @@ const Paywall = ({
       console.debug('finished l402', l402)
       setL402(l402)
       close()
+      // this is just wrong
+      // for (let i = 0; i < qualityLevels.length; i++) {
+      //   const qualityLevel = qualityLevels[i]
+      //   console.debug('Quality Level', i, 'enabled:', qualityLevel.enabled)
+      // }
       // TODO: Set player to quality level chosen
     }
     awaitPayment()
@@ -139,6 +151,8 @@ const Paywall = ({
                             return
                           }
                           console.debug('setting price', 60 * q.price)
+                          qualitySelectorRef.current._qualityButton.items[p].handleClick()
+                          playerRef.current!.play()
                           setPrice(q.price * minutes * 60) // default 1 min price
                           setSelectedQuality(q)
                           setModal('duration')

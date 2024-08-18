@@ -93,26 +93,55 @@ const VideoPlayer = ({ options }: { options: any }) => {
   //   },
   // }
 
+  // useEffect(() => {
+  //   console.debug('quality levels', qualityLevelsRef.current)
+  //   if (!qualityLevelsRef.current) return
+  //   for (let i = 0; i < qualityLevelsRef.current.length; i++) {
+  //     const qualityLevel = qualityLevelsRef.current[i]
+  //     console.debug('Quality Level', i, 'enabled:', qualityLevel.enabled)
+  //   }
+  // }, [qualityLevelsRef.current])
+  // useEffect(() => {
+  //   console.debug('quality levels', qualityLevels)
+  //   for (let i = 0; i < qualityLevels.length; i++) {
+  //     const qualityLevel = qualityLevels[i]
+  //     console.debug('Quality Level', i, 'enabled:', qualityLevel.enabled)
+  //   }
+  // }, [JSON.stringify(qualityLevels)])
+
+  // useEffect(() => {
+  //   for (let i = 0; i < qualityLevels.length; i++) {
+  //     const qualityLevel = qualityLevels[i]
+  //     console.debug('on change Quality Level', i, 'enabled:', qualityLevel.enabled)
+  //   }
+  // }, [selectedQualityIndex])
+
+  // useEffect(() => {
+  //   const selectedQuality = qualityLevels[selectedQualityIndex]
+  //   if (!selectedQuality || !selectedQuality.price || selectedQuality.price === 0) return
+
+  //   console.debug('l402', l402)
+  //   if (!l402 || !validL402(selectedQuality, l402)) {
+  //     setOpenPaywall(true)
+  //   }
+  // }, [selectedQualityIndex, qualityLevels, l402])
+
   useEffect(() => {
-    const selectedQuality = qualityLevels[selectedQualityIndex]
-    if (!selectedQuality || !selectedQuality.price || selectedQuality.price === 0) return
+    if (!playerRef.current) return
+    // console.debug('vhs loadedplaylist representations', playerRef.current.tech().vhs?.representations())
+    playerRef.current.l402 = l402
+    // console.debug('playerRef.current', playerRef.current)
+  }, [l402])
 
-    console.debug('l402', l402)
-    if (!l402 || !validL402(selectedQuality, l402)) {
-      setOpenPaywall(true)
-    }
-  }, [selectedQualityIndex, qualityLevels, l402])
-
-  const validL402 = (selectedQuality: QualityLevel, l402: Lsat) => {
-    // check bandwidth and expiration
-    console.debug('l402.isExpired', l402.isExpired()) // doesn't work
-    console.debug('manual expired check', Math.floor(Date.now() / 1000) > l402.validUntil)
-    if (Math.floor(Date.now() / 1000) > l402.validUntil) return false
-
-    // TODO: Parse out bitrate
-    // if (selectedQuality.bitrate > l402)
-    return true
-  }
+  // const validL402 = (selectedQuality: QualityLevel, l402: Lsat) => {
+  //   // check bandwidth and expiration
+  //   // console.debug('l402.isExpired', l402.isExpired()) // doesn't work
+  //   console.debug('manual expired check', Math.floor(Date.now() / 1000) > l402.validUntil)
+  //   if (Math.floor(Date.now() / 1000) > l402.validUntil) return false
+  //   console.debug('bitrate comparison', selectedQuality.bitrate > l402.maxBandwidth)
+  //   if (selectedQuality.bitrate > l402.maxBandwidth) return false
+  //   return true
+  // }
 
   const handlePlayerReady = useCallback(
     (player: Player) => {
@@ -129,29 +158,37 @@ const VideoPlayer = ({ options }: { options: any }) => {
         console.debug('Quality Level Added:', qualityLevel)
         // TODO: if quality level has a price and we have no valid l402, disable
         if (qualityLevel.price && qualityLevel.price > 0) {
-          console.debug('disabling quality level', qualityLevel)
+          console.debug('Quality level disabled', qualityLevel)
           qualityLevel.enabled = false
         }
         setQualityLevels(playerQualityLevels.levels_)
       })
-
-      playerQualityLevels.on('change', function (event: any) {
-        // TODO: If quality level has a price and we do not have a valid l402, request payment
-        // console.debug('qualityLevels change', event)
-        console.debug('change: setting selected quality index', event.selectedIndex)
-        setSelectedQualityIndex(event.selectedIndex)
-        // if (qualityLevel?.price && qualityLevel.price > 0) {
-        //   setOpenPaywall(true)
-        // }
-        // console.log('New level:', qualityLevels[qualityLevels.selectedIndex]);
-        // setQualityLevels(playerQualityLevels.levels_)
-        // for (let i = 0; i < qualityLevels.length; i++) {
-        //   const qualityLevel = qualityLevels[i]
-        //   console.debug('Quality Level', i, 'Price:', qualityLevel.price)
-        // }
+      playerQualityLevels.on('removequalitylevel', function (event: any) {
+        const qualityLevel = event.qualityLevel
+        console.debug('Quality Level Removed:', qualityLevel)
       })
 
-      // console.debug('quality selector', player.hlsQualitySelector())
+      playerQualityLevels.on('change', function (event: any) {
+        console.debug('change: setting selected quality index', event.selectedIndex)
+        setSelectedQualityIndex(event.selectedIndex)
+        // setQualityLevels(playerQualityLevels.levels_)
+        for (let i = 0; i < qualityLevels.length; i++) {
+          const qualityLevel = qualityLevels[i]
+          console.debug('on change Quality Level', i, 'Price:', qualityLevel.price)
+        }
+      })
+
+      // player.on('xhr-hooks-ready', () => {
+      // console.debug('xhr hooks ready')
+      // videojs.log('xhr hooks are ready')
+      // const playerResponseHook = (request, error, response) => {
+      //   const bar = response.headers.foo
+      //   console.debug('on response', error, response)
+      // }
+      // if (player.tech().vhs) {
+      //   player.tech().vhs.xhr.onResponse(playerResponseHook)
+      // }
+      // })
 
       player.on('waiting', () => {
         videojs.log('player is waiting')
@@ -180,12 +217,27 @@ const VideoPlayer = ({ options }: { options: any }) => {
       let tech = player.tech({ IWillNotUseThisInPlugins: true })
       if (tech) {
         tech.on('loadedplaylist', () => {
-          console.debug('vhs representations', tech.vhs?.representations())
+          // doesn't fire
+          console.debug('vhs loadedplaylist representations', tech.vhs?.representations())
           // console.debug('tech.vhs.playlists.main', tech.vhs?.playlists?.main)
         })
         tech.on('loadedmetadata', () => {
-          // console.debug('vhs loadedmetadata')
-          console.debug('vhs representations', tech.vhs?.representations())
+          if (tech.vhs) {
+            const playerResponseHook = (request, error, response) => {
+              const bar = response.headers.foo
+              if (response.statusCode === 402) {
+                setL402((l402) => {
+                  if (!l402) return null
+                  if (Math.floor(Date.now() / 1000) > l402.validUntil) {
+                    return null
+                  }
+                  return l402
+                })
+                setOpenPaywall(true)
+              }
+            }
+            tech.vhs.xhr.onResponse(playerResponseHook)
+          }
         })
         tech.on('mediachange', () => {
           // console.debug('tech.vhs.playlists.main', tech.vhs?.playlists?.main)
