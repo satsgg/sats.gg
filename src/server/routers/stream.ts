@@ -6,12 +6,12 @@ import { isAuthed } from '../middlewares/authed'
 import { z } from 'zod'
 
 const qualityNameMap = {
-  '1080p60fps': { height: 1080, framerate: 60 },
-  '720p60fps': { height: 720, framerate: 60 },
-  '720p30fps': { height: 720, framerate: 30 },
-  '480p30fps': { height: 480, framerate: 30 },
-  '360p30fps': { height: 360, framerate: 30 },
-  '160p30fps': { height: 160, framerate: 30 },
+  '1080p60fps': { height: 1080, width: 1920, framerate: 60 },
+  '720p60fps': { height: 720, width: 1280, framerate: 60 },
+  '720p30fps': { height: 720, width: 1280, framerate: 30 },
+  '480p30fps': { height: 480, width: 854, framerate: 30 },
+  '360p30fps': { height: 360, width: 640, framerate: 30 },
+  '160p30fps': { height: 160, width: 256, framerate: 30 },
 }
 
 const createStreamSchema = z.object({

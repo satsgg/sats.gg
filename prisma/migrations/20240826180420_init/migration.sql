@@ -53,6 +53,7 @@ CREATE TABLE "StreamVariant" (
     "streamId" TEXT NOT NULL,
     "price" INTEGER NOT NULL,
     "height" INTEGER NOT NULL,
+    "width" INTEGER NOT NULL,
     "framerate" INTEGER NOT NULL,
 
     CONSTRAINT "StreamVariant_pkey" PRIMARY KEY ("id")

@@ -69,6 +69,7 @@ model StreamVariant {
   stream Stream @relation(fields: [streamId], references: [id])
   price Int
   height Int
+  width Int
   framerate Int
 }
 

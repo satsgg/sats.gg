@@ -3,12 +3,22 @@ import { InteractionModal } from './InteractionModal'
 import { trpc } from '~/utils/trpc'
 import { Spinner } from './Spinner'
 import CopyValueBar from './Settings/CopyBar'
+import { useEffect, useState } from 'react'
 
 const StreamCreationModal = ({ streamId, onClose }: { streamId: string; onClose: () => void }) => {
+  const [streamReady, setStreamReady] = useState(false)
   const { data, isLoading } = trpc.stream.getStreamById.useQuery(streamId, {
-    refetchOnWindowFocus: false,
-    refetchInterval: 30 * 1000,
+    refetchOnWindowFocus: true,
+    refetchInterval: 5 * 1000,
+    enabled: !!streamReady,
   })
+
+  useEffect(() => {
+    if (data?.status === StreamStatus.READY) {
+      setStreamReady(true)
+      onClose()
+    }
+  }, [data?.status])
   return (
     <InteractionModal title="Creating stream" close={onClose}>
       <p>{data?.status}</p>
