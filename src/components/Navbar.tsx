@@ -16,9 +16,10 @@ import { getVerifiedChannelLink } from '~/utils/nostr'
 
 interface HeaderProps {
   openAuthenticate: () => void
+  openGoLive: () => void
 }
 
-export const Navbar = ({ openAuthenticate }: HeaderProps) => {
+export const Navbar = ({ openAuthenticate, openGoLive }: HeaderProps) => {
   const [showAccountMenu, setShowAccountMenu] = useState(false)
   const relays = useSettingsStore((state) => state.relays)
   const [user, pubkey, npub, view, logout] = useAuthStore((state) => [
@@ -51,6 +52,7 @@ export const Navbar = ({ openAuthenticate }: HeaderProps) => {
               {connectedRelays.size}/{relays.length}
             </Link>
           )}
+          {view === 'authenticated' && <Button onClick={openGoLive}>Go Live</Button>}
           {(view === 'pubkey' || view === 'authenticated') && (
             <ClickAwayListener onClickAway={() => setShowAccountMenu(false)}>
               <div className="dropdown relative">

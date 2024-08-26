@@ -18,12 +18,9 @@ model User {
   updatedAt            DateTime     @updatedAt
   lastLogin            DateTime?
   publicKey            String       @unique
-  streamStatus         StreamStatus @default(IDLE)
-  streamTitle          String?
-  viewerCount          Int          @default(0)
-  viewerCountUpdatedAt DateTime     @default(now())
-  chatChannelId        String?      @unique
   defaultZapAmount     Int          @default(1000)
+
+  streams Stream[]
 }
 
 model UserAuth {
@@ -33,7 +30,67 @@ model UserAuth {
   challengeHash String   @unique
 }
 
+model Stream {
+  id String @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  expiresAt DateTime?
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  hlsUrl String?
+  rtmpUrl String?
+  streamKey String
+  lightningAddress String?
+  duration Int
+  viewerCount Int @default(0)
+  viewerCountUpdatedAt DateTime @default(now())
+  // TODO: add nip 53 values?
+  status StreamStatus @default(PENDING)
+  variants StreamVariant[]
+  invoices Invoice[]
+}
+
+// TODO: figure these out
+// stream status vs creation status?
 enum StreamStatus {
-  IDLE
-  ACTIVE
+  PENDING
+  PROVISIONING
+  PROVISIONING_FAILED
+  READY
+  LIVE
+  ENDED
+}
+
+model StreamVariant {
+  id String @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  streamId String
+  stream Stream @relation(fields: [streamId], references: [id])
+  price Int
+  height Int
+  framerate Int
+}
+
+model Invoice {
+  id            String        @id @default(uuid())
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  settledAt     DateTime?
+  maxAgeSeconds Int
+  description   String
+  status        InvoiceStatus @default(OPEN)
+  hash          String        @unique
+  bolt11        String
+  mSatsTarget   Int
+  // mSatsSettled  Int?
+  streamId String
+  stream Stream @relation(fields: [streamId], references: [id])
+}
+
+enum InvoiceStatus {
+  OPEN
+  SETTLED
+  CANCELED
+  ACCEPTED
 }

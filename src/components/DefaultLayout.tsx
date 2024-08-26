@@ -13,17 +13,18 @@ import useMediaQuery from '~/hooks/useMediaQuery'
 import useLayoutStore from '~/store/layoutStore'
 import useHasMounted from '~/hooks/useHasMounted'
 import useAuth from '~/hooks/useAuth'
+import GoLive from './GoLive'
 
-type DefaultLayoutProps = { children: ReactNode }
+type DefaultLayoutProps = { hideFollowedChannels?: boolean; children: ReactNode }
 
-export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
+export const DefaultLayout = ({ hideFollowedChannels = false, children }: DefaultLayoutProps) => {
   const { init: initSettingsStore } = useSettingsStore()
   useAuth()
 
   const { leftBarUserClosed, userCloseLeftBar, rightBarUserClosed } = useLayoutStore()
   const isMounted = useHasMounted()
 
-  const [modal, setModal] = useState<'none' | 'login'>('none')
+  const [modal, setModal] = useState<'none' | 'login' | 'goLive'>('none')
   // False when < 1024 px (< tailwind lg)
   const autoCollapseLeftBar = !useMediaQuery('(min-width: 1024px)')
 
@@ -52,18 +53,20 @@ export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
 
     return (
       <div id="contentContainer" className="flex h-full overflow-hidden">
-        <div
-          id="followContainer"
-          className={`${
-            autoCollapseLeftBar || leftBarUserClosed ? 'w-12' : 'w-60'
-          } hidden h-full shrink-0 flex-col bg-stone-800 sm:flex`}
-        >
-          <FollowedChannelList
-            autoCollapse={autoCollapseLeftBar}
-            userCollapse={leftBarUserClosed}
-            setUserCollapse={userCloseLeftBar}
-          />
-        </div>
+        {!hideFollowedChannels && (
+          <div
+            id="followContainer"
+            className={`${
+              autoCollapseLeftBar || leftBarUserClosed ? 'w-12' : 'w-60'
+            } hidden h-full shrink-0 flex-col bg-stone-800 sm:flex`}
+          >
+            <FollowedChannelList
+              autoCollapse={autoCollapseLeftBar}
+              userCollapse={leftBarUserClosed}
+              setUserCollapse={userCloseLeftBar}
+            />
+          </div>
+        )}
 
         <main className="flex h-full w-full min-w-0 flex-col text-white sm:flex-row">{children}</main>
       </div>
@@ -76,7 +79,7 @@ export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
         <title>SATS.GG</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Navbar openAuthenticate={() => setModal('login')} />
+      <Navbar openAuthenticate={() => setModal('login')} openGoLive={() => setModal('goLive')} />
 
       <div>
         {
@@ -84,6 +87,11 @@ export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
             login: (
               <InteractionModal title={'Log In'} close={() => setModal('none')}>
                 <Authenticate close={() => setModal('none')} />
+              </InteractionModal>
+            ),
+            goLive: (
+              <InteractionModal title={'Go Live'} close={() => setModal('none')}>
+                <GoLive close={() => setModal('none')} />
               </InteractionModal>
             ),
             none: null,
