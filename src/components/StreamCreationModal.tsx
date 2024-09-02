@@ -10,15 +10,15 @@ const StreamCreationModal = ({ streamId, onClose }: { streamId: string; onClose:
   const { data, isLoading } = trpc.stream.getStreamById.useQuery(streamId, {
     refetchOnWindowFocus: true,
     refetchInterval: 5 * 1000,
-    enabled: !!streamReady,
+    enabled: !streamReady,
   })
 
   useEffect(() => {
     if (data?.status === StreamStatus.READY) {
       setStreamReady(true)
-      onClose()
     }
   }, [data?.status])
+
   return (
     <InteractionModal title="Creating stream" close={onClose}>
       <p>{data?.status}</p>
@@ -28,7 +28,11 @@ const StreamCreationModal = ({ streamId, onClose }: { streamId: string; onClose:
           <Spinner />
         </div>
       )}
-      {/* TODO: PROVISIONING FAILED */}
+      {data?.status === StreamStatus.PROVISIONING_FAILED && (
+        <div className="flex flex-col gap-4">
+          <h2>Failed to create stream</h2>
+        </div>
+      )}
       {data?.status === StreamStatus.READY && (
         <div>
           <p>Stream ready</p>

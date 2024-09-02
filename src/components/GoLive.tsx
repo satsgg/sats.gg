@@ -61,6 +61,7 @@ const GoLive = ({ close }: { close: () => void }) => {
   const [duration, setDuration] = useState(600) // seconds
   const [invoice, setInvoice] = useState<string | null>(null)
   const [invoiceId, setInvoiceId] = useState<string | null>(null)
+  const [lightningAddress, setLightningAddress] = useState<string | null>(null)
   const [streamId, setStreamId] = useState<string | null>(null)
   const createStream = trpc.stream.createStream.useMutation({
     onSuccess: (data) => {
@@ -187,11 +188,26 @@ const GoLive = ({ close }: { close: () => void }) => {
                 </div>
               ))}
           </div>
+          <div className="flex flex-col">
+            <h3>Lighting address</h3>
+            <input
+              type="text"
+              placeholder="Enter your lightning address"
+              value={lightningAddress || ''}
+              onChange={(e) => setLightningAddress(e.target.value)}
+              className="focus:shadow-outline resize-none appearance-none rounded border border-gray-500 bg-stone-700 py-1 px-2 text-sm leading-tight text-white shadow placeholder:italic focus:border-primary-500 focus:bg-slate-900 focus:outline-none"
+            />
+          </div>
           <Button
-            onClick={() =>
+            onClick={() => {
+              const hasPrice = Object.values(qualities).some((q) => q.selected && q.price > 0)
+              if (hasPrice && !lightningAddress) {
+                alert('Please enter a lightning address to receive payments.')
+                return
+              }
               createStream.mutate({
                 duration,
-                lightningAddress: 'chad@strike.me',
+                lightningAddress: lightningAddress || undefined,
                 qualities: Object.entries(qualities)
                   .filter(([_, q]) => q.selected)
                   .map(([name, { price }]) => ({
@@ -199,7 +215,7 @@ const GoLive = ({ close }: { close: () => void }) => {
                     price,
                   })),
               })
-            }
+            }}
           >
             Purchase Stream
           </Button>

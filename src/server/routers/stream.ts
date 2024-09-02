@@ -23,6 +23,7 @@ const createStreamSchema = z.object({
       price: z.number(),
     }),
   ),
+  // TODO: If any quality has a price > 0, we need to set a lightning address
 })
 
 export const streamRouter = t.router({
@@ -54,7 +55,7 @@ export const streamRouter = t.router({
       })
 
       try {
-        const pricerResponse = await fetch(process.env.PRICER_URL + '/api/v1/stream/invoice', {
+        const pricerResponse = await fetch(process.env.PRICER_URL + '/api/v1/channel/invoice', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -71,10 +72,7 @@ export const streamRouter = t.router({
 
         const invoiceData: { paymentRequest: string; invoiceId: string } = await pricerResponse.json()
 
-        // Handle the invoice data as needed
         return { streamId: stream.id, paymentRequest: invoiceData.paymentRequest, invoiceId: invoiceData.invoiceId }
-        // return { paymentRequest: invoiceData.paymentRequest, invoiceId: invoiceData.invoiceId }
-        // return await prisma.invoice.findUnique({ where: { id: invoiceData.invoiceId } })
       } catch (error) {
         console.error('Error creating invoice:', error)
         throw new TRPCError({
@@ -84,10 +82,24 @@ export const streamRouter = t.router({
       }
     }),
 
-  getStreamById: t.procedure.input(z.string()).query(async ({ input }) => {
-    return await prisma.stream.findUnique({ where: { id: input } }).catch((error) => {
-      console.error('Error getting stream', error)
-      throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
-    })
+  getStreamById: t.procedure
+    .use(isAuthed)
+    .input(z.string())
+    .query(async ({ input }) => {
+      return await prisma.stream.findUnique({ where: { id: input } }).catch((error) => {
+        console.error('Error getting stream', error)
+        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
+      })
+    }),
+  getCurrentStream: t.procedure.use(isAuthed).query(async ({ ctx }) => {
+    return await prisma.stream
+      .findFirst({
+        where: { userId: ctx.user.id },
+        orderBy: { createdAt: 'desc' },
+      })
+      .catch((error) => {
+        console.error('Error getting current stream', error)
+        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
+      })
   }),
 })

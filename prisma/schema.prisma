@@ -13,12 +13,12 @@ generator client {
 }
 
 model User {
-  id                   String       @id @default(uuid())
-  createdAt            DateTime     @default(now())
-  updatedAt            DateTime     @updatedAt
-  lastLogin            DateTime?
-  publicKey            String       @unique
-  defaultZapAmount     Int          @default(1000)
+  id               String    @id @default(uuid())
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  lastLogin        DateTime?
+  publicKey        String    @unique
+  defaultZapAmount Int       @default(1000)
 
   streams Stream[]
 }
@@ -31,27 +31,30 @@ model UserAuth {
 }
 
 model Stream {
-  id String @id @default(uuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  expiresAt DateTime?
-  userId String
-  user User @relation(fields: [userId], references: [id])
-  hlsUrl String?
-  rtmpUrl String?
-  streamKey String
-  lightningAddress String?
-  duration Int
-  viewerCount Int @default(0)
-  viewerCountUpdatedAt DateTime @default(now())
-  // TODO: add nip 53 values?
-  status StreamStatus @default(PENDING)
-  variants StreamVariant[]
-  invoices Invoice[]
+  id                   String           @id @default(uuid())
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+  expiresAt            DateTime?
+  userId               String
+  user                 User             @relation(fields: [userId], references: [id])
+  hlsUrl               String?
+  rtmpUrl              String?
+  streamKey            String
+  lightningAddress     String?
+  duration             Int
+  viewerCount          Int              @default(0)
+  viewerCountUpdatedAt DateTime         @default(now())
+  // TODO: add nip 53 values or keep in localStorage?
+  status               StreamStatus     @default(PENDING)
+  variants             StreamVariant[]
+  channelInvoices      ChannelInvoice[]
+  streamInvoices       StreamInvoice[]
+  // holdInvoicePayments  HoldInvoicePayment[]
 }
 
 // TODO: figure these out
 // stream status vs creation status?
+// StreamStatus + ChannelStatus?
 enum StreamStatus {
   PENDING
   PROVISIONING
@@ -59,21 +62,26 @@ enum StreamStatus {
   READY
   LIVE
   ENDED
+  // TERMINATING
+  // TERMINATING_FAILED
+  // TERMINATED
 }
 
 model StreamVariant {
-  id String @id @default(uuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  streamId String
-  stream Stream @relation(fields: [streamId], references: [id])
-  price Int
-  height Int
-  width Int
-  framerate Int
+  id            String          @id @default(uuid())
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  streamId      String
+  stream        Stream          @relation(fields: [streamId], references: [id])
+  price         Int
+  height        Int
+  width         Int
+  framerate     Int
+  StreamInvoice StreamInvoice[]
+  // holdInvoicePayments HoldInvoicePayment[]
 }
 
-model Invoice {
+model ChannelInvoice {
   id            String        @id @default(uuid())
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
@@ -84,14 +92,49 @@ model Invoice {
   hash          String        @unique
   bolt11        String
   mSatsTarget   Int
-  // mSatsSettled  Int?
-  streamId String
-  stream Stream @relation(fields: [streamId], references: [id])
+  streamId      String
+  stream        Stream        @relation(fields: [streamId], references: [id])
 }
+
+model StreamInvoice {
+  id              String        @id @default(uuid())
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  settledAt       DateTime?
+  maxAgeSeconds   Int
+  description     String
+  status          InvoiceStatus @default(OPEN)
+  hash            String        @unique
+  bolt11          String
+  mSatsTarget     Int
+  streamId        String
+  stream          Stream        @relation(fields: [streamId], references: [id])
+  streamVariantId String
+  streamVariant   StreamVariant @relation(fields: [streamVariantId], references: [id])
+  // holdInvoicePayments HoldInvoicePayment[] // multiple for potential retries?
+}
+
+// TODO: streamer payments
+// model HoldInvoicePayment {
+//   id            String        @id @default(uuid())
+//   createdAt     DateTime      @default(now())
+//   updatedAt     DateTime      @updatedAt
+//   settledAt     DateTime?
+//   hash          String        @unique
+//   bolt11        String
+//   mSatsTarget   Int
+//   streamId      String
+//   stream        Stream        @relation(fields: [streamId], references: [id])
+//   streamInvoiceId String
+//   streamInvoice   StreamInvoice @relation(fields: [streamInvoiceId], references: [id])
+//   variantId       String
+//   variant         StreamVariant @relation(fields: [variantId], references: [id])
+// }
 
 enum InvoiceStatus {
   OPEN
   SETTLED
   CANCELED
   ACCEPTED
+  //EXPIRED?
 }

@@ -6,10 +6,12 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { z } = require('zod')
 
+// TODO: Make sure the database is connected
 /*eslint sort-keys: "error"*/
 const envSchema = z.object({
   DATABASE_URL: z.string().url(),
   JWT_SECRET: z.string(),
+  PRICER_URL: z.string().url(),
   NODE_ENV: z.enum(['development', 'test', 'production']),
 })
 

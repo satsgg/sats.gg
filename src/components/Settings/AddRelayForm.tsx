@@ -16,7 +16,13 @@ const AddRelayForm = ({ relays }: { relays: string[] }) => {
     formState: { errors },
   } = useZodForm({
     mode: 'onSubmit',
-    schema: z.object({ newRelay: z.string().startsWith('wss://') }),
+    schema: z.object({
+      newRelay: z
+        .string()
+        .refine((value) => value.startsWith('ws://') || value.startsWith('wss://'), {
+          message: 'Relay URL must start with ws:// or wss://',
+        }),
+    }),
     defaultValues: {
       newRelay: '',
     },
