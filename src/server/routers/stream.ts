@@ -55,7 +55,7 @@ export const streamRouter = t.router({
       })
 
       try {
-        const pricerResponse = await fetch(process.env.PRICER_URL + '/api/v1/channel/invoice', {
+        const createChannelInvoice = await fetch(process.env.INFRA_SERVER_URL + '/api/v1/channel/invoice', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -63,14 +63,14 @@ export const streamRouter = t.router({
           body: JSON.stringify({ price: 10000, streamId: stream.id }),
         })
 
-        if (!pricerResponse.ok) {
+        if (!createChannelInvoice.ok) {
           throw new TRPCError({
             code: 'INTERNAL_SERVER_ERROR',
-            message: `Failed to create invoice! status: ${pricerResponse.status}`,
+            message: `Failed to create invoice! status: ${createChannelInvoice.status}`,
           })
         }
 
-        const invoiceData: { paymentRequest: string; invoiceId: string } = await pricerResponse.json()
+        const invoiceData: { paymentRequest: string; invoiceId: string } = await createChannelInvoice.json()
 
         return { streamId: stream.id, paymentRequest: invoiceData.paymentRequest, invoiceId: invoiceData.invoiceId }
       } catch (error) {

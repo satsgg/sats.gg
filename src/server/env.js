@@ -11,7 +11,7 @@ const { z } = require('zod')
 const envSchema = z.object({
   DATABASE_URL: z.string().url(),
   JWT_SECRET: z.string(),
-  PRICER_URL: z.string().url(),
+  INFRA_SERVER_URL: z.string().url(),
   NODE_ENV: z.enum(['development', 'test', 'production']),
 })
 
