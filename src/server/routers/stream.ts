@@ -4,6 +4,7 @@ import { TRPCError } from '@trpc/server'
 import { Prisma } from '@prisma/client'
 import { isAuthed } from '../middlewares/authed'
 import { z } from 'zod'
+import crypto from 'crypto'
 
 const qualityNameMap = {
   '1080p60fps': { height: 1080, width: 1920, framerate: 60 },
