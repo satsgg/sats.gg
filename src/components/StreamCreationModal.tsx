@@ -37,7 +37,7 @@ const StreamCreationModal = ({ streamId, onClose }: { streamId: string; onClose:
         <div>
           <p>Stream ready</p>
           <label>RTMP URL</label>
-          <CopyValueBar value={data.rtmpUrl!} />
+          <CopyValueBar value={`rtmp://${data.rtmpUrl}/live`} />
           <label>Stream Key</label>
           <CopyValueBar value={data.streamKey} />
           <p>Live event notes are signed by you and published under on the dashboard page</p>

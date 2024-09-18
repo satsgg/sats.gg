@@ -61,6 +61,7 @@ export const streamRouter = t.router({
           headers: {
             'Content-Type': 'application/json',
           },
+          // TODO: Calculate price based on stream duration and qualities
           body: JSON.stringify({ price: 10000, streamId: stream.id }),
         })
 

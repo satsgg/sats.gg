@@ -89,6 +89,7 @@ const Paywall = ({
       let failedAttempts = 0
       while (true) {
         try {
+          // TODO: Use the new invoice endpoint
           let paymentRes = await fetch(`${baseUrl}/.well-known/bolt11?h=${l402Challenge.paymentHash}`)
           payment = await paymentRes.json()
           if (payment && payment.status === 'SETTLED') break

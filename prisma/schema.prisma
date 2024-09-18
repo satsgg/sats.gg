@@ -105,6 +105,7 @@ model StreamInvoice {
   description     String
   status          InvoiceStatus @default(OPEN)
   hash            String        @unique
+  preimage        String?
   bolt11          String
   mSatsTarget     Int
   streamId        String
@@ -113,6 +114,8 @@ model StreamInvoice {
   streamVariant   StreamVariant @relation(fields: [streamVariantId], references: [id])
   // holdInvoicePayments HoldInvoicePayment[] // multiple for potential retries?
 }
+
+// TODO: Use purchases as viewer count?
 
 // TODO: streamer payments
 // model HoldInvoicePayment {
@@ -136,5 +139,5 @@ enum InvoiceStatus {
   SETTLED
   CANCELED
   ACCEPTED
-  //EXPIRED?
+  //TODO: Add EXPIRED?
 }

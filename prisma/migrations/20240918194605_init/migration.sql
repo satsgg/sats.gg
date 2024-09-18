@@ -86,6 +86,7 @@ CREATE TABLE "StreamInvoice" (
     "description" TEXT NOT NULL,
     "status" "InvoiceStatus" NOT NULL DEFAULT 'OPEN',
     "hash" TEXT NOT NULL,
+    "preimage" TEXT,
     "bolt11" TEXT NOT NULL,
     "mSatsTarget" INTEGER NOT NULL,
     "streamId" TEXT NOT NULL,
