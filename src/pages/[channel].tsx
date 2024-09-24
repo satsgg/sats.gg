@@ -134,6 +134,7 @@ export default function Channel() {
         // prevent playlist from being excluded when we get a errors on it (402...)
         // need it to be smarter. Actual broken playlists won't get excluded now
         playlistExclusionDuration: 0,
+        // allowSeeksWithinUnsafeLiveWindow: true,
       },
     },
     sources: [

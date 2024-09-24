@@ -34,6 +34,7 @@ export const VideoJS = ({
       videoElement.classList.add('vjs-big-play-centered')
       videoRef.current?.appendChild(videoElement)
       const player = (playerRef.current = videojs(videoElement, options, () => {
+        videojs.log.level('debug')
         videojs.log('player is ready')
         // let tech = playerRef.current.tech({ IWillNotUseThisInPlugins: true }) as any
         player.on('xhr-hooks-ready', () => {
@@ -66,6 +67,7 @@ export const VideoJS = ({
       const l402Uri = new URL(options.uri)
 
       // let l402Uri = options.uri
+      // TODO: Use Authorization header and remove encodeURIComponent
       if (options.uri.match('ts') && l402) {
         l402Uri = `${l402Uri}?l402=${encodeURIComponent(l402.toToken())}`
       }

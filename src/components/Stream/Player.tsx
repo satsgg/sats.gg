@@ -148,7 +148,6 @@ const VideoPlayer = ({ options }: { options: any }) => {
 
       playerQualityLevels.on('addqualitylevel', function (event: any) {
         const qualityLevel = event.qualityLevel
-        console.debug('Quality Level Added:', qualityLevel)
         // TODO: if quality level has a price and we have no valid l402, disable
         if (qualityLevel.price && qualityLevel.price > 0) {
           console.debug('Quality level disabled', qualityLevel)
@@ -210,28 +209,32 @@ const VideoPlayer = ({ options }: { options: any }) => {
       player.volume(volume)
       let tech = player.tech({ IWillNotUseThisInPlugins: true })
       if (tech) {
+        if (tech.vhs) {
+          const playerResponseHook = (request, error, response) => {
+            const bar = response.headers.foo
+            if (response.statusCode === 402) {
+              setL402((l402) => {
+                if (!l402) return null
+                if (Math.floor(Date.now() / 1000) > l402.validUntil) {
+                  return null
+                }
+                return l402
+              })
+              setOpenPaywall(true)
+            }
+          }
+          tech.vhs.xhr.onResponse(playerResponseHook)
+        }
         tech.on('loadedplaylist', () => {
           // doesn't fire
           console.debug('vhs loadedplaylist representations', tech.vhs?.representations())
           // console.debug('tech.vhs.playlists.main', tech.vhs?.playlists?.main)
         })
         tech.on('loadedmetadata', () => {
-          if (tech.vhs) {
-            const playerResponseHook = (request, error, response) => {
-              const bar = response.headers.foo
-              if (response.statusCode === 402) {
-                setL402((l402) => {
-                  if (!l402) return null
-                  if (Math.floor(Date.now() / 1000) > l402.validUntil) {
-                    return null
-                  }
-                  return l402
-                })
-                setOpenPaywall(true)
-              }
-            }
-            tech.vhs.xhr.onResponse(playerResponseHook)
-          }
+          console.debug('loadedmetadata')
+          // Fired after the first segment is downloaded
+          // for a playlist. This will not happen until playback
+          // if video.js's metadata setting is none
         })
         tech.on('mediachange', () => {
           // console.debug('tech.vhs.playlists.main', tech.vhs?.playlists?.main)

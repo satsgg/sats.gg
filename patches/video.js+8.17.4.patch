@@ -1,8 +1,8 @@
 diff --git a/node_modules/video.js/dist/video.es.js b/node_modules/video.js/dist/video.es.js
-index a5ff244..405ea51 100644
+index 57afd7a..a9a3e4c 100644
 --- a/node_modules/video.js/dist/video.es.js
 +++ b/node_modules/video.js/dist/video.es.js
-@@ -26063,6 +26063,8 @@ class QualityLevel {
+@@ -27779,6 +27779,8 @@ class QualityLevel {
      level.bitrate = representation.bandwidth;
      level.frameRate = representation.frameRate;
      level.enabled_ = representation.enabled;
