@@ -98,3 +98,11 @@ declare module 'm3u8-parser' {
     addTagMapper(options: { expression: RegExp; map: (line: string) => string }): void
   }
 }
+
+import videojs from 'video.js'
+
+declare module 'video.js' {
+  interface Player {
+    l402Modal: (options?: any) => any
+  }
+}

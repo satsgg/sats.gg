@@ -59,7 +59,7 @@ const Paywall = ({
     console.debug('uri', selectedQuality.resolvedUri)
     let challenge
     try {
-      let res = await fetch(`${uri}?t=${minutes * 60}`)
+      let res = await fetch(`${uri}?d=${minutes * 60}`)
       if (res.status !== 402) throw new Error('Some other shit happened')
       let challengeHeader = res.headers.get('WWW-Authenticate')
       if (!challengeHeader) throw new Error('No challenge header')
@@ -67,7 +67,7 @@ const Paywall = ({
       setL402Challenge(challenge)
       setModal('payment')
     } catch (e: any) {
-      console.error('somethign else happened')
+      console.error('something else happened')
     }
   }
 
@@ -90,7 +90,7 @@ const Paywall = ({
       while (true) {
         try {
           // TODO: Use the new invoice endpoint
-          let paymentRes = await fetch(`${baseUrl}/.well-known/bolt11?h=${l402Challenge.paymentHash}`)
+          let paymentRes = await fetch(`${baseUrl}/.well-known/l402/invoice?hash=${l402Challenge.paymentHash}`)
           payment = await paymentRes.json()
           if (payment && payment.status === 'SETTLED') break
           await sleep(1000)

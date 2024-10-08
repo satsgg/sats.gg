@@ -6,6 +6,7 @@ import VideoJS from './VideoJS'
 import videojs from 'video.js'
 import type Player from 'video.js/dist/types/player'
 import './videojs-hls-quality-selector'
+// import './L402Modal'
 
 import { Manifest, Parser } from 'm3u8-parser'
 import Paywall from './Paywall'
@@ -170,6 +171,18 @@ const VideoPlayer = ({ options }: { options: any }) => {
         }
       })
 
+      // player.l402Modal({
+      //   content: 'Please pay to continue watching this premium content.',
+      //   paymentAmount: 1000,
+      //   paymentUnit: 'sats',
+      //   paymentCallback: function () {
+      //     // Implement your payment logic here
+      //     console.log('Payment button clicked')
+      //     // After successful payment:
+      //     // player.l402Modal().hideModal();
+      //   },
+      // })
+
       // never fires...
       // player.on('xhr-hooks-ready', () => {
       // console.debug('xhr hooks ready')
@@ -212,7 +225,9 @@ const VideoPlayer = ({ options }: { options: any }) => {
         if (tech.vhs) {
           const playerResponseHook = (request, error, response) => {
             const bar = response.headers.foo
+            console.debug('on response', error, response)
             if (response.statusCode === 402) {
+              console.debug('on response 402')
               setL402((l402) => {
                 if (!l402) return null
                 if (Math.floor(Date.now() / 1000) > l402.validUntil) {
@@ -220,9 +235,11 @@ const VideoPlayer = ({ options }: { options: any }) => {
                 }
                 return l402
               })
+              console.debug('SETTING OPEN paywall')
               setOpenPaywall(true)
             }
           }
+          console.debug('SETTING ON RESPONSE', tech.vhs)
           tech.vhs.xhr.onResponse(playerResponseHook)
         }
         tech.on('loadedplaylist', () => {
