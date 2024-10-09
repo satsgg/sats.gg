@@ -47,9 +47,10 @@ export const Navbar = ({ openAuthenticate, openGoLive }: HeaderProps) => {
 
   return (
     <nav className="flex items-center justify-between bg-background px-4 py-3">
-      <Link href="/" className="text-2xl font-bold text-primary hover:text-primary/80">
-        {/* //           <h1 className="select-none text-2xl font-bold text-white hover:cursor-pointer">SATS.GG</h1> */}
-        <h1 className="text-2xl font-bold text-primary hover:text-primary/80">SATS.GG</h1>
+      <Link href="/" className="">
+        <a>
+          <h1 className="text-2xl font-bold text-primary hover:text-primary/80">SATS.GG</h1>
+        </a>
       </Link>
       <div className="flex items-center space-x-4">
         <Button variant="outline" size="sm" className="text-primary">

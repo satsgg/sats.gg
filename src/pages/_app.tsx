@@ -6,6 +6,7 @@ import { DefaultLayout } from '~/components/DefaultLayout'
 import { trpc } from '~/utils/trpc'
 import { useRouter } from 'next/router'
 import '../styles/globals.css'
+import { ThemeProvider } from '@/components/theme-provider'
 
 export type NextPageWithLayout = NextPage & {
   getLayout?: (page: ReactElement) => ReactNode
@@ -14,13 +15,18 @@ export type NextPageWithLayout = NextPage & {
 type AppPropsWithLayout = AppProps & {
   Component: NextPageWithLayout
 }
-
 const MyApp = (({ Component, pageProps }: AppPropsWithLayout) => {
   const router = useRouter()
   const isDashboard = router.pathname === '/dashboard'
 
   const getLayout =
-    Component.getLayout ?? ((page) => <DefaultLayout hideFollowedChannels={isDashboard}>{page}</DefaultLayout>)
+    // Component.getLayout ?? ((page) => <DefaultLayout hideFollowedChannels={isDashboard}>{page}</DefaultLayout>)
+    Component.getLayout ??
+    ((page) => (
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        <DefaultLayout hideFollowedChannels={isDashboard}>{page}</DefaultLayout>
+      </ThemeProvider>
+    ))
 
   return getLayout(<Component {...pageProps} />)
 }) as AppType
