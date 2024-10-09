@@ -465,8 +465,9 @@ export const parseStreamNote = (note: NostrEvent): Stream | null => {
   if (tp && tp[1]) stream['totalParticipants'] = Number(tp[1])
 
   // TODO: Multiple participants, create participant type
-  let p = note.tags.find(([t, v]) => t === 'p' && v)
-  if (p && p[1]) stream['p'] = [p[1]]
+  // let p = note.tags.find(([t, v]) => t === 'p' && v)
+  // if (p && p[1]) stream['p'] = [p[1]]
+  stream['p'] = note.tags.filter(([t, v]) => t === 'p' && v).map(([_, v]) => v!)
 
   return handleZapStream(stream)
 }

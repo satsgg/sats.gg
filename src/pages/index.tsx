@@ -161,7 +161,7 @@ export default function IndexPage() {
   console.debug('streams', streams)
 
   return (
-    <div className="flex-1 p-6">
+    <div className="flex-1 overflow-y-auto p-6">
       <h1 className="mb-6 text-2xl font-bold">Live Streams</h1>
       <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {streams

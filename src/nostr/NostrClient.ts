@@ -107,7 +107,15 @@ class NostrClient {
     console.log('subscribing for pubkeys: ', Array.from(this.profileQueue))
 
     const callback = async (event: Event) => {
-      const profile: UserMetadata = JSON.parse(event.content)
+      console.log('callback event', event)
+      let profile: UserMetadata
+      try {
+        profile = JSON.parse(event.content)
+      } catch (e) {
+        console.warn('error parsing profile content', e)
+        // TODO: remove from queue?
+        return
+      }
       const profileToStore: UserMetadataStore = {
         ...profile,
         pubkey: event.pubkey,

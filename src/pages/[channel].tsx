@@ -98,6 +98,7 @@ export default function Channel() {
 
   const { profile: channelProfile, isLoading: channelProfileIsLoading } = useProfile(channelPubkey)
   console.log('channelProfile', channelProfile)
+  console.log('parsed stream', stream)
 
   const [zapInvoice, setZapInvoice] = useState<string | null>(null)
   const [showZapModule, setShowZapModule] = useState(false)
@@ -181,6 +182,7 @@ export default function Channel() {
             </div>
           )}
         </div>
+        {/* <div className="container mx-auto p-4"> */}
         <StreamBio
           channelPubkey={channelPubkey}
           providerPubkey={stream?.providerPubkey}
@@ -190,11 +192,13 @@ export default function Channel() {
           streamTitle={stream?.title}
           streamStatus={stream?.status}
           participants={stream?.p}
+          tags={stream?.t}
           viewerCount={stream?.currentParticipants}
           zapInvoice={zapInvoice}
           setZapInvoice={setZapInvoice}
           setShowZapModule={setShowZapModule}
         />
+        {/* </div> */}
       </div>
 
       {/* TODO: Better useLoading && !channelUser skeleton handling */}
