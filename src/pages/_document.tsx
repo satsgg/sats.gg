@@ -5,7 +5,8 @@ export default function Document() {
     // <Html className="bg-stone-900">
     <Html>
       <Head />
-      <body className="bg-stone-900">
+      {/* <body className="bg-stone-900"> */}
+      <body className="bg-neutral-900">
         <Main />
         <NextScript />
       </body>
