@@ -45,11 +45,9 @@ export const Navbar = ({ openAuthenticate, openGoLive }: HeaderProps) => {
   return (
     <nav className="flex items-center justify-between bg-background px-4 py-3">
       <Link href="/" className="">
-        <a>
-          <h1 className="cursor-pointer text-2xl font-bold text-primary hover:text-primary/80">
-            {theme === 'light' ? '💯' : '🤘'} SATS.GG
-          </h1>
-        </a>
+        <h1 className="cursor-pointer text-2xl font-bold text-primary hover:text-primary/80">
+          {theme === 'light' ? '💯' : '🤘'} SATS.GG
+        </h1>
       </Link>
       <div className="flex items-center space-x-4">
         <ModeToggle />

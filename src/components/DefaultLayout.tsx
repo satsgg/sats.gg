@@ -68,7 +68,8 @@ export const DefaultLayout = ({ hideFollowedChannels = false, children }: Defaul
           </div>
         )}
 
-        <main className="flex h-full w-full min-w-0 flex-col text-white sm:flex-row">{children}</main>
+        {/* <main className="flex h-full w-full min-w-0 flex-col text-white sm:flex-row">{children}</main> */}
+        <main className="flex h-full w-full min-w-0 flex-col sm:flex-row">{children}</main>
       </div>
     )
   }

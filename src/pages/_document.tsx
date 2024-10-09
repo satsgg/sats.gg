@@ -6,7 +6,8 @@ export default function Document() {
     <Html>
       <Head />
       {/* <body className="bg-stone-900"> */}
-      <body className="bg-neutral-900">
+      {/* <body className="bg-neutral-900"> */}
+      <body>
         <Main />
         <NextScript />
       </body>
