@@ -58,7 +58,7 @@ export const DefaultLayout = ({ hideFollowedChannels = false, children }: Defaul
             id="followContainer"
             className={`${
               autoCollapseLeftBar || leftBarUserClosed ? 'w-12' : 'w-60'
-            } hidden h-full shrink-0 flex-col bg-stone-800 sm:flex`}
+            } hidden h-full shrink-0 flex-col sm:flex`}
           >
             <FollowedChannelList
               autoCollapse={autoCollapseLeftBar}
