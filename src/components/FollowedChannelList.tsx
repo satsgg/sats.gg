@@ -4,7 +4,7 @@ import { FollowedChannelSingle } from './FollowedChannelSingle'
 import { useStreams } from '~/hooks/useStreams'
 import { Stream } from '~/utils/nostr'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ArrowRightFromLine, ArrowLeftFromLine } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 export const FollowedChannelList = ({
@@ -53,7 +53,7 @@ export const FollowedChannelList = ({
             onClick={() => setUserCollapse(!userCollapse)}
             aria-label={userCollapse ? 'Expand followed channels' : 'Collapse followed channels'}
           >
-            {userCollapse ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+            {userCollapse ? <ArrowRightFromLine className="h-4 w-4" /> : <ArrowLeftFromLine className="h-4 w-4" />}
           </Button>
         </div>
         <ScrollArea className="flex-grow">

@@ -434,9 +434,7 @@ export const parseStreamNote = (note: NostrEvent): Stream | null => {
   let image = note.tags.find(([t, v]) => t === 'image' && v)
   if (image && image[1]) stream['image'] = image[1]
 
-  // TODO: multiple hashtags
-  let t = note.tags.find(([t, v]) => t === 't' && v)
-  if (t && t[1]) stream['t'] = [t[1]]
+  stream['t'] = note.tags.filter(([t, v]) => t === 't' && v).map(([_, v]) => v!)
 
   let streaming = note.tags.find(([t, v]) => t === 'streaming' && v)
   if (streaming && streaming[1]) stream['streaming'] = streaming[1]
