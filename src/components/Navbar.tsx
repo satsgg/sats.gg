@@ -1,17 +1,12 @@
 import { useState } from 'react'
-import ClickAwayListener from 'react-click-away-listener'
 import Link from 'next/link'
-import ChannelSVG from '~/svgs/my-channel.svg'
-import LogOutSVG from '~/svgs/log-out.svg'
-import Key from '~/svgs/key.svg'
-import SettingsSVG from '~/svgs/settings.svg'
-import AccountSVG from '~/svgs/account.svg'
 import useConnectedRelays from '~/hooks/useConnectedRelays'
 import useSettingsStore from '~/hooks/useSettingsStore'
 import { useProfile } from '~/hooks/useProfile'
 import useAuthStore from '~/hooks/useAuthStore'
 import { getVerifiedChannelLink } from '~/utils/nostr'
 import { Button } from '@/components/ui/button'
+import { ModeToggle } from './ThemeModeToggle'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,6 +16,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Video, Wifi, Settings, LogOut } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { useTheme } from 'next-themes'
 
 interface HeaderProps {
   openAuthenticate: () => void
@@ -28,6 +24,7 @@ interface HeaderProps {
 }
 
 export const Navbar = ({ openAuthenticate, openGoLive }: HeaderProps) => {
+  const { theme } = useTheme()
   const [showAccountMenu, setShowAccountMenu] = useState(false)
   const relays = useSettingsStore((state) => state.relays)
   const [user, pubkey, npub, view, logout] = useAuthStore((state) => [
@@ -49,16 +46,21 @@ export const Navbar = ({ openAuthenticate, openGoLive }: HeaderProps) => {
     <nav className="flex items-center justify-between bg-background px-4 py-3">
       <Link href="/" className="">
         <a>
-          <h1 className="text-2xl font-bold text-primary hover:text-primary/80">SATS.GG</h1>
+          <h1 className="cursor-pointer text-2xl font-bold text-primary hover:text-primary/80">
+            {theme === 'light' ? '💯' : '🤘'} SATS.GG
+          </h1>
         </a>
       </Link>
       <div className="flex items-center space-x-4">
-        <Button variant="outline" size="sm" className="text-primary">
-          <Wifi className="mr-2 h-4 w-4" />
-          <Link href={'/settings/relays'} legacyBehavior={false}>
-            {connectedRelays.size}/{relays.length}
-          </Link>
-        </Button>
+        <ModeToggle />
+        <Link href={'/settings/relays'}>
+          <Button variant="outline" size="sm" className="text-primary">
+            <Wifi className="mr-2 h-4 w-4" />
+            <a>
+              {connectedRelays.size}/{relays.length}
+            </a>
+          </Button>
+        </Link>
         {view === 'authenticated' && (
           <Button variant="outline" size="sm" className="text-primary">
             <Video className="mr-2 h-4 w-4" />
