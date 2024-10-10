@@ -1,5 +1,6 @@
 import { useRouter } from 'next/router'
 import { Chat } from '~/components/Chat/Chat'
+import NewChat from '~/components/Chat/NewChat'
 import ChatSkeleton from '~/components/Chat/ChatSkeleton'
 import { nip19 } from 'nostr-tools'
 import StreamSkeleton from '~/components/Stream/StreamSkeleton'
@@ -98,7 +99,7 @@ export default function Channel() {
 
   const { profile: channelProfile, isLoading: channelProfileIsLoading } = useProfile(channelPubkey)
   console.log('channelProfile', channelProfile)
-  console.log('parsed stream', stream)
+  // console.log('parsed stream', stream)
 
   const [zapInvoice, setZapInvoice] = useState<string | null>(null)
   const [showZapModule, setShowZapModule] = useState(false)
@@ -182,7 +183,6 @@ export default function Channel() {
             </div>
           )}
         </div>
-        {/* <div className="container mx-auto p-4"> */}
         <StreamBio
           channelPubkey={channelPubkey}
           providerPubkey={stream?.providerPubkey}
@@ -198,22 +198,16 @@ export default function Channel() {
           setZapInvoice={setZapInvoice}
           setShowZapModule={setShowZapModule}
         />
-        {/* </div> */}
       </div>
 
-      {/* TODO: Better useLoading && !channelUser skeleton handling */}
       <div className="flex h-full w-full sm:w-80 md:shrink-0">
-        {stream?.d ? (
-          <Chat
-            channelPubkey={channelPubkey}
-            providerPubkey={stream.providerPubkey}
-            streamId={stream.id}
-            channelIdentifier={stream.d}
-            channelProfile={channelProfile}
-          />
-        ) : (
-          <ChatSkeleton />
-        )}
+        <NewChat
+          channelPubkey={channelPubkey}
+          providerPubkey={stream?.providerPubkey}
+          streamId={stream?.id}
+          channelIdentifier={stream?.d}
+          channelProfile={channelProfile}
+        />
       </div>
     </>
   )

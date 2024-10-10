@@ -64,10 +64,10 @@ const StreamCard = ({
           <div className="absolute left-2 top-2 rounded-full bg-red-600 px-2 py-1 text-xs font-semibold text-white">
             LIVE
           </div>
-          {currentParticipants && Number.isInteger(currentParticipants) && (
+          {Number.isInteger(currentParticipants) && (
             <div className="absolute bottom-2 left-2 flex items-center rounded-full bg-black/75 px-2 py-1 text-xs text-white">
               <Eye className="mr-1 h-4 w-4" />
-              {fmtNumber(currentParticipants, true)}
+              {fmtNumber(currentParticipants!, true)}
             </div>
           )}
         </div>
@@ -158,8 +158,11 @@ const StreamCard = ({
 
 export default function IndexPage() {
   const streams = useStreams('streams-browse')
-  console.debug('streams', streams)
+  // console.debug('streams', streams)
 
+  // TODO:
+  // - sort by currentParticipants?
+  // stop reordering as much
   return (
     <div className="flex-1 overflow-y-auto p-6">
       <h1 className="mb-6 text-2xl font-bold">Live Streams</h1>

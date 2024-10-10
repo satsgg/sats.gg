@@ -15,8 +15,14 @@ export const useStreams = (id: string, pubkeys: string[] | null = null, reverse 
   ]
 
   const onEventCallback = (event: Event) => {
+    // console.debug('stream event callback', event)
     const stream = parseStreamNote(event)
-    if (!stream) return
+    // console.debug('stream event callback parsed', stream)
+    // if (!stream) return
+    if (!stream) {
+      console.debug('stream is null')
+      return
+    }
     // use stream.pubkey, stream.d as combined unique identifier
     setStreams((prevStreams) => {
       // handle duplicate event ID

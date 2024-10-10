@@ -225,9 +225,9 @@ const VideoPlayer = ({ options }: { options: any }) => {
         if (tech.vhs) {
           const playerResponseHook = (request, error, response) => {
             const bar = response.headers.foo
-            console.debug('on response', error, response)
+            // console.debug('on response', error, response)
             if (response.statusCode === 402) {
-              console.debug('on response 402')
+              // console.debug('on response 402')
               setL402((l402) => {
                 if (!l402) return null
                 if (Math.floor(Date.now() / 1000) > l402.validUntil) {

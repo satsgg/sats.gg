@@ -27,7 +27,7 @@ export const useSubscription = (id: string, filter: Filter[], reverse = false, l
         nostrClient.unsubscribe(id)
       }
     }
-  }, [id])
+  }, [id, JSON.stringify(filter)])
 
   const uniqEvents = notes.length > 0 ? uniqBy(notes, 'id') : []
   if (reverse) return uniqEvents.sort((b, a) => a.created_at - b.created_at)

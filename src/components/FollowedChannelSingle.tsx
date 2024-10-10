@@ -61,7 +61,7 @@ export const FollowedChannelSingle = ({
             {!userCollapse && (
               <>
                 <div className="min-w-0 flex-1 text-left">
-                  <p className="truncate text-xs font-medium leading-none">
+                  <p className="truncate text-sm font-medium leading-none">
                     {!isLoading && displayName(pubkey, profile)}
                   </p>
                   <p className="truncate text-xs text-muted-foreground">{stream?.title}</p>

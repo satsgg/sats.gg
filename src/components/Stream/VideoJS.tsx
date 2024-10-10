@@ -34,14 +34,14 @@ export const VideoJS = ({
       videoElement.classList.add('vjs-big-play-centered')
       videoRef.current?.appendChild(videoElement)
       const player = (playerRef.current = videojs(videoElement, options, () => {
-        videojs.log.level('debug')
-        videojs.log('player is ready')
+        // videojs.log.level('debug')
+        // videojs.log('player is ready')
         // let tech = playerRef.current.tech({ IWillNotUseThisInPlugins: true }) as any
         player.on('xhr-hooks-ready', () => {
-          console.debug('xhr hooks ready')
+          // console.debug('xhr hooks ready')
           const playerResponseHook = (request, error, response) => {
             const bar = response.headers.foo
-            console.debug('on response', error, response)
+            // console.debug('on response', error, response)
           }
           if (player.tech().vhs) {
             player.tech().vhs.xhr.onResponse(playerResponseHook)

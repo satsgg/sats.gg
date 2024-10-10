@@ -24,7 +24,7 @@ interface HeaderProps {
 }
 
 export const Navbar = ({ openAuthenticate, openGoLive }: HeaderProps) => {
-  const { theme } = useTheme()
+  // const { theme } = useTheme()
   const [showAccountMenu, setShowAccountMenu] = useState(false)
   const relays = useSettingsStore((state) => state.relays)
   const [user, pubkey, npub, view, logout] = useAuthStore((state) => [
@@ -47,7 +47,8 @@ export const Navbar = ({ openAuthenticate, openGoLive }: HeaderProps) => {
       <Link href="/" className="">
         <h1 className="cursor-pointer text-2xl font-bold text-primary hover:text-primary/80">
           {/* TODO: Something wrong here when refreshing on light mode */}
-          {theme === 'light' ? '💯' : '🤘'} SATS.GG
+          {/* {theme === 'light' ? '💯' : '🤘'} SATS.GG */}
+          🤘 SATS.GG
         </h1>
       </Link>
       <div className="flex items-center space-x-4">

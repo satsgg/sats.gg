@@ -6,6 +6,7 @@ import { Stream } from '~/utils/nostr'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { ArrowRightFromLine, ArrowLeftFromLine } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useMemo } from 'react'
 
 export const FollowedChannelList = ({
   autoCollapse,
@@ -18,28 +19,38 @@ export const FollowedChannelList = ({
 }) => {
   const pubkey = useAuthStore((state) => state.pubkey)
   const follows = useFollows(pubkey)
-  const streams = useStreams('streams-followed', follows.follows, false, follows.follows.length)
+  // const streams = useStreams('streams-followed', follows.follows, false, follows.follows.length)
+  // TODO: fix zap stream pubkey again
+  const streams = useStreams(
+    'streams-followed',
+    [...follows.follows, 'cf45a6ba1363ad7ed213a078e710d24115ae721c9b47bd1ebf4458eaefb4c2a5'],
+    false,
+  )
+  console.debug('follow streams', streams)
 
-  // TODO: useMemo or something. Only calculate this if live streams changed
-  const liveFollows = () => {
-    let liveFollows: { pubkey: string; stream: Stream | null }[] = []
-    let allFollows = follows.follows.slice()
-    if (allFollows.length > 0 && streams.length > 0) {
-      for (let stream of streams) {
-        const index = allFollows.indexOf(stream.pubkey)
-        if (index >= 0) {
-          liveFollows.push({
-            pubkey: stream.pubkey,
-            stream: stream,
-          })
-          allFollows.splice(index, 1)
+  const liveFollows = useMemo(() => {
+    const streamMap = new Map(streams.map((stream) => [stream.pubkey, stream]))
+
+    return follows.follows
+      .map((pubkey) => ({
+        pubkey,
+        stream: streamMap.get(pubkey) || null,
+      }))
+      .sort((a, b) => {
+        // First, sort by live status
+        if (a.stream?.status === 'live' && b.stream?.status !== 'live') return -1
+        if (a.stream?.status !== 'live' && b.stream?.status === 'live') return 1
+
+        // If both are live, sort by viewer count (if available)
+        if (a.stream?.status === 'live' && b.stream?.status === 'live') {
+          const aViewers = a.stream.currentParticipants || 0
+          const bViewers = b.stream.currentParticipants || 0
+          return bViewers - aViewers // Sort in descending order
         }
-      }
-    }
-    return liveFollows
-      .filter((f) => f.stream!.status === 'live')
-      .concat(allFollows.map((f) => ({ pubkey: f, stream: null })))
-  }
+
+        return 0
+      })
+  }, [follows.follows, streams])
 
   return (
     <div className="flex h-screen bg-background text-foreground">
@@ -58,7 +69,7 @@ export const FollowedChannelList = ({
         </div>
         <ScrollArea className="flex-grow">
           <div className={`${userCollapse ? 'px-1' : 'px-1'} pb-2`}>
-            {liveFollows().map((user, index) => (
+            {liveFollows.map((user, index) => (
               <FollowedChannelSingle
                 key={index}
                 pubkey={user.pubkey}
