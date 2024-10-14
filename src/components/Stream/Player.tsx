@@ -7,6 +7,7 @@ import videojs from 'video.js'
 import type Player from 'video.js/dist/types/player'
 import './videojs-hls-quality-selector'
 // import './L402Modal'
+import VideoJSBridgeComponent from './VideoJSBridgeComponent'
 
 import { Manifest, Parser } from 'm3u8-parser'
 import Paywall from './Paywall'
@@ -169,6 +170,32 @@ const VideoPlayer = ({ options }: { options: any }) => {
           const qualityLevel = qualityLevels[i]
           console.debug('on change Quality Level', i, 'Price:', qualityLevel.price)
         }
+      })
+
+      // player.addChild('VideoJSBridgeComponent', {})
+      // // Get a reference to the Video.js bridge component
+      // const modalComponent = player.getChild('VideoJSBridgeComponent')
+
+      // // Create a button in the control bar to toggle the modal
+      // player.controlBar.addChild('button', {
+      //   text: 'Toggle Modal',
+      //   name: 'ToggleModalButton',
+      //   clickHandler: () => modalComponent.toggleModal(), // Call the toggleModal method to show/hide the modal
+      // })
+
+      // Register the VideoJSBridgeComponent
+      videojs.registerComponent('VideoJSBridgeComponent', VideoJSBridgeComponent)
+
+      // Add the VideoJSBridgeComponent to the player
+      player.addChild('VideoJSBridgeComponent', {})
+
+      // Get a reference to the Video.js bridge component
+      const modalComponent = player.getChild('VideoJSBridgeComponent')
+
+      // Create a button in the control bar to toggle the modal
+      player.controlBar.addChild('button', {
+        text: 'Toggle Modal',
+        clickHandler: () => modalComponent.toggleModal(),
       })
 
       // player.l402Modal({

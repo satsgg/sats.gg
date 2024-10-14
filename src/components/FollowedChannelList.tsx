@@ -26,9 +26,9 @@ export const FollowedChannelList = ({
     [...follows.follows, 'cf45a6ba1363ad7ed213a078e710d24115ae721c9b47bd1ebf4458eaefb4c2a5'],
     false,
   )
-  console.debug('follow streams', streams)
 
   const liveFollows = useMemo(() => {
+    console.debug('running liveFollows')
     const streamMap = new Map(streams.map((stream) => [stream.pubkey, stream]))
 
     return follows.follows

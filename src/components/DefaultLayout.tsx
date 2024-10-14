@@ -13,7 +13,7 @@ import useMediaQuery from '~/hooks/useMediaQuery'
 import useLayoutStore from '~/store/layoutStore'
 import useHasMounted from '~/hooks/useHasMounted'
 import useAuth from '~/hooks/useAuth'
-import GoLive from './GoLive'
+import GoLiveModal from './GoLiveModal'
 
 type DefaultLayoutProps = { hideFollowedChannels?: boolean; children: ReactNode }
 
@@ -91,9 +91,10 @@ export const DefaultLayout = ({ hideFollowedChannels = false, children }: Defaul
               </InteractionModal>
             ),
             goLive: (
-              <InteractionModal title={'Go Live'} close={() => setModal('none')}>
-                <GoLive close={() => setModal('none')} />
-              </InteractionModal>
+              // <InteractionModal title={'Go Live'} close={() => setModal('none')}>
+              //   <GoLive close={() => setModal('none')} />
+              // </InteractionModal>
+              <GoLiveModal close={() => setModal('none')} />
             ),
             none: null,
           }[modal]

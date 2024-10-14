@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo, useCallback } from 'react'
 import { Filter, Event } from 'nostr-tools'
 import { nostrClient } from '~/nostr/NostrClient'
 import { Stream, parseStreamNote, uniqBy } from '~/utils/nostr'
@@ -6,54 +6,47 @@ import { Stream, parseStreamNote, uniqBy } from '~/utils/nostr'
 export const useStreams = (id: string, pubkeys: string[] | null = null, reverse = false, limit: number = 500) => {
   const [streams, setStreams] = useState<Stream[]>([])
 
-  const filter: Filter[] = [
-    {
-      kinds: [30311],
-      authors: pubkeys ? pubkeys : undefined,
-      since: Math.floor(Date.now() / 1000) - 3600,
-    },
-  ]
+  const filter: Filter[] = useMemo(
+    () => [
+      {
+        kinds: [30311],
+        authors: pubkeys ? pubkeys : undefined,
+        since: Math.floor(Date.now() / 1000) - 3600,
+      },
+    ],
+    [pubkeys],
+  )
 
-  const onEventCallback = (event: Event) => {
-    // console.debug('stream event callback', event)
+  const onEventCallback = useCallback((event: Event) => {
     const stream = parseStreamNote(event)
-    // console.debug('stream event callback parsed', stream)
-    // if (!stream) return
     if (!stream) {
       console.debug('stream is null')
       return
     }
-    // use stream.pubkey, stream.d as combined unique identifier
     setStreams((prevStreams) => {
-      // handle duplicate event ID
       const alreadyHaveNote = prevStreams.some((ps) => ps.id === stream.id)
       if (alreadyHaveNote) return prevStreams
 
-      // only keep latest
       const newerNoteExists = prevStreams.some(
         (ps) => ps.pubkey === stream.pubkey && ps.d === stream.d && ps.createdAt >= stream.createdAt,
       )
-      if (newerNoteExists) {
-        return prevStreams
-      }
+      if (newerNoteExists) return prevStreams
 
-      // replace existing stream note if it exists and add the new one to the list
-      return [...prevStreams.filter((ps) => ps.pubkey !== stream.pubkey && ps.d !== stream.d), stream]
+      return [...prevStreams.filter((ps) => ps.pubkey !== stream.pubkey || ps.d !== stream.d), stream]
     })
-  }
+  }, [])
 
   useEffect(() => {
     if (filter.length > 0) {
       nostrClient.subscribe(id, filter, onEventCallback)
-
-      return () => {
-        nostrClient.unsubscribe(id)
-      }
+      return () => nostrClient.unsubscribe(id)
     }
-  }, [pubkeys])
+  }, [id, filter, onEventCallback])
 
-  // TODO: filter for 'live' only? arg?
-  const uniqEvents = streams.length > 0 ? uniqBy(streams, 'id') : []
-  if (reverse) return uniqEvents.sort((b, a) => a.createdAt - b.createdAt)
-  return uniqEvents.sort((b, a) => b.createdAt - a.createdAt)
+  return useMemo(() => {
+    const uniqEvents = streams.length > 0 ? uniqBy(streams, 'id') : []
+    return reverse
+      ? uniqEvents.sort((b, a) => a.createdAt - b.createdAt)
+      : uniqEvents.sort((b, a) => b.createdAt - a.createdAt)
+  }, [streams, reverse])
 }

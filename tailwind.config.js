@@ -1,5 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  important: true, // Added to override videojs styles in custom modal component...
+  // Need a better solution
   darkMode: ['class'],
   content: ['./src/**/*.{js,ts,jsx,tsx}'],
   theme: {

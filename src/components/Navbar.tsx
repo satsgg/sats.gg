@@ -16,7 +16,8 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Video, Wifi, Settings, LogOut } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { useTheme } from 'next-themes'
+import GoLiveModal from './GoLiveModal'
+// import { useTheme } from 'next-themes'
 
 interface HeaderProps {
   openAuthenticate: () => void
@@ -53,6 +54,8 @@ export const Navbar = ({ openAuthenticate, openGoLive }: HeaderProps) => {
       </Link>
       <div className="flex items-center space-x-4">
         <ModeToggle />
+
+        {/* Relays */}
         <Link href={'/settings/relays'}>
           <Button variant="outline" size="sm" className="text-primary">
             <Wifi className="mr-2 h-4 w-4" />
@@ -61,12 +64,17 @@ export const Navbar = ({ openAuthenticate, openGoLive }: HeaderProps) => {
             </a>
           </Button>
         </Link>
-        {view === 'authenticated' && (
+
+        {/* Go Live */}
+        {/* {view === 'authenticated' && (
           <Button variant="outline" size="sm" className="text-primary">
             <Video className="mr-2 h-4 w-4" />
             Go Live
           </Button>
-        )}
+        )} */}
+
+        {view === 'authenticated' && <GoLiveModal />}
+
         {view === 'authenticated' ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
