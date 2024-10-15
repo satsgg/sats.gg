@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { QRCodeSVG } from 'qrcode.react'
 import { ArrowLeft, Copy, Check, X } from 'lucide-react'
+import { Lsat } from 'lsat-js'
 
 // Quality options with their prices in sats per minute
 const qualityOptions = [
@@ -29,6 +30,7 @@ interface CustomModalComponentProps {
       el: () => HTMLElement
     }
   }
+  paymentCallback: (l402: Lsat) => void
   show: boolean
   onClose: () => void
 }
@@ -36,7 +38,12 @@ interface CustomModalComponentProps {
 // TODO:
 // - Get quality levels from videojs player
 // - integrate l402
-const CustomModalComponent: React.FC<CustomModalComponentProps> = ({ vjsBridgeComponent, show, onClose }) => {
+const CustomModalComponent: React.FC<CustomModalComponentProps> = ({
+  vjsBridgeComponent,
+  paymentCallback,
+  show,
+  onClose,
+}) => {
   if (!show) return null
   const [isOpen, setIsOpen] = useState(true)
   const [selectedQuality, setSelectedQuality] = useState('')
@@ -46,9 +53,6 @@ const CustomModalComponent: React.FC<CustomModalComponentProps> = ({ vjsBridgeCo
   const [showQRCode, setShowQRCode] = useState(false)
   const [isCopied, setIsCopied] = useState(false)
   const [expirationTime, setExpirationTime] = useState(0)
-  // const videoRef = useRef<HTMLDivElement>(null)
-
-  // const [portalRef, setPortalRef] = React.useState<HTMLDivElement | null>(null)
 
   const handlePurchase = () => {
     if (selectedQuality && selectedDuration) {
@@ -106,12 +110,6 @@ const CustomModalComponent: React.FC<CustomModalComponentProps> = ({ vjsBridgeCo
     { label: '30m', minutes: 30 },
     { label: '1h', minutes: 60 },
   ]
-
-  // return (
-  //   <div className="relative mx-auto w-full max-w-3xl p-4">
-  //     <p>hi</p>
-  //   </div>
-  // )
 
   return (
     <div className="mx-auto w-full max-w-5xl p-4">
@@ -215,6 +213,9 @@ const CustomModalComponent: React.FC<CustomModalComponentProps> = ({ vjsBridgeCo
                       <ArrowLeft className="mr-2 h-4 w-4" />
                       Back
                     </Button>
+                    {/* <Button onClick={() => paymentCallback('')} size="sm">
+                      Pay
+                    </Button> */}
                     <p className="text-xs text-gray-500">Having issues? Contact support</p>
                   </div>
                 </div>

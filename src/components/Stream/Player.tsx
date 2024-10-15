@@ -33,68 +33,6 @@ const VideoPlayer = ({ options }: { options: any }) => {
   const [qualityLevels, setQualityLevels] = useState<QualityLevel[]>([])
   const [openPaywall, setOpenPaywall] = useState(false)
 
-  // useEffect(() => {
-  //   fetch(url)
-  //     .then((res) => res.text())
-  //     .then((m3u8Text) => {
-  //       console.debug(m3u8Text)
-  //       let parser = new Parser()
-  //       parser.addParser({
-  //         expression: /#EXT-X-PRICE:(\d+)/,
-  //         customType: 'price',
-  //         dataParser: (line) => {
-  //           const match = /#EXT-X-PRICE:(\d+)/.exec(line)
-  //           return match && match[1] ? parseInt(match[1], 10) : null
-  //         },
-  //         segment: true,
-  //       })
-  //       parser.push(m3u8Text)
-  //       parser.end()
-  //       // console.debug('parsedManifest', parser.manifest)
-  //       // console.debug(parser.manifest.playlists)
-  //       setManifest(parser.manifest)
-  //       // TODO:
-  //       // Decide if we should pop up a payment window if any free streams exist
-  //       // can maybe just show a small popup - "Higher qualities for sats! vv"
-  //       // can just start by always opening up a payment window if there is
-  //       // at least 1 paid stream. Free streams can be shown and clickable.
-  //     })
-  // }, [url])
-
-  // const videoJsOptions = {
-  //   autoplay: true,
-  //   controls: true,
-  //   responsive: true,
-  //   fill: true,
-  //   enableLowInitialPlaylist: true,
-  //   liveui: false,
-  //   // inactivityTimeout: 100,
-  //   playsinline: true,
-  //   sources: [
-  //     {
-  //       // src: 'https://d2zihajmogu5jn.cloudfront.net/bipbop-advanced/bipbop_16x9_variant.m3u8',
-  //       src: url ?? '',
-  //       type: 'application/x-mpegURL',
-  //       customTagParsers: [
-  //         {
-  //           expression: /#EXT-X-PRICE:(\d+)/,
-  //           customType: 'price',
-  //           dataParser: (line) => {
-  //             const match = /#EXT-X-PRICE:(\d+)/.exec(line)
-  //             return match && match[1] ? parseInt(match[1], 10) : null
-  //           },
-  //           segment: true,
-  //         },
-  //       ],
-  //     },
-  //   ],
-  //   plugins: {
-  //     // httpSourceSelector: {
-  //     //   default: 'auto',
-  //     // },
-  //   },
-  // }
-
   useEffect(() => {
     if (!playerRef.current) return
     playerRef.current.l402 = l402
@@ -172,22 +110,16 @@ const VideoPlayer = ({ options }: { options: any }) => {
         }
       })
 
-      // player.addChild('VideoJSBridgeComponent', {})
-      // // Get a reference to the Video.js bridge component
-      // const modalComponent = player.getChild('VideoJSBridgeComponent')
-
-      // // Create a button in the control bar to toggle the modal
-      // player.controlBar.addChild('button', {
-      //   text: 'Toggle Modal',
-      //   name: 'ToggleModalButton',
-      //   clickHandler: () => modalComponent.toggleModal(), // Call the toggleModal method to show/hide the modal
-      // })
-
       // Register the VideoJSBridgeComponent
       videojs.registerComponent('VideoJSBridgeComponent', VideoJSBridgeComponent)
 
       // Add the VideoJSBridgeComponent to the player
-      player.addChild('VideoJSBridgeComponent', {})
+      player.addChild('VideoJSBridgeComponent', {
+        paymentCallback: (l402: Lsat) => {
+          console.debug('paymentCallback', l402)
+          setL402(l402)
+        },
+      })
 
       // Get a reference to the Video.js bridge component
       const modalComponent = player.getChild('VideoJSBridgeComponent')
@@ -195,33 +127,8 @@ const VideoPlayer = ({ options }: { options: any }) => {
       // Create a button in the control bar to toggle the modal
       player.controlBar.addChild('button', {
         text: 'Toggle Modal',
-        clickHandler: () => modalComponent.toggleModal(),
+        clickHandler: () => modalComponent?.toggleModal(),
       })
-
-      // player.l402Modal({
-      //   content: 'Please pay to continue watching this premium content.',
-      //   paymentAmount: 1000,
-      //   paymentUnit: 'sats',
-      //   paymentCallback: function () {
-      //     // Implement your payment logic here
-      //     console.log('Payment button clicked')
-      //     // After successful payment:
-      //     // player.l402Modal().hideModal();
-      //   },
-      // })
-
-      // never fires...
-      // player.on('xhr-hooks-ready', () => {
-      // console.debug('xhr hooks ready')
-      // videojs.log('xhr hooks are ready')
-      // const playerResponseHook = (request, error, response) => {
-      //   const bar = response.headers.foo
-      //   console.debug('on response', error, response)
-      // }
-      // if (player.tech().vhs) {
-      //   player.tech().vhs.xhr.onResponse(playerResponseHook)
-      // }
-      // })
 
       player.on('waiting', () => {
         videojs.log('player is waiting')
@@ -232,9 +139,7 @@ const VideoPlayer = ({ options }: { options: any }) => {
         qualityLevelsRef.current = null
         qualitySelectorRef.current = null
       })
-      // player.on('volumechange', () => {
-      //   console.debug('volume change', player.volume())
-      // })
+
       const handlePause = () => {
         const seekToLive = () => {
           if (player.duration() === Infinity) {
@@ -264,6 +169,7 @@ const VideoPlayer = ({ options }: { options: any }) => {
               })
               console.debug('SETTING OPEN paywall')
               setOpenPaywall(true)
+              modalComponent?.openModal()
             }
           }
           console.debug('SETTING ON RESPONSE', tech.vhs)

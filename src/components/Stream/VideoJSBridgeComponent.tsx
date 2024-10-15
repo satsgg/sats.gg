@@ -2,6 +2,7 @@ import React from 'react'
 import videojs from 'video.js'
 import * as ReactDOM from 'react-dom/client'
 import CustomModalComponent from './CustomModalComponent'
+import { Lsat } from 'lsat-js'
 
 const VjsComponent = videojs.getComponent('Component')
 
@@ -12,9 +13,11 @@ const VjsComponent = videojs.getComponent('Component')
 class VideoJSBridgeComponent extends VjsComponent {
   private root: ReactDOM.Root | null = null
   private showModal: boolean = false
+  private paymentCallback: (l402: Lsat) => void
 
   constructor(player: videojs.Player, options: any) {
     super(player, options)
+    this.paymentCallback = options.paymentCallback
 
     // When player is ready, call method to mount the React component
     player.ready(() => {
@@ -45,7 +48,12 @@ class VideoJSBridgeComponent extends VjsComponent {
   updateComponent() {
     if (this.root) {
       this.root.render(
-        <CustomModalComponent vjsBridgeComponent={this} show={this.showModal} onClose={() => this.toggleModal()} />,
+        <CustomModalComponent
+          vjsBridgeComponent={this}
+          paymentCallback={this.paymentCallback}
+          show={this.showModal}
+          onClose={() => this.toggleModal()}
+        />,
       )
     }
   }
@@ -53,6 +61,11 @@ class VideoJSBridgeComponent extends VjsComponent {
   // Method to toggle modal visibility
   toggleModal() {
     this.showModal = !this.showModal
+    this.updateComponent()
+  }
+
+  openModal() {
+    this.showModal = true
     this.updateComponent()
   }
 }
