@@ -1,5 +1,6 @@
 import React from 'react'
 import videojs from 'video.js'
+import type Player from 'video.js/dist/types/player'
 import * as ReactDOM from 'react-dom/client'
 import CustomModalComponent from './CustomModalComponent'
 import { Lsat } from 'lsat-js'
@@ -15,7 +16,7 @@ class VideoJSBridgeComponent extends VjsComponent {
   private showModal: boolean = false
   private paymentCallback: (l402: Lsat) => void
 
-  constructor(player: videojs.Player, options: any) {
+  constructor(player: Player, options: any) {
     super(player, options)
     this.paymentCallback = options.paymentCallback
 

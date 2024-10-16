@@ -106,6 +106,7 @@
     "@types/jsonwebtoken": "^8.5.9",
     "@types/node": "^18.11.6",
     "@types/react": "^18.0.9",
+    "@types/react-dom": "^18.3.1",
     "@types/secp256k1": "^4.0.3",
     "@types/video.js": "^7.3.55",
     "@types/videojs-contrib-quality-levels": "^2.0.4",

@@ -101,8 +101,53 @@ declare module 'm3u8-parser' {
 
 import videojs from 'video.js'
 
+// declare module 'video.js' {
+//   interface Player {
+//     l402Modal: (options?: any) => any
+//   }
+// }
+
+// import type Player from 'video.js/dist/types/player'
+// import type { QualityLevelList, QualityLevel } from 'videojs-contrib-quality-levels'
+
+// // Extend the Player type to include the qualityLevels method
+// interface PlayerWithQualityLevels extends Player {
+//   qualityLevels(): QualityLevelList
+// }
+
+// interface CustomModalComponentProps {
+//   vjsBridgeComponent: {
+//     player: () => Player
+//   }
+//   // ... other props
+// }
+
+import type Player from 'video.js/dist/types/player'
+
+declare module 'videojs-contrib-quality-levels' {
+  export interface QualityLevel {
+    id: string
+    label: string
+    width: number
+    height: number
+    framerate?: number
+    price?: number
+    bitrate: number
+    enabled: boolean
+  }
+
+  export interface QualityLevelList {
+    length: number
+    [index: number]: QualityLevel
+    selectedIndex: number
+    levels_: QualityLevel[]
+    on(event: string, callback: Function): void
+    off(event: string, callback?: Function): void
+  }
+}
+
 declare module 'video.js' {
   interface Player {
-    l402Modal: (options?: any) => any
+    qualityLevels(): import('videojs-contrib-quality-levels').QualityLevelList
   }
 }
