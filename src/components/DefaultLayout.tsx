@@ -9,6 +9,7 @@ import { nostrClient } from '~/nostr/NostrClient'
 import useSettingsStore from '~/hooks/useSettingsStore'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import { Toaster } from '@/components/ui/toaster'
 import useMediaQuery from '~/hooks/useMediaQuery'
 import useLayoutStore from '~/store/layoutStore'
 import useHasMounted from '~/hooks/useHasMounted'
@@ -104,6 +105,8 @@ export const DefaultLayout = ({ hideFollowedChannels = false, children }: Defaul
       {content()}
 
       <ToastContainer />
+      {/* new shadcn toaster */}
+      <Toaster />
     </>
   )
 }

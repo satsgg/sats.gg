@@ -8,8 +8,10 @@ import { Slider } from '@/components/ui/slider'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { QRCodeSVG } from 'qrcode.react'
-import { ArrowLeft, Copy, Check, X } from 'lucide-react'
+import { ArrowLeft, Copy, Check, X, Loader2 } from 'lucide-react'
 import { Lsat } from 'lsat-js'
+import { useToast } from '@/hooks/use-toast'
+import { ToastAction } from '@/components/ui/toast'
 
 const quickAccessDurations = [
   { label: '5m', minutes: 5 },
@@ -21,6 +23,15 @@ const quickAccessDurations = [
 // Simulated exchange rate (1 USD = 100,000 sats)
 const SATS_PER_USD = 100000
 
+const sleep = (milliseconds: number) => {
+  return new Promise((resolve) => setTimeout(resolve, milliseconds))
+}
+
+type InvoiceStatus = {
+  preimage: string | null
+  status: string
+}
+
 interface CustomModalComponentProps {
   vjsBridgeComponent: {
     player: () => Player
@@ -31,8 +42,11 @@ interface CustomModalComponentProps {
 }
 
 // TODO:
-// - integrate l402
-// - sort quality levels by price/bitrate
+// - improve sort quality levels by price/bitrate
+// - parse invoice to display price and expiration time
+// - hookup expiration timer
+// - handle selecting free quality level
+// - set quality level to chosen or auto? on successful payment
 const CustomModalComponent: React.FC<CustomModalComponentProps> = ({
   vjsBridgeComponent,
   paymentCallback,
@@ -43,35 +57,58 @@ const CustomModalComponent: React.FC<CustomModalComponentProps> = ({
   const [selectedQuality, setSelectedQuality] = useState<QualityLevel | null>(null)
   const [selectedDuration, setSelectedDuration] = useState(60) // Default to 60 minutes
   const [totalPrice, setTotalPrice] = useState(0)
-  const [invoice, setInvoice] = useState('')
-  const [showQRCode, setShowQRCode] = useState(false)
   const [isCopied, setIsCopied] = useState(false)
   const [expirationTime, setExpirationTime] = useState(0)
+  const [l402Challenge, setL402Challenge] = useState<Lsat | null>(null)
+  const [isLoadingChallenge, setIsLoadingChallenge] = useState(false)
+  const { toast } = useToast()
 
-  const handlePurchase = () => {
-    if (selectedQuality && selectedDuration) {
-      // const newInvoice = generateInvoice(selectedQuality, selectedDuration, totalPrice)
-      setInvoice('')
-      setShowQRCode(true)
-      setExpirationTime(15 * 60) // Set expiration time to 15 minutes
+  const handlePurchase = async () => {
+    const uri = selectedQuality?.resolvedUri
+    if (!uri) return
+    setIsLoadingChallenge(true)
+    console.debug('requesting invoice')
+    console.debug('uri', selectedQuality.resolvedUri)
+    let challenge
+    try {
+      let res = await fetch(`${uri}?d=${selectedDuration * 60}`)
+      if (res.status !== 402) throw new Error('Failed to fetch l402 challenge')
+      let challengeHeader = res.headers.get('WWW-Authenticate')
+      if (!challengeHeader) throw new Error('No challenge header')
+      challenge = Lsat.fromHeader(challengeHeader)
+      setL402Challenge(challenge)
+    } catch (e: any) {
+      console.error('something else happened')
+      console.error('Failed to fetch l402 challenge:', e)
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to generate invoice. Please try again.',
+        action: <ToastAction altText="Try again">Try again</ToastAction>,
+      })
+    } finally {
+      setIsLoadingChallenge(false)
     }
   }
 
   const handleClose = () => {
     console.debug('CustomModalComponent: handleClose')
     // vjsBridgeComponent.player().pause()
+    // vjsBridgeComponent.player().qualitySelector().setQuality(null)
+    setL402Challenge(null)
+    setIsCopied(false)
+    setExpirationTime(0)
     onClose()
   }
 
   const handleBack = () => {
-    setShowQRCode(false)
-    setInvoice('')
+    setL402Challenge(null)
     setIsCopied(false)
     setExpirationTime(0)
   }
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(invoice).then(() => {
+    navigator.clipboard.writeText(l402Challenge?.invoice || '').then(() => {
       setIsCopied(true)
       setTimeout(() => setIsCopied(false), 2000)
     })
@@ -111,6 +148,50 @@ const CustomModalComponent: React.FC<CustomModalComponentProps> = ({
   }, [selectedQuality, selectedDuration])
 
   useEffect(() => {
+    const uri = selectedQuality?.resolvedUri
+    if (!l402Challenge || !uri) return
+    const url = new URL(uri)
+    const baseUrl = `${url.protocol}//${url.host}`
+
+    const awaitPayment = async () => {
+      let payment: InvoiceStatus | null = null
+      let failedAttempts = 0
+      while (true) {
+        try {
+          // TODO: Use the new invoice endpoint
+          let paymentRes = await fetch(`${baseUrl}/.well-known/l402/invoice?hash=${l402Challenge.paymentHash}`)
+          payment = await paymentRes.json()
+          if (payment && payment.status === 'SETTLED') break
+          await sleep(1000)
+        } catch (e: any) {
+          console.error('error fetching payment status', e)
+          if (failedAttempts > 3) {
+            console.error('timed out fetching payment status, closing')
+            return
+          }
+          failedAttempts = failedAttempts + 1
+        }
+      }
+      const l402 = l402Challenge // deep copy?
+      if (!payment.preimage) {
+        console.error('BUG')
+        return
+      }
+      l402.setPreimage(payment.preimage)
+      console.debug('finished l402', l402)
+      paymentCallback(l402)
+      handleClose()
+      // this is just wrong
+      // for (let i = 0; i < qualityLevels.length; i++) {
+      //   const qualityLevel = qualityLevels[i]
+      //   console.debug('Quality Level', i, 'enabled:', qualityLevel.enabled)
+      // }
+      // TODO: Set player to quality level chosen
+    }
+    awaitPayment()
+  }, [l402Challenge])
+
+  useEffect(() => {
     const player = vjsBridgeComponent.player()
     const qualityLevels = player.qualityLevels()
 
@@ -141,7 +222,7 @@ const CustomModalComponent: React.FC<CustomModalComponentProps> = ({
               <X className="h-4 w-4" />
               <span className="sr-only">Close</span>
             </Button>
-            {!showQRCode ? (
+            {!l402Challenge ? (
               <>
                 <h2 className="mb-2 text-lg font-semibold">Select Quality and Duration</h2>
                 <div className="space-y-4">
@@ -208,8 +289,18 @@ const CustomModalComponent: React.FC<CustomModalComponentProps> = ({
                       <p className="text-sm font-semibold">Total: {totalPrice} sats</p>
                       <p className="text-xs text-gray-500">≈ {formatUSD(totalPrice)}</p>
                     </div>
-                    <Button onClick={handlePurchase} disabled={!selectedQuality || !selectedDuration}>
-                      Generate Invoice
+                    <Button
+                      onClick={handlePurchase}
+                      disabled={!selectedQuality || !selectedDuration || isLoadingChallenge}
+                    >
+                      {isLoadingChallenge ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Generating...
+                        </>
+                      ) : (
+                        'Generate Invoice'
+                      )}
                     </Button>
                   </div>
                 </div>
@@ -218,11 +309,11 @@ const CustomModalComponent: React.FC<CustomModalComponentProps> = ({
               <div className="space-y-4">
                 <h2 className="text-lg font-semibold">Scan QR Code to Pay</h2>
                 <div className="flex items-center space-x-4">
-                  <QRCodeSVG value={invoice} size={150} />
+                  <QRCodeSVG value={l402Challenge.invoice} size={150} />
                   <div className="flex-1 space-y-2">
                     <p className="text-sm text-gray-500">Use your preferred payment app to scan the QR code.</p>
                     <div className="flex items-center space-x-2">
-                      <Input readOnly value={invoice} className="flex-grow text-xs" />
+                      <Input readOnly value={l402Challenge.invoice} className="flex-grow text-xs" />
                       <Button size="icon" onClick={handleCopy} variant="outline">
                         {isCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                         <span className="sr-only">{isCopied ? 'Copied' : 'Copy'}</span>

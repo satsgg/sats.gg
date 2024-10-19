@@ -112,6 +112,7 @@ declare module 'videojs-contrib-quality-levels' {
     price?: number
     bitrate: number
     enabled: boolean
+    resolvedUri?: string
   }
 
   export interface QualityLevelList {

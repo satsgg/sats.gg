@@ -105,6 +105,7 @@ const VideoPlayer = ({ options }: { options: any }) => {
 
       playerQualityLevels.on('change', function (event: any) {
         console.debug('change: setting selected quality index', event.selectedIndex)
+        console.debug('change: quality event ', event)
         setSelectedQualityIndex(event.selectedIndex)
         // setQualityLevels(playerQualityLevels.levels_)
         for (let i = 0; i < qualityLevels.length; i++) {
@@ -119,7 +120,7 @@ const VideoPlayer = ({ options }: { options: any }) => {
       // Add the VideoJSBridgeComponent to the player
       player.addChild('VideoJSBridgeComponent', {
         paymentCallback: (l402: Lsat) => {
-          console.debug('paymentCallback', l402)
+          console.debug('Player paymentCallback', l402)
           setL402(l402)
         },
       })
@@ -197,20 +198,7 @@ const VideoPlayer = ({ options }: { options: any }) => {
     [volume],
   )
 
-  return (
-    <>
-      <VideoJS options={options} onReady={handlePlayerReady} l402={l402} />
-      {/* {openPaywall && (
-        <Paywall
-          playerRef={playerRef}
-          qualitySelectorRef={qualitySelectorRef}
-          qualityLevels={qualityLevels}
-          setL402={setL402}
-          close={() => setOpenPaywall(false)}
-        />
-      )} */}
-    </>
-  )
+  return <VideoJS options={options} onReady={handlePlayerReady} l402={l402} />
 }
 
 export default memo(VideoPlayer)

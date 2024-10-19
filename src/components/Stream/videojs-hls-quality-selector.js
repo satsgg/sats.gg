@@ -126,6 +126,11 @@
      * Click event for menu item.
      */
     handleClick() {
+      // TODO: This returns properly, but the quality is still changed somehow
+      // if (!this.plugin.isQualityPurchasedOrFree(this.item.value)) {
+      //   return
+      // }
+
       // Reset other menu items selected status.
       for (let i = 0; i < this.qualityButton.items.length; ++i) {
         this.qualityButton.items[i].selected(false)
@@ -282,6 +287,36 @@
         }
         this._qualityButton.update()
       }
+    }
+
+    isQualityPurchasedOrFree(quality) {
+      const qualityList = this.player.qualityLevels()
+      for (let i = 0; i < qualityList.length; ++i) {
+        const { width, height } = qualityList[i]
+        const pixels = width > height ? height : width
+        qualityList[i].enabled = pixels === quality
+        if (pixels === quality) {
+          if (qualityList[i].price && qualityList[i].price > 0) {
+            console.debug('isQualityPurchased setting quality', qualityList[i])
+            const l402 = this.player.l402
+            if (
+              !l402 ||
+              l402.maxBandwidth < qualityList[i].bitrate ||
+              Math.floor(Date.now() / 1000) > l402.validUntil
+            ) {
+              // no l402, open paywall
+              console.debug('isQualityPurchased no l402, open paywall and return false')
+              const modalComponent = this.player.getChild('VideoJSBridgeComponent')
+              modalComponent?.toggleModal()
+              return false
+            } else {
+              break
+            }
+          }
+        }
+      }
+      console.debug('isQualityPurchased returning true')
+      return true
     }
 
     /**
