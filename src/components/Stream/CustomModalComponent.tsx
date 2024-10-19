@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import type Player from 'video.js/dist/types/player'
-import type { QualityLevelList, QualityLevel } from 'videojs-contrib-quality-levels'
+import type { QualityLevel } from 'videojs-contrib-quality-levels'
 
 import { Button } from '@/components/ui/button'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
@@ -32,13 +32,14 @@ interface CustomModalComponentProps {
 
 // TODO:
 // - integrate l402
+// - sort quality levels by price/bitrate
 const CustomModalComponent: React.FC<CustomModalComponentProps> = ({
   vjsBridgeComponent,
   paymentCallback,
   show,
   onClose,
 }) => {
-  const [qualityLevels, setQualityLevels] = useState<QualityLevelList[]>([])
+  const [qualityLevels, setQualityLevels] = useState<QualityLevel[]>([])
   const [selectedQuality, setSelectedQuality] = useState<QualityLevel | null>(null)
   const [selectedDuration, setSelectedDuration] = useState(60) // Default to 60 minutes
   const [totalPrice, setTotalPrice] = useState(0)
@@ -92,10 +93,22 @@ const CustomModalComponent: React.FC<CustomModalComponentProps> = ({
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
   }
 
+  const msatsPerSecToSatsPerMin = (msatsPerSec: number) => {
+    return Math.floor((msatsPerSec * 60) / 1000)
+  }
+
   const formatUSD = (sats: number) => {
     const usd = sats / SATS_PER_USD
     return usd.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
   }
+
+  useEffect(() => {
+    if (!selectedQuality || !selectedQuality.price) {
+      setTotalPrice(0)
+      return
+    }
+    setTotalPrice(selectedDuration * msatsPerSecToSatsPerMin(selectedQuality.price))
+  }, [selectedQuality, selectedDuration])
 
   useEffect(() => {
     const player = vjsBridgeComponent.player()
@@ -153,7 +166,9 @@ const CustomModalComponent: React.FC<CustomModalComponentProps> = ({
                           <span className="text-sm font-medium">
                             {level.height}p{level.framerate}
                           </span>
-                          <span className="text-xs">{level.price ? `${level.price} sats/min` : 'free'}</span>
+                          <span className="text-xs">
+                            {level.price ? `${msatsPerSecToSatsPerMin(level.price)} sats/min` : 'free'}
+                          </span>
                         </Label>
                       ))}
                     </RadioGroup>
@@ -168,7 +183,7 @@ const CustomModalComponent: React.FC<CustomModalComponentProps> = ({
                         max={480}
                         step={1}
                         value={[selectedDuration]}
-                        onValueChange={(value) => setSelectedDuration(value[0])}
+                        onValueChange={(value) => setSelectedDuration(value[0]!)}
                       />
                       <div className="flex items-center justify-between text-sm">
                         <span>{formatDuration(selectedDuration)}</span>

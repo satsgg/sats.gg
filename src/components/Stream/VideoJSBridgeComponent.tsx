@@ -1,20 +1,17 @@
 import React from 'react'
 import videojs from 'video.js'
 import type Player from 'video.js/dist/types/player'
-import * as ReactDOM from 'react-dom/client'
+import * as ReactDOM from 'react-dom/client' // don't install the types it breaks everything
 import CustomModalComponent from './CustomModalComponent'
 import { Lsat } from 'lsat-js'
 
 const VjsComponent = videojs.getComponent('Component')
 
-// TODO:
-// VideoJSBridgeComponent.tsx:23 Warning: Attempted to synchronously unmount a root while React was already rendering. React cannot finish unmounting the root until the current render has completed, which may lead to a race condition.
-// at VideoJS (webpack-internal:///./src/components/Stream/VideoJS.tsx:26:25)
-// at VideoPlayer (webpack-internal:///./src/components/Stream/Player.tsx:26:25)
 class VideoJSBridgeComponent extends VjsComponent {
   private root: ReactDOM.Root | null = null
   private showModal: boolean = false
   private paymentCallback: (l402: Lsat) => void
+  private unmountScheduled: boolean = false
 
   constructor(player: Player, options: any) {
     super(player, options)
@@ -25,11 +22,8 @@ class VideoJSBridgeComponent extends VjsComponent {
       this.mountReactComponent()
     })
 
-    // Remove the React root when this component is destroyed
     this.on('dispose', () => {
-      if (this.root) {
-        this.root.unmount()
-      }
+      this.scheduleUnmount()
     })
   }
 
@@ -68,6 +62,18 @@ class VideoJSBridgeComponent extends VjsComponent {
   openModal() {
     this.showModal = true
     this.updateComponent()
+  }
+
+  scheduleUnmount() {
+    if (!this.unmountScheduled) {
+      this.unmountScheduled = true
+      Promise.resolve().then(() => {
+        if (this.root) {
+          this.root.unmount()
+          this.root = null
+        }
+      })
+    }
   }
 }
 

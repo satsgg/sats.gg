@@ -1,16 +1,11 @@
 import { useRef, memo, useEffect, useState, useCallback } from 'react'
 import usePlayerStore from '~/store/playerStore'
 
-// This imports the functional component from the previous sample.
 import VideoJS from './VideoJS'
 import videojs from 'video.js'
 import type Player from 'video.js/dist/types/player'
 import './videojs-hls-quality-selector'
-// import './L402Modal'
 import VideoJSBridgeComponent from './VideoJSBridgeComponent'
-
-import { Manifest, Parser } from 'm3u8-parser'
-import Paywall from './Paywall'
 import { Lsat } from 'lsat-js'
 
 type QualityLevel = {
@@ -28,7 +23,6 @@ const VideoPlayer = ({ options }: { options: any }) => {
   const qualitySelectorRef = useRef(null)
   const volume = usePlayerStore((state) => state.volume)
   const [l402, setL402] = useState<Lsat | null>(null)
-  const [manifest, setManifest] = useState<Manifest | null>(null)
   const [selectedQualityIndex, setSelectedQualityIndex] = useState<number>(-1)
   const [qualityLevels, setQualityLevels] = useState<QualityLevel[]>([])
   const [openPaywall, setOpenPaywall] = useState(false)
@@ -37,6 +31,15 @@ const VideoPlayer = ({ options }: { options: any }) => {
     if (!playerRef.current) return
     playerRef.current.l402 = l402
   }, [l402])
+
+  // useEffect(() => {
+  //   return () => {
+  //     if (playerRef.current) {
+  //       playerRef.current.dispose()
+  //       playerRef.current = null
+  //     }
+  //   }
+  // }, [])
 
   // use to debug exclusion
   // useEffect(() => {
@@ -106,7 +109,7 @@ const VideoPlayer = ({ options }: { options: any }) => {
         // setQualityLevels(playerQualityLevels.levels_)
         for (let i = 0; i < qualityLevels.length; i++) {
           const qualityLevel = qualityLevels[i]
-          console.debug('on change Quality Level', i, 'Price:', qualityLevel.price)
+          console.debug('on change Quality Level', i, 'Price:', qualityLevel?.price)
         }
       })
 
@@ -168,7 +171,7 @@ const VideoPlayer = ({ options }: { options: any }) => {
                 return l402
               })
               console.debug('SETTING OPEN paywall')
-              setOpenPaywall(true)
+              // setOpenPaywall(true)
               modalComponent?.openModal()
             }
           }
@@ -197,7 +200,7 @@ const VideoPlayer = ({ options }: { options: any }) => {
   return (
     <>
       <VideoJS options={options} onReady={handlePlayerReady} l402={l402} />
-      {openPaywall && (
+      {/* {openPaywall && (
         <Paywall
           playerRef={playerRef}
           qualitySelectorRef={qualitySelectorRef}
@@ -205,7 +208,7 @@ const VideoPlayer = ({ options }: { options: any }) => {
           setL402={setL402}
           close={() => setOpenPaywall(false)}
         />
-      )}
+      )} */}
     </>
   )
 }
