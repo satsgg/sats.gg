@@ -1,13 +1,16 @@
 import { useRouter } from 'next/router'
 import { ReactElement, useEffect, useState } from 'react'
 import { DashboardLayout } from '~/components/Dashboard/DashboardLayout'
-import StreamCreationModal from '~/components/StreamCreationModal'
+// import StreamCreationModal from '~/components/StreamCreationModal'
+import StreamCreationModal from '~/components/Dashboard/StreamCreationModal'
 import { trpc } from '~/utils/trpc'
 
 const Dashboard = () => {
   const router = useRouter()
   const [showModal, setShowModal] = useState(false)
-  const [streamId, setStreamId] = useState<string | null>(null)
+  const [streamId, setStreamId] = useState<string>('')
+
+  // TODO: Ensure streamId belongs to the current user
   const { data, isLoading } = trpc.stream.getCurrentStream.useQuery(undefined, {
     refetchOnWindowFocus: true,
     refetchInterval: 15 * 1000,
@@ -28,7 +31,7 @@ const Dashboard = () => {
 
   return (
     <div className="flex h-screen w-full">
-      {showModal && streamId && <StreamCreationModal streamId={streamId} onClose={() => setShowModal(false)} />}
+      <StreamCreationModal streamId={streamId} isOpen={showModal} setIsOpen={() => setShowModal(false)} />
       {/* Sidebar */}
       <div className="w-64 p-4">
         <nav>
