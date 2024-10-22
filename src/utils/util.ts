@@ -66,3 +66,7 @@ export const fmtNumber = (number: number, compact: boolean = false) => {
   if (compact) notation = { notation: 'compact', maximumSignificantDigits: 3 }
   return Intl.NumberFormat('en', notation).format(number)
 }
+
+const BITCOIN_PRICE_USD = 67000
+
+export const SATS_PER_USD = 100000000 / BITCOIN_PRICE_USD

@@ -15,12 +15,27 @@ const qualityNameMap = {
   '160p30fps': { height: 160, width: 256, framerate: 30 },
 }
 
+// msats
+const qualityNameUploadPriceMap = {
+  '1080p60fps': 500,
+  '720p60fps': 400,
+  '720p30fps': 300,
+  '480p30fps': 200,
+  '360p30fps': 150,
+  '160p30fps': 75,
+}
+
+export const qualityNameEnum = z.enum(['1080p60fps', '720p60fps', '720p30fps', '480p30fps', '360p30fps', '160p30fps'])
+
+export type QualityName = z.infer<typeof qualityNameEnum>
+
 const createStreamSchema = z.object({
   duration: z.number(),
   lightningAddress: z.string().optional(),
   qualities: z.array(
     z.object({
-      name: z.enum(['1080p60fps', '720p60fps', '720p30fps', '480p30fps', '360p30fps', '160p30fps']),
+      // name: z.enum(['1080p60fps', '720p60fps', '720p30fps', '480p30fps', '360p30fps', '160p30fps']),
+      name: qualityNameEnum,
       price: z.number(),
     }),
   ),
@@ -46,7 +61,8 @@ export const streamRouter = t.router({
         variants: {
           create: input.qualities.map((q) => ({
             ...qualityNameMap[q.name],
-            price: q.price,
+            price: Math.floor((q.price * 1000) / 60), // convert to msats per second
+            // price: Math.floor((qualityNameUploadPriceMap[q.name] * 1000) / 60), // convert to msats per second
           })),
         },
       }
@@ -55,17 +71,25 @@ export const streamRouter = t.router({
         throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
       })
 
+      const totalUploadPriceSats =
+        input.qualities.reduce((acc, q) => {
+          const qualityPrice = qualityNameUploadPriceMap[q.name] || 0
+          return acc + qualityPrice
+        }, 0) *
+        (input.duration * 60) // Convert minutes duration to seconds
+
       try {
         const createChannelInvoice = await fetch(process.env.INFRA_SERVER_URL + '/api/v1/channel/invoice', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          // TODO: Calculate price based on stream duration and qualities
-          body: JSON.stringify({ price: 10000, streamId: stream.id }),
+          body: JSON.stringify({ price: totalUploadPriceSats, streamId: stream.id }),
         })
+        console.debug('createChannelInvoice', createChannelInvoice)
 
         if (!createChannelInvoice.ok) {
+          console.error('Failed to fetch channel invoice from pricer', createChannelInvoice)
           throw new TRPCError({
             code: 'INTERNAL_SERVER_ERROR',
             message: `Failed to create invoice! status: ${createChannelInvoice.status}`,
@@ -76,7 +100,7 @@ export const streamRouter = t.router({
 
         return { streamId: stream.id, paymentRequest: invoiceData.paymentRequest, invoiceId: invoiceData.invoiceId }
       } catch (error) {
-        console.error('Error creating invoice:', error)
+        console.error('Error fetching invoice from pricer:', error)
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
           message: 'Failed to create invoice for stream',

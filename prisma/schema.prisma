@@ -73,7 +73,7 @@ model StreamVariant {
   updatedAt     DateTime        @updatedAt
   streamId      String
   stream        Stream          @relation(fields: [streamId], references: [id])
-  price         Int
+  price         Int // msats per second
   height        Int
   width         Int
   framerate     Int

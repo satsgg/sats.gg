@@ -16,7 +16,7 @@ export default function Relays() {
         Add or remove nostr relays to control where you read and publish nostr events!
       </h3>
 
-      {Array.from(relays).((relay) => {
+      {Array.from(relays).map((relay) => {
         return (
           <RemoveableRelay key={relay} relay={relay} connected={connectedRelays.has(relay)} removeRelay={removeRelay} />
         )

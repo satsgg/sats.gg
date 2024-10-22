@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react'
+import { trpc } from '~/utils/trpc'
+import { InvoiceStatus } from '@prisma/client'
+import { useRouter } from 'next/router'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -16,33 +19,98 @@ import { Input } from '@/components/ui/input'
 import { QRCodeSVG } from 'qrcode.react'
 import { ArrowLeft, Video, Copy, Check } from 'lucide-react'
 import { fmtNumber } from '~/utils/util'
+import { QualityName } from '~/server/routers/stream'
+import { SATS_PER_USD } from '~/utils/util'
+import { ms } from 'date-fns/locale'
 
+const formatUSD = (sats: number) => {
+  const usd = sats / SATS_PER_USD
+  return usd.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
+}
+
+const msatsPerSecToSatsPerMin = (msatsPerSec: number) => {
+  return Math.floor((msatsPerSec * 60) / 1000)
+}
+
+// Prices in millisats/second
 const qualityOptions = [
-  { id: '1080p60', label: '1080p 60fps', basePrice: 10 },
-  { id: '720p60', label: '720p 60fps', basePrice: 8 },
-  { id: '720p30', label: '720p 30fps', basePrice: 6 },
-  { id: '480p30', label: '480p 30fps', basePrice: 4 },
-  { id: '180p30', label: '180p 30fps', basePrice: 2 },
+  { id: '1080p60fps', label: '1080p 60fps', uploadPrice: 500, downloadPrice: 250 },
+  { id: '720p60fps', label: '720p 60fps', uploadPrice: 400, downloadPrice: 200 },
+  { id: '720p30fps', label: '720p 30fps', uploadPrice: 300, downloadPrice: 150 },
+  { id: '480p30fps', label: '480p 30fps', uploadPrice: 200, downloadPrice: 100 },
+  { id: '360p30fps', label: '360p 30fps', uploadPrice: 150, downloadPrice: 75 },
+  { id: '160p30fps', label: '160p 30fps', uploadPrice: 75, downloadPrice: 25 },
 ]
 
 // TODO:
-// - Hook up to backend
+// - on close, cancel invoice, reset state?
+// - remove click away handler?
+// - refactor footer buttons, add loading state
+// - error handling and toasts
 export default function GoLiveModal() {
+  const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
   const [step, setStep] = useState(1)
   const [selectedQualities, setSelectedQualities] = useState<string[]>([])
   const [duration, setDuration] = useState(60) // Stream duration in minutes
   const [viewerDuration, setViewerDuration] = useState(60) // Typical viewer duration in minutes
   const [streamerProfits, setStreamerProfits] = useState<{ [key: string]: number }>({})
+  const [totalViewerCosts, setTotalViewerCosts] = useState<{ [key: string]: number }>({})
+  const [lightningAddress, setLightningAddress] = useState('')
+  const [lightningAddressError, setLightningAddressError] = useState('')
   const [totalCost, setTotalCost] = useState(0)
   const [invoice, setInvoice] = useState('')
+  const [invoiceId, setInvoiceId] = useState('')
+  const [isInvoiceLoading, setIsInvoiceLoading] = useState(false)
+  const [streamId, setStreamId] = useState('')
   const [expirationTime, setExpirationTime] = useState(0)
   const [timeLeft, setTimeLeft] = useState(0)
   const [copied, setCopied] = useState(false)
 
+  const createStream = trpc.stream.createStream.useMutation({
+    onSuccess: (data) => {
+      // close()
+      console.debug('Stream invoice created', data)
+      // router.push({ pathname: '/dashboard', query: { streamId: data.streamId } })
+      setStreamId(data.streamId)
+      setInvoice(data.paymentRequest)
+      setInvoiceId(data.invoiceId)
+      // setView('payment')
+      setStep(3)
+      setIsInvoiceLoading(false)
+    },
+    onError: (err) => {
+      console.error('Failed to create stream', err)
+      // show error
+      setIsInvoiceLoading(false)
+    },
+  })
+
+  const { data: invoiceData, isLoading } = trpc.invoice.getInvoiceById.useQuery(invoiceId || '', {
+    refetchOnWindowFocus: false,
+    refetchInterval: 2 * 1000,
+    enabled: !!invoiceId,
+  })
+
   useEffect(() => {
     calculateTotalCost()
   }, [selectedQualities, duration])
+
+  const calculateViewerCosts = () => {
+    const costs = selectedQualities.reduce((acc, qualityId) => {
+      const option = qualityOptions.find((q) => q.id === qualityId)
+      const downloadPrice = option?.downloadPrice || 0
+      const profit = streamerProfits[qualityId] || 0
+      const totalPrice = downloadPrice + profit
+      acc[qualityId] = msatsPerSecToSatsPerMin(totalPrice * viewerDuration)
+      return acc
+    }, {} as { [key: string]: number })
+    setTotalViewerCosts(costs)
+  }
+
+  useEffect(() => {
+    calculateViewerCosts()
+  }, [viewerDuration, streamerProfits])
 
   const handleQualityToggle = (qualityId: string) => {
     setSelectedQualities((prev) =>
@@ -53,7 +121,7 @@ export default function GoLiveModal() {
   const calculateTotalCost = () => {
     const total = selectedQualities.reduce((sum, qualityId) => {
       const option = qualityOptions.find((q) => q.id === qualityId)
-      return sum + (option?.basePrice || 0) * duration
+      return sum + (option?.uploadPrice || 0) * duration
     }, 0)
     setTotalCost(total)
   }
@@ -72,45 +140,36 @@ export default function GoLiveModal() {
   }
 
   const quickAccessDurations = [
-    { label: '30m', minutes: 30 },
     { label: '1h', minutes: 60 },
     { label: '2h', minutes: 120 },
-    { label: '3h', minutes: 180 },
+    { label: '4h', minutes: 240 },
+    { label: '8h', minutes: 480 },
   ]
-
-  // const handleNext = () => {
-  //   if (step === 1) {
-  //     const initialStreamerProfits = selectedQualities.reduce((profits, qualityId) => {
-  //       profits[qualityId] = 0 // Initialize profit to 0
-  //       return profits
-  //     }, {} as { [key: string]: number })
-  //     setStreamerProfits(initialStreamerProfits)
-  //     setStep(2)
-  //   } else {
-  //     setIsOpen(false)
-  //     setStep(1)
-  //   }
-  // }
-
-  // const handleBack = () => {
-  //   setStep(1)
-  // }
 
   const handleNext = () => {
     if (step === 1) {
-      const initialStreamerProfits = selectedQualities.reduce((profits, qualityId) => {
+      // Sort selectedQualities based on the order in qualityOptions
+      const sortedSelectedQualities = qualityOptions
+        .filter((option) => selectedQualities.includes(option.id))
+        .map((option) => option.id)
+
+      const initialStreamerProfits = sortedSelectedQualities.reduce((profits, qualityId) => {
         profits[qualityId] = 0 // Initialize profit to 0
         return profits
       }, {} as { [key: string]: number })
+      setSelectedQualities(sortedSelectedQualities)
       setStreamerProfits(initialStreamerProfits)
       setStep(2)
     } else if (step === 2) {
-      // Generate a dummy invoice and set expiration time (15 minutes from now)
-      const dummyInvoice =
-        'lnbc1500n1ps36h3upp5cjgufucxj6q6x35zyl5xyxmkgauejrfzpwdlx8zsyng293zxu9qsdqqcqzpgxqyz5vqsp5usyc4lk9chsfp53kvcnvq456ganh60d89reykdngsmtj6yw3n5uq9qyyssqgcpvwf6ppgf68tnd3sqhqtqwxcmq9d7lxqlct9lzp6535l5h9ztr84m3mm60takx7r2j8hfnwtndwq4mlpasfqpcehxjp0ypdeqcqwgxsxq'
-      setInvoice(dummyInvoice)
-      setExpirationTime(Math.floor(Date.now() / 1000) + 15 * 60) // 15 minutes from now
-      setStep(3)
+      setIsInvoiceLoading(true)
+      createStream.mutate({
+        duration,
+        lightningAddress: lightningAddress || undefined,
+        qualities: selectedQualities.map((qualityId) => ({
+          name: qualityId as QualityName,
+          price: streamerProfits[qualityId] || 0,
+        })),
+      })
     } else {
       setIsOpen(false)
       setStep(1)
@@ -133,6 +192,31 @@ export default function GoLiveModal() {
       setTimeout(() => setCopied(false), 2000)
     })
   }
+
+  // TODO: Zod form + onSubmit?
+  const validateLightningAddress = (address: string) => {
+    const regex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
+    return regex.test(address)
+  }
+
+  const handleLightningAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const address = e.target.value
+    setLightningAddress(address)
+    if (address && !validateLightningAddress(address)) {
+      setLightningAddressError('Invalid lightning address format')
+    } else {
+      setLightningAddressError('')
+    }
+  }
+
+  useEffect(() => {
+    if (!invoiceData || !streamId) return
+    console.debug('Invoice data', invoiceData)
+    if (invoiceData.status === InvoiceStatus.SETTLED) {
+      router.push({ pathname: '/dashboard', query: { streamId: streamId } })
+      // TODO: reset state?
+    }
+  }, [invoiceData, streamId])
 
   return (
     <Dialog
@@ -164,7 +248,7 @@ export default function GoLiveModal() {
 
         {step === 1 && (
           <div className="grid gap-6 py-4">
-            <div className="space-y-4">
+            <div className="space-y-2">
               <Label className="text-base font-semibold">Quality Options</Label>
               {qualityOptions.map((option) => (
                 <div key={option.id} className="flex items-center space-x-3">
@@ -176,7 +260,9 @@ export default function GoLiveModal() {
                   <Label htmlFor={option.id} className="flex-grow text-sm">
                     {option.label}
                   </Label>
-                  <span className="text-sm text-muted-foreground">{option.basePrice} sats/min</span>
+                  <span className="text-sm text-muted-foreground">
+                    {msatsPerSecToSatsPerMin(option.uploadPrice)} sats/min
+                  </span>
                 </div>
               ))}
             </div>
@@ -206,7 +292,12 @@ export default function GoLiveModal() {
             </div>
 
             <div className="text-center">
-              <p className="text-lg font-semibold">Total Cost: {fmtNumber(totalCost)} sats</p>
+              <p className="text-lg font-semibold">
+                Total Cost: {fmtNumber(msatsPerSecToSatsPerMin(totalCost))} sats
+                <span className="ml-1 text-sm text-muted-foreground">
+                  ({formatUSD(msatsPerSecToSatsPerMin(totalCost))})
+                </span>
+              </p>
             </div>
           </div>
         )}
@@ -216,28 +307,42 @@ export default function GoLiveModal() {
               <Label className="text-sm font-semibold">Set Your Profit Margin</Label>
               {selectedQualities.map((qualityId) => {
                 const option = qualityOptions.find((q) => q.id === qualityId)
-                const basePrice = option?.basePrice || 0
-                const profit = streamerProfits[qualityId] || 0
-                const totalPrice = basePrice + profit
+                const downloadPriceMsatsPerSec = option?.downloadPrice || 0
+                const profitSatsPerMin = streamerProfits[qualityId] || 0
+                const totalPriceSatsPerMin = msatsPerSecToSatsPerMin(downloadPriceMsatsPerSec) + profitSatsPerMin
                 return (
                   <div key={qualityId} className="flex items-center space-x-2">
-                    <Label htmlFor={`profit-${qualityId}`} className="w-20 text-sm">
+                    <Label htmlFor={`profit-${qualityId}`} className="w-24 text-sm">
                       {option?.label}
                     </Label>
                     <Input
                       id={`profit-${qualityId}`}
                       type="number"
-                      value={profit}
+                      value={profitSatsPerMin}
                       onChange={(e) => handleStreamerProfitChange(qualityId, Number(e.target.value))}
                       className="h-8 w-16"
                       min={0}
                     />
                     <span className="text-xs text-muted-foreground">
-                      +{basePrice} = {totalPrice} sats/min
+                      +{msatsPerSecToSatsPerMin(downloadPriceMsatsPerSec)} = {fmtNumber(totalPriceSatsPerMin)} sats/min
                     </span>
                   </div>
                 )
               })}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="lightningAddress" className="text-sm font-semibold">
+                Lightning Address
+              </Label>
+              <Input
+                id="lightningAddress"
+                type="text"
+                value={lightningAddress}
+                onChange={handleLightningAddressChange}
+                placeholder="your@lightning.address"
+              />
+              {lightningAddressError && <p className="text-xs text-red-500">{lightningAddressError}</p>}
             </div>
 
             <div className="space-y-2">
@@ -259,14 +364,17 @@ export default function GoLiveModal() {
               <Label className="text-sm font-semibold">Viewer Costs for {formatDuration(viewerDuration)}</Label>
               {selectedQualities.map((qualityId) => {
                 const option = qualityOptions.find((q) => q.id === qualityId)
-                const basePrice = option?.basePrice || 0
-                const profit = streamerProfits[qualityId] || 0
-                const totalPrice = basePrice + profit
-                const cost = totalPrice * viewerDuration
+                const downloadPriceMsatsPerSec = option?.downloadPrice || 0
+                const profitSatsPerMin = streamerProfits[qualityId] || 0
+                const totalPriceSatsPerMin = msatsPerSecToSatsPerMin(downloadPriceMsatsPerSec) + profitSatsPerMin
+                const costSatsPerMin = totalPriceSatsPerMin * viewerDuration
                 return (
                   <div key={qualityId} className="flex items-center justify-between text-sm">
                     <span>{option?.label}</span>
-                    <span className="font-semibold">{cost} sats</span>
+                    <span className="font-semibold">
+                      {fmtNumber(costSatsPerMin)} sats
+                      <span className="ml-1 text-xs text-muted-foreground">({formatUSD(costSatsPerMin)})</span>
+                    </span>
                   </div>
                 )
               })}
@@ -277,7 +385,6 @@ export default function GoLiveModal() {
         {step === 3 && (
           <div className="grid gap-4 py-4">
             <div className="flex justify-center">
-              {/* <QRCode value={invoice} size={200} /> */}
               <QRCodeSVG value={invoice} level={'Q'} size={200} includeMargin />
             </div>
             <div className="flex items-center space-x-2">
