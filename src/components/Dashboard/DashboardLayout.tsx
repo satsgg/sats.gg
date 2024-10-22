@@ -27,6 +27,8 @@ export const DashboardLayout = ({ hideFollowedChannels = false, children }: Dash
   // False when < 1024 px (< tailwind lg)
   const autoCollapseLeftBar = !useMediaQuery('(min-width: 1024px)')
 
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+
   useEffect(() => {
     initSettingsStore()
     nostrClient.connect()
@@ -64,7 +66,8 @@ export const DashboardLayout = ({ hideFollowedChannels = false, children }: Dash
         <title>SATS.GG dashboard</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Navbar />
+      {/* <Navbar /> */}
+      <Navbar toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
 
       <div>
         {

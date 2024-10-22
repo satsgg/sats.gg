@@ -104,7 +104,7 @@ export default function StreamCreationModal({
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="apiKey" className="text-right">
-                  API Key
+                  Stream Key
                 </Label>
                 <div className="col-span-3 flex space-x-2">
                   <Input id="apiKey" value={data?.streamKey} className="" readOnly />

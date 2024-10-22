@@ -86,6 +86,40 @@ export const updateChannelEvent = (
   return event
 }
 
+export const createStreamEvent = (pubkey: string, id: string, now: number, status: 'planned' | 'live' | 'ended') => {
+  // const now = Math.floor(Date.now() / 1000)
+
+  const streamingUrl = `https://d1994e6vyyhuyl.cloudfront.net/${id}/stream.m3u8`
+  let event: UnsignedEvent = {
+    kind: 30311,
+    pubkey: pubkey,
+    created_at: now,
+    tags: [
+      ['d', id],
+      ['title', 'Testing l402-hls'],
+      ['summary', 'Just testing this'],
+      ['streaming', streamingUrl],
+      ['image', 'https://cryptoevents.global/wp-content/uploads/ATL-BitLab.jpg'],
+      // ['starts', now.toString()],
+      ['status', status],
+      ['current_participants', '1'],
+      ['t', 'Test'],
+      ['t', 'l402-hls'],
+      // ['p', ''],
+      ['relays', 'ws://localhost:7777'],
+    ],
+    content: '',
+  }
+
+  if (status === 'live') {
+    event.tags.push(['starts', now.toString()])
+  } else {
+    event.tags.push(['ends', now.toString()])
+  }
+
+  return event
+}
+
 export const signEventPrivkey = (event: EventTemplate, privKey: string | undefined) => {
   if (!privKey) return null
   try {

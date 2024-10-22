@@ -20,7 +20,6 @@ const MyApp = (({ Component, pageProps }: AppPropsWithLayout) => {
   const isDashboard = router.pathname === '/dashboard'
 
   const getLayout =
-    // Component.getLayout ?? ((page) => <DefaultLayout hideFollowedChannels={isDashboard}>{page}</DefaultLayout>)
     Component.getLayout ??
     ((page) => (
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
@@ -28,7 +27,12 @@ const MyApp = (({ Component, pageProps }: AppPropsWithLayout) => {
       </ThemeProvider>
     ))
 
-  return getLayout(<Component {...pageProps} />)
+  // doesn't change here
+  return getLayout(
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+      <Component {...pageProps} />
+    </ThemeProvider>,
+  )
 }) as AppType
 
 export default trpc.withTRPC(MyApp)

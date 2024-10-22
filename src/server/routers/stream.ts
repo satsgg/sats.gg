@@ -29,6 +29,8 @@ export const qualityNameEnum = z.enum(['1080p60fps', '720p60fps', '720p30fps', '
 
 export type QualityName = z.infer<typeof qualityNameEnum>
 
+// TODO:
+// - change to channel.ts
 const createStreamSchema = z.object({
   duration: z.number(),
   lightningAddress: z.string().optional(),
