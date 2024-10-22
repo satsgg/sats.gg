@@ -12,6 +12,7 @@ import { ArrowLeft, Copy, Check, X, Loader2 } from 'lucide-react'
 import { Lsat } from 'lsat-js'
 import { useToast } from '@/hooks/use-toast'
 import { ToastAction } from '@/components/ui/toast'
+import { SATS_PER_USD } from '@/utils/util'
 
 const quickAccessDurations = [
   { label: '5m', minutes: 5 },
@@ -21,7 +22,6 @@ const quickAccessDurations = [
 ]
 
 // Simulated exchange rate (1 USD = 100,000 sats)
-const SATS_PER_USD = 100000
 
 const sleep = (milliseconds: number) => {
   return new Promise((resolve) => setTimeout(resolve, milliseconds))
