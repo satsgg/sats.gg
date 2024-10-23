@@ -64,13 +64,13 @@ export const FollowedChannelSingle = ({
                   <p className="truncate text-sm font-medium leading-none">
                     {!isLoading && displayName(pubkey, profile)}
                   </p>
-                  <p className="truncate text-xs text-muted-foreground">{stream?.title}</p>
+                  {stream?.title && <p className="truncate text-xs text-muted-foreground">{stream?.title}</p>}
                 </div>
                 <div className="flex flex-shrink-0 items-center space-x-1">
                   {stream?.status === 'live' && (
                     <span className="h-1.5 w-1.5 rounded-full bg-red-500" aria-hidden="true" />
                   )}
-                  {Number.isInteger(stream?.currentParticipants) && (
+                  {stream?.status === 'live' && Number.isInteger(stream?.currentParticipants) && (
                     <span className="text-xs text-muted-foreground">
                       {fmtNumber(stream?.currentParticipants!, true)}
                     </span>
