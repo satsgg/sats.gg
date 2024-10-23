@@ -150,6 +150,7 @@ const CustomModalComponent: React.FC<CustomModalComponentProps> = ({
   useEffect(() => {
     const uri = selectedQuality?.resolvedUri
     if (!l402Challenge || !uri) return
+    console.debug('l402Challenge', l402Challenge)
     const url = new URL(uri)
     const baseUrl = `${url.protocol}//${url.host}`
 
@@ -245,7 +246,7 @@ const CustomModalComponent: React.FC<CustomModalComponentProps> = ({
                         >
                           <RadioGroupItem value={`${index}`} id={`${level.id}`} className="sr-only" />
                           <span className="text-sm font-medium">
-                            {level.height}p{level.framerate}
+                            {level.height}p{level.frameRate ? ` ${level.frameRate}fps` : ''}
                           </span>
                           <span className="text-xs">
                             {level.price ? `${msatsPerSecToSatsPerMin(level.price)} sats/min` : 'free'}

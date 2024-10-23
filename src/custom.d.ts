@@ -108,7 +108,7 @@ declare module 'videojs-contrib-quality-levels' {
     label: string
     width: number
     height: number
-    framerate?: number
+    frameRate?: number
     price?: number
     bitrate: number
     enabled: boolean
