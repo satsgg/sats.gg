@@ -131,7 +131,7 @@ export default function Profile() {
   }, [profile])
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="max-w-3xl space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="max-w-3xl space-y-4 px-1">
       <div className="flex items-center space-x-4">
         <Avatar className="h-24 w-24">
           <AvatarImage src={profilePicPreview || profile?.picture || ''} alt="Profile picture" />
