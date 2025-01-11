@@ -2,8 +2,7 @@ import getSettingsLayout from '~/components/Settings/Layout'
 import { useProfile } from '~/hooks/useProfile'
 import { useZodForm } from '~/utils/useZodForm'
 import { z } from 'zod'
-import { useEffect } from 'react'
-import Input from '~/components/Settings/Input'
+import { useEffect, useState } from 'react'
 import useCanSign from '~/hooks/useCanSign'
 import { Event as NostrEvent, UnsignedEvent } from 'nostr-tools'
 import { verifySignature, validateEvent } from 'nostr-tools'
@@ -11,10 +10,29 @@ import { toast } from 'react-toastify'
 import { nostrClient } from '~/nostr/NostrClient'
 import useAuthStore from '~/hooks/useAuthStore'
 import { signEventPrivkey } from '~/utils/nostr'
+import { Avatar, AvatarImage, AvatarFallback } from '~/components/ui/avatar'
+import { Label } from '~/components/ui/label'
+import { Input } from '~/components/ui/input'
+import { Button } from '~/components/ui/button'
+import { Textarea } from '~/components/ui/textarea'
+
+const profileSchema = z.object({
+  name: z.string().optional(),
+  display_name: z.string().optional(),
+  picture: z.union([z.literal(''), z.string().trim().url()]),
+  about: z.string().optional(),
+  // TODO: url parse requires https://... shouldn't require that?
+  website: z.union([z.literal(''), z.string().trim().url()]),
+  banner: z.union([z.literal(''), z.string().trim().url()]),
+  lud06: z.string().optional(),
+  lud16: z.string().optional(),
+  nip05: z.string().optional(),
+})
 
 export default function Profile() {
   const [pubkey, view, privkey] = useAuthStore((state) => [state.pubkey, state.view, state.privkey])
   const { profile, isLoading } = useProfile(pubkey)
+  const [profilePicPreview, setProfilePicPreview] = useState('')
   const canSign = useCanSign()
 
   const {
@@ -29,18 +47,7 @@ export default function Profile() {
     formState: { errors },
   } = useZodForm({
     mode: 'onSubmit',
-    schema: z.object({
-      name: z.string().optional(),
-      display_name: z.string().optional(),
-      picture: z.union([z.literal(''), z.string().trim().url()]),
-      about: z.string().optional(),
-      // TODO: url parse requires https://... shouldn't require that?
-      website: z.union([z.literal(''), z.string().trim().url()]),
-      banner: z.union([z.literal(''), z.string().trim().url()]),
-      lud06: z.string().optional(),
-      lud16: z.string().optional(),
-      nip05: z.string().optional(),
-    }),
+    schema: profileSchema,
     defaultValues: {
       name: '',
       display_name: '',
@@ -53,6 +60,15 @@ export default function Profile() {
       nip05: '',
     },
   })
+
+  useEffect(() => {
+    const subscription = watch((value, { name }) => {
+      if (name === 'picture') {
+        setProfilePicPreview(value.picture || '')
+      }
+    })
+    return () => subscription.unsubscribe()
+  }, [watch])
 
   const onSubmit = async (data: any) => {
     if (!pubkey) return
@@ -115,72 +131,63 @@ export default function Profile() {
   }, [profile])
 
   return (
-    <div className="flex w-3/5 flex-col gap-4">
-      <h2 className="font-md text-2xl">Profile</h2>
-      <h3 className="font-sm text-sm text-gray-400">Set your nostr kind0 profile metadata information.</h3>
-
-      <div className="flex flex-col gap-4 rounded border border-gray-500 bg-stone-800 px-6 py-4">
-        <form className="flex flex-col gap-2" spellCheck={false} onSubmit={handleSubmit(onSubmit)}>
-          <div className="flex gap-4">
-            {profile && profile.picture ? (
-              <img className="h-52 w-52" src={profile?.picture ?? undefined} alt={`profile image of ${pubkey}`} />
-            ) : (
-              <div className="h-52 w-52 border border-gray-500" />
-            )}
-            <div className="flex grow flex-col gap-2">
-              <div>
-                <p>Your Name</p>
-                <Input name={'name'} register={register} />
-              </div>
-              <div>
-                <p>Display Name</p>
-                <Input name={'display_name'} register={register} />
-              </div>
-              <div>
-                <p>Picture URL</p>
-                <Input name={'picture'} register={register} />
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <p>About</p>
-            <Input name={'about'} register={register} />
-          </div>
-          <div>
-            <p>Website URL</p>
-            <Input name={'website'} placeholder={'https://example.com'} register={register} />
-          </div>
-          <div>
-            <p>Banner URL</p>
-            <Input name={'banner'} register={register} />
-          </div>
-          <div>
-            <p>LNURLPay</p>
-            <Input name={'lud06'} placeholder={'LNURL1DP68GURN8GHJ7AMPD3KX2AR0VEE...'} register={register} />
-          </div>
-          <div>
-            <p>Lightning Address</p>
-            <Input name={'lud16'} placeholder={'name@getalby.com'} register={register} />
-          </div>
-          <div>
-            <p>Nip05 Verification</p>
-            <Input name={'nip05'} placeholder={'name@nostrplebs.com'} register={register} />
-          </div>
-        </form>
-
-        <div className="flex justify-end">
-          <button
-            type="submit"
-            disabled={!canSign}
-            className="align-right inline-flex h-8 w-32 items-center justify-center rounded bg-primary-500 px-2 py-1 text-sm font-semibold shadow-md transition duration-150 ease-in-out hover:bg-primary-500 hover:shadow-lg focus:bg-primary-500 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-primary-500 active:shadow-lg disabled:cursor-not-allowed disabled:bg-gray-500"
-            onClick={handleSubmit(onSubmit)}
-          >
-            Publish
-          </button>
+    <form onSubmit={handleSubmit(onSubmit)} className="max-w-3xl space-y-4">
+      <div className="flex items-center space-x-4">
+        <Avatar className="h-24 w-24">
+          <AvatarImage src={profilePicPreview || profile?.picture || ''} alt="Profile picture" />
+          <AvatarFallback>User</AvatarFallback>
+        </Avatar>
+        <div className="flex-1">
+          <Label htmlFor="picture">Profile Picture URL</Label>
+          <Input id="picture" {...register('picture')} placeholder="https://example.com/profile.jpg" />
         </div>
       </div>
-    </div>
+
+      <div>
+        <Label htmlFor="name">Name</Label>
+        <Input id="name" {...register('name')} placeholder="John Doe" />
+      </div>
+
+      <div>
+        <Label htmlFor="display_name">Display Name</Label>
+        <Input id="display_name" {...register('display_name')} placeholder="johndoe" />
+      </div>
+
+      <div>
+        <Label htmlFor="about">About Me</Label>
+        <Textarea id="about" {...register('about')} placeholder="Tell us about yourself" />
+      </div>
+
+      <div>
+        <Label htmlFor="website">Website</Label>
+        <Input id="website" {...register('website')} placeholder="https://example.com" />
+      </div>
+
+      <div>
+        <Label htmlFor="banner">Banner Picture URL</Label>
+        <Input id="banner" {...register('banner')} placeholder="https://example.com/banner.jpg" />
+      </div>
+
+      <div>
+        <Label htmlFor="nip05">NIP05 Verification</Label>
+        <Input id="nip05" {...register('nip05')} type="email" placeholder="john@example.com" />
+      </div>
+
+      <div>
+        <Label htmlFor="lud06">LNURLPay</Label>
+        <Input id="lud06" {...register('lud06')} placeholder="LNURL1DP68GURN8GHJ7AMPD3KX2AR0VEE..." />
+      </div>
+
+      <div>
+        <Label htmlFor="lud16">Lightning Address</Label>
+        <Input id="lud16" {...register('lud16')} type="email" placeholder="name@getalby.com" />
+      </div>
+
+      <Button type="submit" disabled={false}>
+        {/* TODO: Loading state, disable button, seen on X relays */}
+        Publish
+      </Button>
+    </form>
   )
 }
 
