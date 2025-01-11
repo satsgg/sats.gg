@@ -22,6 +22,8 @@ const TabButton = ({ tab, current = false }: { tab: string; current: boolean }) 
 
 const SettingsLayout = ({ children }: { children: ReactNode }) => {
   const router = useRouter()
+  const lastSegment = router.pathname.split('/').filter(Boolean).pop()
+
   const view = useAuthStore((state) => state.view)
 
   let tabs = ['profile', 'relays']
@@ -49,7 +51,10 @@ const SettingsLayout = ({ children }: { children: ReactNode }) => {
           return <TabButton tab={tab} key={tab} current={router.pathname.includes(tab)} />
         })}
       </div>
-      <div className="flex flex-col overflow-y-auto pt-4">{children}</div>
+      <div className="flex flex-col overflow-y-auto pt-4">
+        <h1 className="mb-6 text-2xl font-bold capitalize">{lastSegment}</h1>
+        {children}
+      </div>
     </div>
   )
 }
