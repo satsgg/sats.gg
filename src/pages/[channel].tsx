@@ -201,13 +201,15 @@ export default function Channel() {
       </div>
 
       <div className="flex h-full w-full sm:w-80 md:shrink-0">
-        <NewChat
-          channelPubkey={channelPubkey}
-          providerPubkey={stream?.providerPubkey}
-          streamId={stream?.id}
-          channelIdentifier={stream?.d}
-          channelProfile={channelProfile}
-        />
+        {stream && (
+          <NewChat
+            channelPubkey={channelPubkey}
+            providerPubkey={stream.providerPubkey}
+            streamId={stream.id}
+            channelIdentifier={stream.d}
+            channelProfile={channelProfile}
+          />
+        )}
       </div>
     </>
   )

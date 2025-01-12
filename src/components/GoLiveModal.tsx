@@ -18,15 +18,8 @@ import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { QRCodeSVG } from 'qrcode.react'
 import { ArrowLeft, Video, Copy, Check } from 'lucide-react'
-import { fmtNumber } from '~/utils/util'
+import { fmtNumber, formatUSD } from '~/utils/util'
 import { QualityName } from '~/server/routers/stream'
-import { SATS_PER_USD } from '~/utils/util'
-import { ms } from 'date-fns/locale'
-
-const formatUSD = (sats: number) => {
-  const usd = sats / SATS_PER_USD
-  return usd.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
-}
 
 const msatsPerSecToSatsPerMin = (msatsPerSec: number) => {
   return Math.floor((msatsPerSec * 60) / 1000)
@@ -277,7 +270,7 @@ export default function GoLiveModal() {
                 max={480}
                 step={1}
                 value={[duration]}
-                onValueChange={(value) => setDuration(value[0])}
+                onValueChange={(value) => setDuration(value[0]!)}
               />
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">{formatDuration(duration)}</span>
@@ -356,7 +349,7 @@ export default function GoLiveModal() {
                 max={240}
                 step={1}
                 value={[viewerDuration]}
-                onValueChange={(value) => setViewerDuration(value[0])}
+                onValueChange={(value) => setViewerDuration(value[0]!)}
               />
             </div>
 

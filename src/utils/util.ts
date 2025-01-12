@@ -1,6 +1,8 @@
 import { decode as invoiceDecode } from 'light-bolt11-decoder'
 // import { bytesToHex } from '@noble/hashes/utils'
 
+export const DEFAULT_ZAP_AMOUNT = 21
+
 export interface InvoiceDetails {
   amount?: number
   expire?: number
@@ -11,6 +13,7 @@ export interface InvoiceDetails {
   expired: boolean
 }
 
+// TODO: Improve or change (think i fixed this in a diff project)
 export function decodeInvoice(pr: string): InvoiceDetails | undefined {
   try {
     const parsed = invoiceDecode(pr)
@@ -67,6 +70,11 @@ export const fmtNumber = (number: number, compact: boolean = false) => {
   return Intl.NumberFormat('en', notation).format(number)
 }
 
-const BITCOIN_PRICE_USD = 67000
+const BITCOIN_PRICE_USD = 100000
 
 export const SATS_PER_USD = 100000000 / BITCOIN_PRICE_USD
+
+export const formatUSD = (sats: number) => {
+  const usd = sats / SATS_PER_USD
+  return usd.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
+}
