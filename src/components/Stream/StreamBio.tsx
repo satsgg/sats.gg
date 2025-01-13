@@ -74,6 +74,10 @@ export const StreamBio = ({
     return () => clearInterval(timer)
   }, [])
 
+  useEffect(() => {
+    console.debug('viewerCount', viewerCount)
+  }, [viewerCount])
+
   // TODO:
   // - connect zap button + with provider pubkeky
   // - connect follow button
@@ -195,7 +199,7 @@ export const StreamBio = ({
             </Button>
           </div>
           <div className="flex flex-col items-end space-y-1 text-sm text-muted-foreground">
-            {viewerCount && Number.isInteger(viewerCount) && streamStatus === 'live' && (
+            {viewerCount !== undefined && Number.isInteger(viewerCount) && streamStatus === 'live' && (
               <div className="flex w-full items-center justify-end font-semibold text-red-400">
                 <Users className="mr-1 h-4 w-4" strokeWidth={2.5} />
                 <span className="text-right">{viewerCount.toLocaleString()}</span>
