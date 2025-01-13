@@ -210,7 +210,7 @@ export const StreamBio = ({
                 <Clock className="mr-1 h-4 w-4" />
                 <span className="font-mono">
                   {starts && formatDuration(Math.floor(Number(currentTime) / 1000 - Number(starts)))}
-                  {ends && ' / '}
+                  {ends && starts && ' / '}
                   {ends &&
                     (Number(ends) * 1000 < currentTime
                       ? 'Ended'
