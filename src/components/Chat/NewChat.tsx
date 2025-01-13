@@ -19,7 +19,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Smile, Zap, Send, X, Copy, Check } from 'lucide-react'
+import { Smile, Zap, Send, X, Copy, Check, ArrowDown, ChevronDown } from 'lucide-react'
 import ChatMessage from './NewChatMessage'
 import ChatUserModal from './NewChatUserModal'
 import useCanSign from '~/hooks/useCanSign'
@@ -90,6 +90,9 @@ export default function NewChat({
   const { available: weblnAvailable, weblnPay } = useWebln()
   const [modalPosition, setModalPosition] = useState<ModalPosition>({ top: 0 })
   const scrollAreaRef = useRef<HTMLDivElement>(null)
+  const [isScrollLocked, setIsScrollLocked] = useState(true)
+  const [showScrollButton, setShowScrollButton] = useState(false)
+  const viewportRef = useRef<HTMLDivElement | null>(null)
 
   useFetchZap('chat-zap', channelProfile?.pubkey, zapState.invoice, () => {
     setTimeout(() => {
@@ -341,6 +344,52 @@ export default function NewChat({
     }
   }
 
+  const handleScroll = (event: Event) => {
+    const scrollContainer = event.target as HTMLDivElement
+    const isAtBottom = scrollContainer.scrollHeight - scrollContainer.scrollTop <= scrollContainer.clientHeight + 10 // 10px threshold
+
+    setIsScrollLocked(isAtBottom)
+    setShowScrollButton(!isAtBottom)
+    console.debug('showScrollButton', !isAtBottom)
+  }
+
+  useEffect(() => {
+    if (scrollAreaRef.current) {
+      const viewport = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]')
+      if (viewport) {
+        viewportRef.current = viewport as HTMLDivElement
+        viewport.addEventListener('scroll', handleScroll)
+      }
+    }
+
+    // Cleanup
+    return () => {
+      if (viewportRef.current) {
+        viewportRef.current.removeEventListener('scroll', handleScroll)
+      }
+    }
+  }, [])
+
+  const scrollToBottom = () => {
+    if (scrollAreaRef.current) {
+      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]')
+      if (scrollContainer) {
+        scrollContainer.scrollTop = scrollContainer.scrollHeight
+        setIsScrollLocked(true)
+        setShowScrollButton(false)
+      }
+    }
+  }
+
+  useEffect(() => {
+    if (scrollAreaRef.current && isScrollLocked) {
+      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]')
+      if (scrollContainer) {
+        scrollContainer.scrollTop = scrollContainer.scrollHeight
+      }
+    }
+  }, [messages, isScrollLocked]) // Auto-scroll when messages change IF we're in locked mode
+
   return (
     <div className="flex w-80 flex-col border-l bg-background">
       <div className="flex items-center justify-center border-b p-3">
@@ -352,7 +401,18 @@ export default function NewChat({
           <ChatUserModal pubkey={selectedUserPubkey} modalPosition={modalPosition} closeUserModal={closeUserModal} />
         )}
         {!!zapState.invoice && <NewZapInvoiceModal invoice={zapState.invoice} closeZapModal={closeZapModal} />}
+        {showScrollButton && (
+          <Button
+            className="absolute bottom-2 right-8 left-8 rounded-full shadow-md"
+            size="sm"
+            onClick={scrollToBottom}
+          >
+            <ArrowDown className="mr-2 h-4 w-4" />
+            New messages
+          </Button>
+        )}
       </ScrollArea>
+
       <form onSubmit={handleSubmit(handleSendMessage)} className="space-y-2 border-t p-3">
         <div className="relative">
           <Input
