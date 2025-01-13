@@ -8,13 +8,22 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Heart, HeartCrack, Share2, Users, Clock, Zap } from 'lucide-react'
+import { useEffect, useState } from 'react'
 
 const maxVisibleParticipants = 2
 
 const formatDuration = (seconds: number) => {
-  const hours = Math.floor(seconds / 3600)
+  const days = Math.floor(seconds / (3600 * 24))
+  const hours = Math.floor((seconds % (3600 * 24)) / 3600)
   const minutes = Math.floor((seconds % 3600) / 60)
   const secs = seconds % 60
+
+  if (days > 0) {
+    return `${days}d ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs
+      .toString()
+      .padStart(2, '0')}`
+  }
+
   return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs
     .toString()
     .padStart(2, '0')}`
@@ -31,6 +40,8 @@ export const StreamBio = ({
   participants,
   tags,
   viewerCount,
+  starts,
+  ends,
   zapInvoice,
   setZapInvoice,
   setShowZapModule,
@@ -45,18 +56,28 @@ export const StreamBio = ({
   participants: string[] | undefined
   tags: string[] | undefined
   viewerCount: number | undefined
+  starts: number | undefined
+  ends: number | undefined
   zapInvoice: string | null
   setZapInvoice: (invoice: string | null) => void
   setShowZapModule: (show: boolean) => void
 }) => {
   const [follows, setFollows] = useSettingsStore((state) => [state.follows, state.setFollows])
   const followsUser = follows.follows.includes(channelPubkey)
+  const [currentTime, setCurrentTime] = useState<number>(Date.now())
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(Date.now())
+    }, 1000)
+
+    return () => clearInterval(timer)
+  }, [])
 
   // TODO:
   // - connect zap button + with provider pubkeky
   // - connect follow button
   // - hook up share button
-  // - hook up starts at duration and ends at timer
   return (
     <div className="mb-4 bg-background p-4">
       <div className="flex items-start space-x-4">
@@ -180,13 +201,16 @@ export const StreamBio = ({
                 <span className="text-right">{viewerCount.toLocaleString()}</span>
               </div>
             )}
-            {/* TODO: Hook up stream duration and countdown */}
             <div className="flex w-full items-center justify-end">
-              <Clock className="mr-1 h-4 w-4" />
-              <span className="min-w-[80px] text-right">
-                {formatDuration(Math.floor(Date.now() / 100000000))} /{' '}
-                {formatDuration(Math.floor(Date.now() / 1000000000))}
-              </span>
+              <div className="flex items-center">
+                <Clock className="mr-1 h-4 w-4" />
+                <span className="">
+                  {starts && formatDuration(Math.floor(currentTime / 1000 - starts))}
+                  {ends && ' / '}
+                  {ends &&
+                    (ends * 1000 < currentTime ? 'Ended' : formatDuration(Math.floor(ends - currentTime / 1000)))}
+                </span>
+              </div>
             </div>
           </div>
         </div>

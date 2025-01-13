@@ -194,6 +194,8 @@ export default function Channel() {
           participants={stream?.p}
           tags={stream?.t}
           viewerCount={stream?.currentParticipants}
+          starts={stream?.starts}
+          ends={stream?.ends}
           zapInvoice={zapInvoice}
           setZapInvoice={setZapInvoice}
           setShowZapModule={setShowZapModule}
