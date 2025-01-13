@@ -201,10 +201,10 @@ export const StreamBio = ({
                 <span className="text-right">{viewerCount.toLocaleString()}</span>
               </div>
             )}
-            <div className="flex w-full items-center justify-end">
+            <div className="flex w-full justify-end">
               <div className="flex items-center">
                 <Clock className="mr-1 h-4 w-4" />
-                <span className="">
+                <span className="font-mono">
                   {starts && formatDuration(Math.floor(currentTime / 1000 - starts))}
                   {ends && ' / '}
                   {ends &&
