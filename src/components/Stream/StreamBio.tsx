@@ -88,7 +88,7 @@ export const StreamBio = ({
         {/* Avatar Column */}
         <div className="flex-shrink-0">
           <div className="relative w-16">
-            <Avatar className="h-16 w-16">
+            <Avatar className="h-16 w-16 border-2 border-border">
               <AvatarImage src={channelProfile?.picture} alt={'Streamer profile picture'} />
               <AvatarFallback>U</AvatarFallback>
             </Avatar>
