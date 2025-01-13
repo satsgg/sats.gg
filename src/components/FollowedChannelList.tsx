@@ -54,9 +54,13 @@ export const FollowedChannelList = ({
 
   return (
     <div className="flex h-screen bg-background text-foreground">
-      <div className={`${userCollapse ? 'w-12' : 'w-60'} flex flex-col border-r border-border bg-background`}>
+      <div
+        className={`${
+          userCollapse || autoCollapse ? 'w-12' : 'w-60'
+        } flex flex-col border-r border-border bg-background`}
+      >
         <div className={`flex items-center p-2 ${userCollapse ? 'justify-center' : 'justify-between'}`}>
-          {!userCollapse && <h2 className="text-md font-semibold">Followed Channels</h2>}
+          {!userCollapse && !autoCollapse && <h2 className="text-md font-semibold">Followed Channels</h2>}
           <Button
             variant="ghost"
             size="icon"
