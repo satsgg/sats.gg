@@ -56,8 +56,8 @@ export const StreamBio = ({
   participants: string[] | undefined
   tags: string[] | undefined
   viewerCount: number | undefined
-  starts: number | undefined
-  ends: number | undefined
+  starts: string | undefined
+  ends: string | undefined
   zapInvoice: string | null
   setZapInvoice: (invoice: string | null) => void
   setShowZapModule: (show: boolean) => void
@@ -209,10 +209,12 @@ export const StreamBio = ({
               <div className="flex items-center">
                 <Clock className="mr-1 h-4 w-4" />
                 <span className="font-mono">
-                  {starts && formatDuration(Math.floor(currentTime / 1000 - starts))}
+                  {starts && formatDuration(Math.floor(Number(currentTime) / 1000 - Number(starts)))}
                   {ends && ' / '}
                   {ends &&
-                    (ends * 1000 < currentTime ? 'Ended' : formatDuration(Math.floor(ends - currentTime / 1000)))}
+                    (Number(ends) * 1000 < currentTime
+                      ? 'Ended'
+                      : formatDuration(Math.floor(Number(ends) - currentTime / 1000)))}
                 </span>
               </div>
             </div>
