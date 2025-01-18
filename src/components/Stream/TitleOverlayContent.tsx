@@ -1,30 +1,21 @@
 import React from 'react'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
-import { getStreamNaddr } from '~/utils/nostr'
 
 interface TitleOverlayContentProps {
   title?: string
   profilePicUrl?: string
-  pubkey?: string
-  streamIdentifier?: string
-  relays?: string[]
 }
 
-const TitleOverlayContent: React.FC<TitleOverlayContentProps> = ({
-  title,
-  profilePicUrl,
-  pubkey,
-  streamIdentifier,
-  relays,
-}) => {
+const TitleOverlayContent: React.FC<TitleOverlayContentProps> = ({ title, profilePicUrl }) => {
   // Don't render anything if either title or profilePicUrl is missing
-  if (!title || !profilePicUrl || !pubkey || !streamIdentifier) {
+  if (!title || !profilePicUrl) {
     return null
   }
 
   const handleClick = () => {
-    const naddr = getStreamNaddr(pubkey, streamIdentifier, relays)
-    window.open(`${window.location.origin}/${naddr}`, '_blank')
+    // Remove '/embed' from the current URL to get the main site URL
+    const mainUrl = window.location.href.replace('/embed', '')
+    window.open(mainUrl, '_blank')
   }
 
   return (

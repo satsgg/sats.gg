@@ -6,9 +6,6 @@ import TitleOverlayContent from './TitleOverlayContent'
 interface TitleOverlayOptions {
   title?: string
   profilePicUrl?: string
-  pubkey?: string
-  streamIdentifier?: string
-  relays?: string[]
   children?: any[]
   className?: string
 }
@@ -59,13 +56,7 @@ class TitleOverlay extends VjsComponent {
       // Only show if we have both title and profilePicUrl
       if (this.options_.title && this.options_.profilePicUrl) {
         this.root.render(
-          <TitleOverlayContent
-            title={this.options_.title}
-            profilePicUrl={this.options_.profilePicUrl}
-            pubkey={this.options_.pubkey}
-            streamIdentifier={this.options_.streamIdentifier}
-            relays={this.options_.relays}
-          />,
+          <TitleOverlayContent title={this.options_.title} profilePicUrl={this.options_.profilePicUrl} />,
         )
         this.show()
       } else {
