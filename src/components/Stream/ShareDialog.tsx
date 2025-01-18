@@ -9,7 +9,6 @@ import { getStreamNaddr } from '~/utils/nostr'
 interface ShareDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  channelPubkey: string
   streamIdentifier: string | undefined
   streamTitle?: string | null
   streamStreaming?: string | undefined
@@ -20,7 +19,6 @@ interface ShareDialogProps {
 export const ShareDialog = ({
   open,
   onOpenChange,
-  channelPubkey,
   streamIdentifier,
   streamTitle,
   streamStreaming,
@@ -32,25 +30,27 @@ export const ShareDialog = ({
   const [copiedHls, setCopiedHls] = useState(false)
 
   const handleCopyUrl = () => {
-    navigator.clipboard.writeText(window.location.href).then(() => {
+    if (!streamIdentifier) return
+    const url = `${window.location.origin}/${getStreamNaddr(pubkey, streamIdentifier, relays)}`
+    navigator.clipboard.writeText(url).then(() => {
       setCopiedUrl(true)
       setTimeout(() => setCopiedUrl(false), 2000)
     })
   }
 
   const handleCopyEmbed = () => {
-    const embedCode = `<iframe src="${window.location.href}" width="100%" height="480" frameborder="0" allowfullscreen></iframe>`
+    if (!streamIdentifier) return
+    const embedUrl = `${window.location.origin}/embed/${getStreamNaddr(pubkey, streamIdentifier, relays)}`
+    const embedCode = `<iframe src="${embedUrl}" width="100%" height="480" frameborder="0" allowfullscreen></iframe>`
     navigator.clipboard.writeText(embedCode).then(() => {
       setCopiedEmbed(true)
       setTimeout(() => setCopiedEmbed(false), 2000)
     })
   }
 
-  // TODO: Fix copy links, remove channelPubkey
   const handleCopyHls = () => {
-    // TODO: Replace with actual HLS URL construction
-    const hlsUrl = `${window.location.origin}/hls/${channelPubkey}/${streamIdentifier}/stream.m3u8`
-    navigator.clipboard.writeText(hlsUrl).then(() => {
+    if (!streamStreaming) return
+    navigator.clipboard.writeText(streamStreaming).then(() => {
       setCopiedHls(true)
       setTimeout(() => setCopiedHls(false), 2000)
     })
