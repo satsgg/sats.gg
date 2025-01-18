@@ -3,14 +3,14 @@ import { useRef, useEffect, memo } from 'react'
 import videojs from 'video.js'
 import type Player from 'video.js/dist/types/player'
 import type Video from 'video.js/dist/types/video'
-// import PlayerOptions from 'video.js/dist/types/player'
 import 'video.js/dist/video-js.css'
 import usePlayerStore from '~/store/playerStore'
-// require('videojs-hls-quality-selector')
-// import hlsQualitySelector from 'videojs-hls-quality-selector'
-// videojs.registerPlugin('hlsQualitySelector', hlsQualitySelector)
+import TitleOverlay from './TitleOverlay'
 
-// export const VideoJS = (props) => {
+// Register VideoJS components
+const VjsComponent = videojs.getComponent('Component')
+videojs.registerComponent('TitleOverlay', TitleOverlay)
+
 export const VideoJS = ({
   options,
   onReady,
@@ -58,7 +58,7 @@ export const VideoJS = ({
     //   player.autoplay(options.autoplay)
     //   player.src(options.sources)
     // }
-  }, [options, videoRef])
+  }, [JSON.stringify(options), videoRef])
 
   useEffect(() => {
     if (!playerRef.current || !l402) return

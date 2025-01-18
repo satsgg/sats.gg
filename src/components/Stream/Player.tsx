@@ -1,11 +1,11 @@
 import { useRef, memo, useEffect, useState, useCallback } from 'react'
 import usePlayerStore from '~/store/playerStore'
-
-import VideoJS from './VideoJS'
 import videojs from 'video.js'
 import type Player from 'video.js/dist/types/player'
 import './videojs-hls-quality-selector'
+import VideoJS from './VideoJS'
 import VideoJSBridgeComponent from './VideoJSBridgeComponent'
+import TitleOverlay from './TitleOverlay'
 import { Lsat } from 'lsat-js'
 
 type QualityLevel = {
@@ -35,11 +35,19 @@ const VideoPlayer = ({ options }: { options: any }) => {
     // when a source is loaded we got the 30311, so we can reset the poster
     playerRef.current.poster(options.poster)
 
-    // Optional: automatically play when source is set
-    // playerRef.current.play().catch(error => {
-    //   console.error('Error auto-playing:', error)
-    // })
-  }, [JSON.stringify(options.sources)])
+    // Update title overlay when title changes
+    const titleOverlay = playerRef.current.getChild('TitleOverlay')
+    if (titleOverlay) {
+      console.log('Updating title overlay with:', {
+        title: options.title || 'Untitled Stream',
+        profilePicUrl: options.profilePicUrl || '',
+      })
+      titleOverlay.update({
+        title: options.title || 'Untitled Stream',
+        profilePicUrl: options.profilePicUrl || '',
+      })
+    }
+  }, [JSON.stringify(options)])
 
   useEffect(() => {
     if (!playerRef.current) return
@@ -96,6 +104,17 @@ const VideoPlayer = ({ options }: { options: any }) => {
   const handlePlayerReady = useCallback(
     (player: Player) => {
       playerRef.current = player
+
+      // Add title overlay with proper options
+      console.log('Adding TitleOverlay with options:', {
+        title: options.title || 'Untitled Stream',
+        profilePicUrl: options.profilePicUrl || '',
+      })
+
+      player.addChild('TitleOverlay', {
+        title: options.title || 'Untitled Stream',
+        profilePicUrl: options.profilePicUrl || '',
+      })
 
       if (options.sources?.length) {
         // console.debug('Setting initial source:', options.sources[0].src)
@@ -215,8 +234,10 @@ const VideoPlayer = ({ options }: { options: any }) => {
         })
       }
     },
-    // [volume],
-    [volume, JSON.stringify(options.sources)],
+    [volume],
+    // [volume, JSON.stringify(options.sources)],
+    // [volume, JSON.stringify(options)],
+    // [volume, JSON.stringify(options)],
   )
 
   return <VideoJS options={options} onReady={handlePlayerReady} l402={l402} />

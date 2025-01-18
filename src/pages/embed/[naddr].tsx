@@ -4,6 +4,7 @@ import useSettingsStore from '../../hooks/useSettingsStore'
 import { nostrClient } from '../../nostr/NostrClient'
 import { nip19 } from 'nostr-tools'
 import { useStream } from '../../hooks/useStream'
+import { useProfile } from '../../hooks/useProfile'
 import { Spinner } from '../../components/Spinner'
 import VideoPlayer from '../../components/Stream/Player'
 import { ReactElement } from 'react'
@@ -58,6 +59,7 @@ export default function EmbedPage() {
   }, [JSON.stringify(channelInfo.relays)])
 
   const stream = useStream(channelInfo.pubkey, channelInfo.identifier)
+  const { profile: channelProfile } = useProfile(stream?.pubkey || channelInfo.pubkey)
 
   // TODO: Handle stream not found, but after relays are connected
   // const stream = useStream(channelInfo.pubkey, channelInfo.identifier)
@@ -77,6 +79,8 @@ export default function EmbedPage() {
     liveui: false,
     playsinline: true,
     poster: stream?.image || undefined,
+    title: stream?.title || undefined,
+    profilePicUrl: channelProfile?.picture || undefined,
     html5: {
       vhs: {
         enableLowInitialPlaylist: true,
