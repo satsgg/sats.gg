@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Share2, Copy, Check, Code, Twitter } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
+import { getStreamNaddr } from '~/utils/nostr'
 
 interface ShareDialogProps {
   open: boolean
@@ -11,9 +12,21 @@ interface ShareDialogProps {
   channelPubkey: string
   streamIdentifier: string | undefined
   streamTitle?: string | null
+  streamStreaming?: string | undefined
+  pubkey: string // either the user's pubkey or the stream provider's pubkey
+  relays?: string[]
 }
 
-export const ShareDialog = ({ open, onOpenChange, channelPubkey, streamIdentifier, streamTitle }: ShareDialogProps) => {
+export const ShareDialog = ({
+  open,
+  onOpenChange,
+  channelPubkey,
+  streamIdentifier,
+  streamTitle,
+  streamStreaming,
+  pubkey,
+  relays,
+}: ShareDialogProps) => {
   const [copiedUrl, setCopiedUrl] = useState(false)
   const [copiedEmbed, setCopiedEmbed] = useState(false)
   const [copiedHls, setCopiedHls] = useState(false)
@@ -99,6 +112,25 @@ export const ShareDialog = ({ open, onOpenChange, channelPubkey, streamIdentifie
 
           <Separator className="my-2" />
 
+          {/* URL Section */}
+          {streamIdentifier && (
+            <>
+              <div className="flex items-center space-x-2">
+                <Share2 className="h-4 w-4" />
+                <span className="text-sm font-medium">URL</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Input
+                  readOnly
+                  value={`${window.location.origin}/${getStreamNaddr(pubkey, streamIdentifier, relays)}`}
+                />
+                <Button size="icon" variant="outline" onClick={handleCopyUrl}>
+                  {copiedUrl ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                </Button>
+              </div>
+            </>
+          )}
+
           {/* Embed Section */}
           <div className="flex items-center space-x-2">
             <Code className="h-4 w-4" />
@@ -114,29 +146,21 @@ export const ShareDialog = ({ open, onOpenChange, channelPubkey, streamIdentifie
             </Button>
           </div>
 
-          {/* URL Section */}
-          <div className="flex items-center space-x-2">
-            <Share2 className="h-4 w-4" />
-            <span className="text-sm font-medium">Copy URL</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Input readOnly value={window.location.href} />
-            <Button size="icon" variant="outline" onClick={handleCopyUrl}>
-              {copiedUrl ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-            </Button>
-          </div>
-
           {/* HLS URL Section */}
-          <div className="flex items-center space-x-2">
-            <Share2 className="h-4 w-4" />
-            <span className="text-sm font-medium">HLS URL</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Input readOnly value={`${window.location.origin}/hls/${channelPubkey}/${streamIdentifier}/stream.m3u8`} />
-            <Button size="icon" variant="outline" onClick={handleCopyHls}>
-              {copiedHls ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-            </Button>
-          </div>
+          {streamStreaming && (
+            <>
+              <div className="flex items-center space-x-2">
+                <Share2 className="h-4 w-4" />
+                <span className="text-sm font-medium">HLS URL</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Input readOnly value={streamStreaming} />
+                <Button size="icon" variant="outline" onClick={handleCopyHls}>
+                  {copiedHls ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                </Button>
+              </div>
+            </>
+          )}
         </div>
       </DialogContent>
     </Dialog>

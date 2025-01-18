@@ -33,6 +33,7 @@ const formatDuration = (seconds: number) => {
 export const StreamBio = ({
   channelPubkey,
   providerPubkey,
+  streamStreaming,
   streamIdentifier,
   channelProfile,
   channelProfileIsLoading,
@@ -43,12 +44,14 @@ export const StreamBio = ({
   viewerCount,
   starts,
   ends,
+  relays,
   zapInvoice,
   setZapInvoice,
   setShowZapModule,
 }: {
   channelPubkey: string
   providerPubkey: string | undefined
+  streamStreaming: string | undefined
   streamIdentifier: string | undefined
   channelProfile: UserMetadataStore | undefined
   channelProfileIsLoading: boolean
@@ -59,6 +62,7 @@ export const StreamBio = ({
   viewerCount: number | undefined
   starts: string | undefined
   ends: string | undefined
+  relays: string[] | undefined
   zapInvoice: string | null
   setZapInvoice: (invoice: string | null) => void
   setShowZapModule: (show: boolean) => void
@@ -75,10 +79,6 @@ export const StreamBio = ({
 
     return () => clearInterval(timer)
   }, [])
-
-  useEffect(() => {
-    console.debug('viewerCount', viewerCount)
-  }, [viewerCount])
 
   return (
     <div className="mb-4 bg-background p-4">
@@ -227,9 +227,11 @@ export const StreamBio = ({
       <ShareDialog
         open={showShareDialog}
         onOpenChange={setShowShareDialog}
-        channelPubkey={channelPubkey}
         streamIdentifier={streamIdentifier}
         streamTitle={streamTitle}
+        streamStreaming={streamStreaming}
+        pubkey={providerPubkey || channelPubkey}
+        relays={relays}
       />
     </div>
   )

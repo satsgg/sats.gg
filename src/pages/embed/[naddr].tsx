@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { useRouter } from 'next/router'
-import useSettingsStore from '~/hooks/useSettingsStore'
-import { nostrClient } from '~/nostr/NostrClient'
+import useSettingsStore from '../../hooks/useSettingsStore'
+import { nostrClient } from '../../nostr/NostrClient'
 import { nip19 } from 'nostr-tools'
 import { useStream } from '../../hooks/useStream'
 import { Spinner } from '../../components/Spinner'
@@ -20,9 +20,14 @@ const getChannelInfo = (naddr: string): nip19.AddressPointer | null => {
   return null
 }
 
+const getEmbedUrl = (router: ReturnType<typeof useRouter>, naddr: string) => {
+  const { protocol, host } = window.location
+  return `${protocol}//${host}${router.basePath}/embed/${naddr}`
+}
+
 export default function EmbedPage() {
-  const { query, isReady } = useRouter()
-  const { naddr } = query
+  const router = useRouter()
+  const { naddr } = router.query
 
   if (typeof naddr !== 'string') {
     return (

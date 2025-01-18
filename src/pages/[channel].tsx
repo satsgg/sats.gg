@@ -186,6 +186,7 @@ export default function Channel() {
         <StreamBio
           channelPubkey={channelPubkey}
           providerPubkey={stream?.providerPubkey}
+          streamStreaming={stream?.streaming}
           streamIdentifier={stream?.d}
           channelProfile={channelProfile}
           channelProfileIsLoading={channelProfileIsLoading}
@@ -196,6 +197,7 @@ export default function Channel() {
           viewerCount={stream?.currentParticipants}
           starts={stream?.starts}
           ends={stream?.ends}
+          relays={stream?.relays}
           zapInvoice={zapInvoice}
           setZapInvoice={setZapInvoice}
           setShowZapModule={setShowZapModule}
