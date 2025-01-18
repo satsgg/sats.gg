@@ -498,6 +498,11 @@ export const parseStreamNote = (note: NostrEvent): Stream | null => {
   let tp = note.tags.find(([t, v]) => t === 'total_participants' && v)
   if (tp && tp[1]) stream['totalParticipants'] = Number(tp[1])
 
+  // parse relays
+  stream['relays'] = note.tags.find(([t]) => t === 'relays')?.[1]
+    ? note.tags.find(([t]) => t === 'relays')!.slice(1)
+    : undefined
+
   // TODO: Multiple participants, create participant type
   // let p = note.tags.find(([t, v]) => t === 'p' && v)
   // if (p && p[1]) stream['p'] = [p[1]]

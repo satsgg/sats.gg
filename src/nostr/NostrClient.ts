@@ -53,6 +53,14 @@ class NostrClient {
     })
   }
 
+  connectToRelays(relays: string[]) {
+    console.debug('NostrClient.connectToRelays relays: ', relays)
+    relays.forEach((relay) => {
+      this.relayPool.addRelay(relay)
+      this.relayPool.connectToRelay(relay)
+    })
+  }
+
   disconnect() {
     const relays = Settings.getState().relays
     console.debug('disconnect', relays)
