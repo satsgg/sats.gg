@@ -229,6 +229,7 @@ export const StreamBio = ({
         onOpenChange={setShowShareDialog}
         channelPubkey={channelPubkey}
         streamIdentifier={streamIdentifier}
+        streamTitle={streamTitle}
       />
     </div>
   )
