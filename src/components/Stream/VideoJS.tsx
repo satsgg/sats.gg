@@ -100,16 +100,27 @@ export const VideoJS = ({
   }, [playerRef, l402])
 
   // Save volume in local storage before any refresh
-  window.addEventListener('beforeunload', (event) => {
-    const player = playerRef.current
-    if (player && !player.isDisposed()) {
-      const volume = player.volume()
-      const muted = player.muted()
-      if (!volume) return
-      const newVolume = muted === true ? 0 : volume
-      adjustVolume(newVolume)
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const handleBeforeUnload = () => {
+      const player = playerRef.current
+      if (player && !player.isDisposed()) {
+        const volume = player.volume()
+        const muted = player.muted()
+        if (!volume) return
+        const newVolume = muted === true ? 0 : volume
+        adjustVolume(newVolume)
+      }
     }
-  })
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+
+    // Clean up the event listener when component unmounts
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+    }
+  }, [])
 
   // Dispose the Video.js player when the functional component unmounts
   useEffect(() => {
