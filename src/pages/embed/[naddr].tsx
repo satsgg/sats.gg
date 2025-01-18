@@ -20,11 +20,6 @@ const getChannelInfo = (naddr: string): nip19.AddressPointer | null => {
   return null
 }
 
-const getEmbedUrl = (router: ReturnType<typeof useRouter>, naddr: string) => {
-  const { protocol, host } = window.location
-  return `${protocol}//${host}${router.basePath}/embed/${naddr}`
-}
-
 export default function EmbedPage() {
   const router = useRouter()
   const { naddr } = router.query
@@ -81,6 +76,7 @@ export default function EmbedPage() {
     fill: true,
     liveui: false,
     playsinline: true,
+    poster: stream?.image || undefined,
     html5: {
       vhs: {
         enableLowInitialPlaylist: true,

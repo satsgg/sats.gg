@@ -46,6 +46,7 @@ export const ShareDialog = ({
     })
   }
 
+  // TODO: Fix copy links, remove channelPubkey
   const handleCopyHls = () => {
     // TODO: Replace with actual HLS URL construction
     const hlsUrl = `${window.location.origin}/hls/${channelPubkey}/${streamIdentifier}/stream.m3u8`
@@ -132,19 +133,27 @@ export const ShareDialog = ({
           )}
 
           {/* Embed Section */}
-          <div className="flex items-center space-x-2">
-            <Code className="h-4 w-4" />
-            <span className="text-sm font-medium">Embed</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Input
-              readOnly
-              value={`<iframe src="${window.location.href}" width="100%" height="480" frameborder="0" allowfullscreen></iframe>`}
-            />
-            <Button size="icon" variant="outline" onClick={handleCopyEmbed}>
-              {copiedEmbed ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-            </Button>
-          </div>
+          {streamIdentifier && (
+            <>
+              <div className="flex items-center space-x-2">
+                <Code className="h-4 w-4" />
+                <span className="text-sm font-medium">Embed</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Input
+                  readOnly
+                  value={`<iframe src="${window.location.origin}/embed/${getStreamNaddr(
+                    pubkey,
+                    streamIdentifier,
+                    relays,
+                  )}" width="100%" height="480" frameborder="0" allowfullscreen></iframe>`}
+                />
+                <Button size="icon" variant="outline" onClick={handleCopyEmbed}>
+                  {copiedEmbed ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                </Button>
+              </div>
+            </>
+          )}
 
           {/* HLS URL Section */}
           {streamStreaming && (

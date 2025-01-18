@@ -32,6 +32,8 @@ const VideoPlayer = ({ options }: { options: any }) => {
 
     console.debug('Updating player source with:', options.sources[0].src)
     playerRef.current.src(options.sources[0])
+    // when a source is loaded we got the 30311, so we can reset the poster
+    playerRef.current.poster(options.poster)
 
     // Optional: automatically play when source is set
     // playerRef.current.play().catch(error => {
