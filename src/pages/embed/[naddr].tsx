@@ -42,9 +42,8 @@ export default function EmbedPage() {
     )
   }
 
+  // TODO: if no relays, use defaults
   useEffect(() => {
-    // initSettingsStore()
-    console.log('useEffect channelInfo.relays', channelInfo.relays)
     if (!channelInfo.relays) return
     console.debug('connecting to relays', channelInfo.relays)
     nostrClient.connectToRelays(channelInfo.relays)
@@ -59,15 +58,8 @@ export default function EmbedPage() {
   }, [JSON.stringify(channelInfo.relays)])
 
   const stream = useStream(channelInfo.pubkey, channelInfo.identifier)
-  if (!isReady || !stream?.streaming) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <Spinner height={6} width={6} />
-      </div>
-    )
-  }
 
-  // TODO: should display loader instead of stream not found temporarily while relays connect
+  // TODO: Handle stream not found, but after relays are connected
   // const stream = useStream(channelInfo.pubkey, channelInfo.identifier)
   // if (!stream?.streaming) {
   //   return (
@@ -90,23 +82,25 @@ export default function EmbedPage() {
         playlistExclusionDuration: 0,
       },
     },
-    sources: [
-      {
-        src: stream.streaming,
-        type: 'application/x-mpegURL',
-        customTagParsers: [
+    sources: stream?.streaming
+      ? [
           {
-            expression: /#EXT-X-PRICE:(\d+)/,
-            customType: 'price',
-            dataParser: (line: string) => {
-              const match = /#EXT-X-PRICE:(\d+)/.exec(line)
-              return match && match[1] ? parseInt(match[1], 10) : null
-            },
-            segment: true,
+            src: stream.streaming,
+            type: 'application/x-mpegURL',
+            customTagParsers: [
+              {
+                expression: /#EXT-X-PRICE:(\d+)/,
+                customType: 'price',
+                dataParser: (line: string) => {
+                  const match = /#EXT-X-PRICE:(\d+)/.exec(line)
+                  return match && match[1] ? parseInt(match[1], 10) : null
+                },
+                segment: true,
+              },
+            ],
           },
-        ],
-      },
-    ],
+        ]
+      : [],
   }
 
   return (

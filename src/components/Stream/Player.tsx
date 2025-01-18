@@ -28,6 +28,18 @@ const VideoPlayer = ({ options }: { options: any }) => {
   const [openPaywall, setOpenPaywall] = useState(false)
 
   useEffect(() => {
+    if (!playerRef.current || !options.sources?.length) return
+
+    console.debug('Updating player source with:', options.sources[0].src)
+    playerRef.current.src(options.sources[0])
+
+    // Optional: automatically play when source is set
+    // playerRef.current.play().catch(error => {
+    //   console.error('Error auto-playing:', error)
+    // })
+  }, [JSON.stringify(options.sources)])
+
+  useEffect(() => {
     if (!playerRef.current) return
     playerRef.current.l402 = l402
   }, [l402])
@@ -82,6 +94,12 @@ const VideoPlayer = ({ options }: { options: any }) => {
   const handlePlayerReady = useCallback(
     (player: Player) => {
       playerRef.current = player
+
+      if (options.sources?.length) {
+        // console.debug('Setting initial source:', options.sources[0].src)
+        player.src(options.sources[0])
+      }
+
       qualitySelectorRef.current = player.hlsQualitySelector({
         displayCurrentQuality: true,
       })
@@ -195,7 +213,8 @@ const VideoPlayer = ({ options }: { options: any }) => {
         })
       }
     },
-    [volume],
+    // [volume],
+    [volume, JSON.stringify(options.sources)],
   )
 
   return <VideoJS options={options} onReady={handlePlayerReady} l402={l402} />
