@@ -8,8 +8,8 @@ datasource db {
 
 generator client {
   provider = "prisma-client-js"
-  binaryTargets = ["native", "debian-openssl-3.3.x"]
-  previewFeatures = ["fullTextSearch", "fullTextIndex", "interactiveTransactions"]
+  // binaryTargets = ["native", "debian-openssl-3.3.x"]
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
 }
 
 model User {
