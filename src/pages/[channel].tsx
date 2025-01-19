@@ -143,9 +143,7 @@ export default function Channel() {
     sources: stream?.streaming
       ? [
           {
-            // src: 'https://d2zihajmogu5jn.cloudfront.net/bipbop-advanced/bipbop_16x9_variant.m3u8',
-            // src: stream?.streaming + `?cst=${}`,
-            src: stream?.streaming + `?cst=${Math.random().toString(36).substring(2, 34)}`,
+            src: stream.streaming,
             type: 'application/x-mpegURL',
             customTagParsers: [
               {
