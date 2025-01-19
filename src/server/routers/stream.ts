@@ -91,7 +91,7 @@ export const streamRouter = t.router({
         console.debug('createChannelInvoice', createChannelInvoice)
 
         if (!createChannelInvoice.ok) {
-          console.error('Failed to fetch channel invoice from pricer', createChannelInvoice)
+          console.error('Failed to fetch channel invoice from infrastructure service', createChannelInvoice)
           throw new TRPCError({
             code: 'INTERNAL_SERVER_ERROR',
             message: `Failed to create invoice! status: ${createChannelInvoice.status}`,
@@ -102,7 +102,7 @@ export const streamRouter = t.router({
 
         return { streamId: stream.id, paymentRequest: invoiceData.paymentRequest, invoiceId: invoiceData.invoiceId }
       } catch (error) {
-        console.error('Error fetching invoice from pricer:', error)
+        console.error('Error fetching invoice from infrastructure service:', error)
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
           message: 'Failed to create invoice for stream',
