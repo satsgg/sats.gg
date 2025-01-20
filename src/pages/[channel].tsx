@@ -12,8 +12,48 @@ import ZapInvoiceModule from '~/components/ZapInvoiceModule'
 import useMediaQuery from '~/hooks/useMediaQuery'
 import VideoPlayer from '~/components/Stream/Player'
 import { useStream } from '~/hooks/useStream'
+import Head from 'next/head'
+import { getStreamNaddr } from '~/utils/nostr'
+import { GetServerSideProps } from 'next'
+import { nostrClient } from '~/nostr/NostrClient'
+import type { Event } from 'nostr-tools'
+import { DEFAULT_RELAYS } from '~/store/settingsStore'
+
+// Add WebSocket polyfill for server-side
+if (typeof window === 'undefined') {
+  const WebSocket = require('ws')
+  ;(global as any).WebSocket = WebSocket
+}
+
+interface StreamData {
+  title?: string
+  summary?: string
+  image?: string
+  d?: string
+  relays?: string[]
+  streaming?: string
+}
+
+interface ChannelProps {
+  naddr: string
+  addressPointer: nip19.AddressPointer
+  initialStreamData?: StreamData
+}
+
+const parseAddressPointer = (channel: string): nip19.AddressPointer | null => {
+  try {
+    const { type, data } = nip19.decode(channel)
+    if (type === 'naddr') {
+      return data as nip19.AddressPointer
+    }
+    return null
+  } catch (error) {
+    return null
+  }
+}
 
 const getChannelPubkey = (channel: string, isReady: boolean): nip19.AddressPointer | string | null => {
+  // NOTE: for now, just assume naddr link
   if (channel.startsWith('naddr')) {
     try {
       const { type, data } = nip19.decode(channel)
@@ -63,8 +103,102 @@ const getChannelPubkey = (channel: string, isReady: boolean): nip19.AddressPoint
   return null
 }
 
-export default function Channel() {
+export const getServerSideProps: GetServerSideProps<ChannelProps> = async ({ query }) => {
+  const { channel } = query
+  console.debug('SSR: query', query)
+  if (typeof channel !== 'string') {
+    return { notFound: true }
+  }
+
+  // channel can be pubkey, npub, or naddr
+  // need to create an naddr regardless...
+
+  // const channelInfo = getChannelPubkey(channel, true)
+  const addressPointer = parseAddressPointer(channel)
+  if (!addressPointer) {
+    return { notFound: true }
+  }
+
+  // const channelPubkey = typeof channelInfo === 'string' ? channelInfo : channelInfo.pubkey
+  // const channelIdentifier = typeof channelInfo === 'string' ? undefined : channelInfo.identifier
+
+  try {
+    // await nostrClient.connect()
+    nostrClient.connectToRelays(addressPointer.relays || DEFAULT_RELAYS)
+
+    // Wait for stream data with a timeout
+    const streamData = await new Promise<Event | null>((resolve) => {
+      const timeout = setTimeout(() => {
+        nostrClient.unsubscribe('server-stream')
+        resolve(null)
+      }, 3000)
+
+      nostrClient.subscribe(
+        'server-stream',
+        [
+          {
+            kinds: [30311],
+            authors: [addressPointer.pubkey],
+            '#d': addressPointer.identifier ? [addressPointer.identifier] : undefined,
+          },
+        ],
+        (event: Event) => {
+          clearTimeout(timeout)
+          nostrClient.unsubscribe('server-stream')
+          resolve(event)
+        },
+      )
+    })
+
+    nostrClient.disconnectFromRelays(addressPointer.relays || DEFAULT_RELAYS)
+
+    console.debug('streamData', streamData)
+    if (!streamData) {
+      return {
+        props: {
+          naddr: channel,
+          addressPointer,
+        },
+      }
+    }
+
+    // Parse stream data
+    console.debug('streamData2', streamData)
+    const parsedStream: StreamData = {
+      title: streamData.tags.find((t) => t[0] === 'title')?.[1],
+      summary: streamData.tags.find((t) => t[0] === 'summary')?.[1],
+      image: streamData.tags.find((t) => t[0] === 'image')?.[1],
+      d: streamData.tags.find((t) => t[0] === 'd')?.[1],
+      relays: streamData.tags
+        .filter((t) => t[0] === 'relay')
+        .map((t) => t[1])
+        .filter((relay): relay is string => typeof relay === 'string'),
+      streaming: streamData.tags.find((t) => t[0] === 'streaming')?.[1],
+    }
+
+    return {
+      props: {
+        naddr: channel,
+        addressPointer,
+        initialStreamData: parsedStream,
+      },
+    }
+  } catch (error) {
+    console.error('Error fetching stream data:', error)
+    return {
+      props: {
+        naddr: channel,
+        addressPointer,
+      },
+    }
+  }
+}
+
+export default function Channel({ naddr, addressPointer, initialStreamData }: ChannelProps) {
   const { query, isReady } = useRouter()
+  const origin =
+    typeof window !== 'undefined' ? window.location.origin : process.env.NEXT_PUBLIC_SITE_URL || 'https://sats.gg'
+
   if (!isReady) {
     return (
       <div className="flex h-full w-full content-center justify-center">
@@ -72,34 +206,18 @@ export default function Channel() {
       </div>
     )
   }
+  console.debug('Channel: addressPointer', addressPointer)
+  useEffect(() => {
+    console.debug('Channel: initialStreamData', initialStreamData)
+  }, [initialStreamData])
 
-  const { channel } = query
-  if (typeof channel !== 'string') {
-    return (
-      <div className="flex h-full w-full content-center items-center justify-center">
-        <p className="text-white">Invalid query</p>
-      </div>
-    )
-  }
+  const stream = useStream(addressPointer.pubkey, addressPointer.identifier)
+  const { profile: channelProfile, isLoading: channelProfileIsLoading } = useProfile(
+    stream?.pubkey || addressPointer.pubkey,
+  )
 
-  const channelInfo = getChannelPubkey(channel, isReady)
-  if (!channelInfo) {
-    return (
-      <div className="flex h-full w-full content-center items-center justify-center">
-        <p className="text-white">Invalid naddr/npub/pubkey</p>
-      </div>
-    )
-  }
-
-  let channelPubkey = typeof channelInfo === 'string' ? channelInfo : channelInfo.pubkey
-  const channelIdentifier = typeof channelInfo === 'string' ? undefined : channelInfo.identifier
-
-  const stream = useStream(channelPubkey, channelIdentifier)
-  channelPubkey = stream?.pubkey || channelPubkey
-
-  const { profile: channelProfile, isLoading: channelProfileIsLoading } = useProfile(channelPubkey)
-  console.log('channelProfile', channelProfile)
-  // console.log('parsed stream', stream)
+  // Use initialStreamData for meta tags if available, otherwise fall back to client-side stream data
+  const metaData = stream || initialStreamData
 
   const [zapInvoice, setZapInvoice] = useState<string | null>(null)
   const [showZapModule, setShowZapModule] = useState(false)
@@ -120,7 +238,7 @@ export default function Channel() {
     return () => {
       closeZap()
     }
-  }, [channel])
+  }, [stream?.pubkey])
 
   const videoJsOptions = {
     autoplay: true,
@@ -130,7 +248,7 @@ export default function Channel() {
     liveui: false,
     // inactivityTimeout: 100,
     playsinline: true,
-    poster: stream?.image || undefined,
+    poster: metaData?.image || undefined,
     preload: 'none',
     html5: {
       vhs: {
@@ -141,10 +259,10 @@ export default function Channel() {
         // allowSeeksWithinUnsafeLiveWindow: true,
       },
     },
-    sources: stream?.streaming
+    sources: metaData?.streaming
       ? [
           {
-            src: stream.streaming,
+            src: metaData.streaming,
             type: 'application/x-mpegURL',
             customTagParsers: [
               {
@@ -169,6 +287,22 @@ export default function Channel() {
 
   return (
     <>
+      <Head>
+        <meta name="twitter:card" content="player" />
+        <meta name="twitter:site" content="@satsgg" />
+        <meta name="twitter:title" content={metaData?.title || 'Live Stream'} />
+        <meta name="twitter:description" content={metaData?.summary?.slice(0, 200) || 'Watch live on sats.gg'} />
+        <meta name="twitter:image" content={metaData?.image || ''} />
+        {/* {metaData?.d && ( */}
+        <meta
+          name="twitter:player"
+          // content={`${origin}/embed/${getStreamNaddr(initialChannelPubkey, metaData.d, metaData?.relays)}`}
+          content={`${origin}/embed/${naddr}`}
+        />
+        {/* )} */}
+        <meta name="twitter:player:width" content="640" />
+        <meta name="twitter:player:height" content="480" />
+      </Head>
       <div
         id="centerColumnWrapper"
         className="no-scrollbar flex w-full shrink-0 flex-col overflow-y-auto sm:h-full sm:shrink"
@@ -186,7 +320,7 @@ export default function Channel() {
           )}
         </div>
         <StreamBio
-          channelPubkey={channelPubkey}
+          channelPubkey={stream?.pubkey || addressPointer.pubkey}
           providerPubkey={stream?.providerPubkey}
           streamStreaming={stream?.streaming}
           streamIdentifier={stream?.d}
@@ -209,7 +343,7 @@ export default function Channel() {
       <div className="flex h-full w-full sm:w-80 md:shrink-0">
         {stream && (
           <NewChat
-            channelPubkey={channelPubkey}
+            channelPubkey={addressPointer.pubkey}
             providerPubkey={stream.providerPubkey}
             streamId={stream.id}
             channelIdentifier={stream.d}

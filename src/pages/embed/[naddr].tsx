@@ -120,8 +120,8 @@ export default function EmbedPage() {
         <meta name="twitter:description" content={stream?.summary?.slice(0, 200) || 'Watch live on sats.gg'} />
         <meta name="twitter:image" content={stream?.image || ''} />
         <meta name="twitter:player" content={`${origin}/embed/${naddr}`} />
-        <meta name="twitter:player:width" content="1920" />
-        <meta name="twitter:player:height" content="1080" />
+        <meta name="twitter:player:width" content="640" />
+        <meta name="twitter:player:height" content="480" />
         <meta name="twitter:site" content="@satsgg" />
       </Head>
       <div className="h-screen w-full">

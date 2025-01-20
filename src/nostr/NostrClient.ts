@@ -65,8 +65,17 @@ class NostrClient {
     const relays = Settings.getState().relays
     console.debug('disconnect', relays)
     relays.forEach((relay) => {
-      console.log('connect', relay)
+      console.log('disconnect', relay)
       this.relayPool.disconnectFromRelay(relay)
+    })
+  }
+
+  disconnectFromRelays(relays: string[]) {
+    console.debug('disconnectFromRelays', relays)
+    relays.forEach((relay) => {
+      console.log('disconnectFromRelay', relay)
+      this.relayPool.disconnectFromRelay(relay)
+      // this.relayPool.removeRelay(relay) same thing??
     })
   }
 
