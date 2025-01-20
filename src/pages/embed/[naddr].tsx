@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react'
 import { useRouter } from 'next/router'
+import Head from 'next/head'
 import useSettingsStore from '../../hooks/useSettingsStore'
 import { nostrClient } from '../../nostr/NostrClient'
 import { nip19 } from 'nostr-tools'
@@ -24,6 +25,8 @@ const getChannelInfo = (naddr: string): nip19.AddressPointer | null => {
 export default function EmbedPage() {
   const router = useRouter()
   const { naddr } = router.query
+  const origin =
+    typeof window !== 'undefined' ? window.location.origin : process.env.NEXT_PUBLIC_SITE_URL || 'https://sats.gg'
 
   if (typeof naddr !== 'string') {
     return (
@@ -110,9 +113,21 @@ export default function EmbedPage() {
   }
 
   return (
-    <div className="h-screen w-full">
-      <VideoPlayer options={videoJsOptions} />
-    </div>
+    <>
+      <Head>
+        <meta name="twitter:card" content="player" />
+        <meta name="twitter:title" content={stream?.title || 'Live Stream'} />
+        <meta name="twitter:description" content={stream?.summary?.slice(0, 200) || 'Watch live on sats.gg'} />
+        <meta name="twitter:image" content={stream?.image || ''} />
+        <meta name="twitter:player" content={`${origin}/embed/${naddr}`} />
+        <meta name="twitter:player:width" content="1920" />
+        <meta name="twitter:player:height" content="1080" />
+        <meta name="twitter:site" content="@satsgg" />
+      </Head>
+      <div className="h-screen w-full">
+        <VideoPlayer options={videoJsOptions} />
+      </div>
+    </>
   )
 }
 
