@@ -26,18 +26,26 @@ if (typeof window === 'undefined') {
 }
 
 interface StreamData {
-  title?: string
-  summary?: string
-  image?: string
-  d?: string
-  relays?: string[]
-  streaming?: string
+  title: string | null
+  summary: string | null
+  image: string | null
+  d: string | null
+  relays: string[]
+  streaming: string | null
+  providerPubkey: string | null
+  status: string | null
 }
 
 interface ChannelProps {
   naddr: string
   addressPointer: nip19.AddressPointer
-  initialStreamData?: StreamData
+  initialStreamData: StreamData | null
+  metaTags: {
+    title: string
+    description: string
+    image: string
+    playerUrl: string
+  }
 }
 
 const parseAddressPointer = (channel: string): nip19.AddressPointer | null => {
@@ -105,25 +113,18 @@ const getChannelPubkey = (channel: string, isReady: boolean): nip19.AddressPoint
 
 export const getServerSideProps: GetServerSideProps<ChannelProps> = async ({ query }) => {
   const { channel } = query
-  console.debug('SSR: query', query)
+  console.log('SSR: Starting getServerSideProps for channel:', channel)
   if (typeof channel !== 'string') {
     return { notFound: true }
   }
 
-  // channel can be pubkey, npub, or naddr
-  // need to create an naddr regardless...
-
-  // const channelInfo = getChannelPubkey(channel, true)
   const addressPointer = parseAddressPointer(channel)
   if (!addressPointer) {
+    console.log('SSR: Invalid address pointer')
     return { notFound: true }
   }
 
-  // const channelPubkey = typeof channelInfo === 'string' ? channelInfo : channelInfo.pubkey
-  // const channelIdentifier = typeof channelInfo === 'string' ? undefined : channelInfo.identifier
-
   try {
-    // await nostrClient.connect()
     nostrClient.connectToRelays(addressPointer.relays || DEFAULT_RELAYS)
 
     // Wait for stream data with a timeout
@@ -152,68 +153,76 @@ export const getServerSideProps: GetServerSideProps<ChannelProps> = async ({ que
 
     nostrClient.disconnectFromRelays(addressPointer.relays || DEFAULT_RELAYS)
 
-    console.debug('streamData', streamData)
-    if (!streamData) {
-      return {
-        props: {
-          naddr: channel,
-          addressPointer,
-        },
-      }
-    }
-
-    // Parse stream data
-    console.debug('streamData2', streamData)
-    const parsedStream: StreamData = {
-      title: streamData.tags.find((t) => t[0] === 'title')?.[1],
-      summary: streamData.tags.find((t) => t[0] === 'summary')?.[1],
-      image: streamData.tags.find((t) => t[0] === 'image')?.[1],
-      d: streamData.tags.find((t) => t[0] === 'd')?.[1],
-      relays: streamData.tags
-        .filter((t) => t[0] === 'relay')
-        .map((t) => t[1])
-        .filter((relay): relay is string => typeof relay === 'string'),
-      streaming: streamData.tags.find((t) => t[0] === 'streaming')?.[1],
-    }
+    // Always return props with meta tags, even if stream data is null
+    const origin = process.env.NEXT_PUBLIC_SITE_URL || 'https://sats.gg'
+    const parsedStream = streamData
+      ? {
+          title: streamData.tags.find((t) => t[0] === 'title')?.[1] || null,
+          summary: streamData.tags.find((t) => t[0] === 'summary')?.[1] || null,
+          image: streamData.tags.find((t) => t[0] === 'image')?.[1] || null,
+          d: streamData.tags.find((t) => t[0] === 'd')?.[1] || null,
+          relays: streamData.tags
+            .filter((t) => t[0] === 'relay')
+            .map((t) => t[1])
+            .filter((relay): relay is string => typeof relay === 'string'),
+          streaming: streamData.tags.find((t) => t[0] === 'streaming')?.[1] || null,
+          providerPubkey: streamData.tags.find((t) => t[0] === 'providerPubkey')?.[1] || null,
+          status: streamData.tags.find((t) => t[0] === 'status')?.[1] || null,
+        }
+      : null
 
     return {
       props: {
         naddr: channel,
         addressPointer,
         initialStreamData: parsedStream,
+        metaTags: {
+          title: parsedStream?.title || 'Live Stream - SATS.GG',
+          description: parsedStream?.summary?.slice(0, 200) || 'Watch live on sats.gg',
+          image: parsedStream?.image || '',
+          playerUrl: `${origin}/embed/${channel}`,
+        },
       },
     }
   } catch (error) {
     console.error('Error fetching stream data:', error)
+    // Even on error, return props with default meta tags
+    const origin = process.env.NEXT_PUBLIC_SITE_URL || 'https://sats.gg'
     return {
       props: {
         naddr: channel,
         addressPointer,
+        initialStreamData: null,
+        metaTags: {
+          title: 'Live Stream - SATS.GG',
+          description: 'Watch live on sats.gg',
+          image: '',
+          playerUrl: `${origin}/embed/${channel}`,
+        },
       },
     }
   }
 }
 
-export default function Channel({ naddr, addressPointer, initialStreamData }: ChannelProps) {
+export default function Channel({ naddr, addressPointer, initialStreamData, metaTags }: ChannelProps) {
+  // Return null during SSR pre-pass if required props are missing
+  if (typeof window === 'undefined' && (!naddr || !addressPointer)) {
+    return null
+  }
+
   const { query, isReady } = useRouter()
   const origin =
     typeof window !== 'undefined' ? window.location.origin : process.env.NEXT_PUBLIC_SITE_URL || 'https://sats.gg'
 
-  if (!isReady) {
-    return (
-      <div className="flex h-full w-full content-center justify-center">
-        <Spinner height={6} width={6} />
-      </div>
-    )
-  }
   console.debug('Channel: addressPointer', addressPointer)
   useEffect(() => {
     console.debug('Channel: initialStreamData', initialStreamData)
   }, [initialStreamData])
 
-  const stream = useStream(addressPointer.pubkey, addressPointer.identifier)
+  // Only initialize hooks if we have the required props
+  const stream = addressPointer ? useStream(addressPointer.pubkey, addressPointer.identifier) : null
   const { profile: channelProfile, isLoading: channelProfileIsLoading } = useProfile(
-    stream?.pubkey || addressPointer.pubkey,
+    stream?.pubkey || (addressPointer?.pubkey ?? null),
   )
 
   // Use initialStreamData for meta tags if available, otherwise fall back to client-side stream data

@@ -22,7 +22,7 @@ export const DefaultLayout = ({ hideFollowedChannels = false, children }: Defaul
   const { init: initSettingsStore } = useSettingsStore()
   useAuth()
 
-  const { leftBarUserClosed, userCloseLeftBar, rightBarUserClosed } = useLayoutStore()
+  const { leftBarUserClosed, userCloseLeftBar } = useLayoutStore()
   const isMounted = useHasMounted()
 
   const [modal, setModal] = useState<'none' | 'login' | 'goLive'>('none')
@@ -42,18 +42,31 @@ export const DefaultLayout = ({ hideFollowedChannels = false, children }: Defaul
     }
   }, [])
 
-  const content = () => {
-    // Make sure we get layout from localstorage before
-    // displaying the content container to avoid shitfting
-    if (!isMounted) {
-      return null
-      // <div className="flex h-full w-full content-center justify-center">
-      //   <Spinner height={6} width={6} />
-      // </div>
-    }
+  return (
+    <>
+      <Head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
 
-    return (
-      <div id="contentContainer" className="flex h-full overflow-hidden">
+      <Navbar openAuthenticate={() => setModal('login')} openGoLive={() => setModal('goLive')} />
+
+      <div>
+        {
+          {
+            login: (
+              <InteractionModal title={'Log In'} close={() => setModal('none')}>
+                <Authenticate close={() => setModal('none')} />
+              </InteractionModal>
+            ),
+            goLive: <GoLiveModal close={() => setModal('none')} />,
+            none: null,
+          }[modal]
+        }
+      </div>
+
+      <div id="contentContainer" className={`flex h-full overflow-hidden ${!isMounted ? 'invisible' : ''}`}>
         {!hideFollowedChannels && (
           <div
             id="followContainer"
@@ -69,43 +82,10 @@ export const DefaultLayout = ({ hideFollowedChannels = false, children }: Defaul
           </div>
         )}
 
-        {/* <main className="flex h-full w-full min-w-0 flex-col text-white sm:flex-row">{children}</main> */}
         <main className="flex h-full w-full min-w-0 flex-col sm:flex-row">{children}</main>
       </div>
-    )
-  }
-
-  return (
-    <>
-      <Head>
-        <title>SATS.GG</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-      <Navbar openAuthenticate={() => setModal('login')} openGoLive={() => setModal('goLive')} />
-
-      <div>
-        {
-          {
-            login: (
-              <InteractionModal title={'Log In'} close={() => setModal('none')}>
-                <Authenticate close={() => setModal('none')} />
-              </InteractionModal>
-            ),
-            goLive: (
-              // <InteractionModal title={'Go Live'} close={() => setModal('none')}>
-              //   <GoLive close={() => setModal('none')} />
-              // </InteractionModal>
-              <GoLiveModal close={() => setModal('none')} />
-            ),
-            none: null,
-          }[modal]
-        }
-      </div>
-
-      {content()}
 
       <ToastContainer />
-      {/* new shadcn toaster */}
       <Toaster />
     </>
   )
