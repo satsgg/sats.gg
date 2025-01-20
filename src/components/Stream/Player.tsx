@@ -34,20 +34,23 @@ const VideoPlayer = ({ options }: { options: any }) => {
     playerRef.current.src(options.sources[0])
     // when a source is loaded we got the 30311, so we can reset the poster
     playerRef.current.poster(options.poster)
+  }, [JSON.stringify(options)])
 
-    // Update title overlay when title changes
+  useEffect(() => {
+    if (!playerRef.current) return
+
     const titleOverlay = playerRef.current.getChild('TitleOverlay')
     if (titleOverlay) {
       console.log('Updating title overlay with:', {
-        title: options.title || 'Untitled Stream',
-        profilePicUrl: options.profilePicUrl || '',
+        title: options.title,
+        profilePicUrl: options.profilePicUrl,
       })
       titleOverlay.update({
-        title: options.title || 'Untitled Stream',
-        profilePicUrl: options.profilePicUrl || '',
+        title: options.title,
+        profilePicUrl: options.profilePicUrl,
       })
     }
-  }, [JSON.stringify(options)])
+  }, [options.title, options.profilePicUrl])
 
   useEffect(() => {
     if (!playerRef.current) return
@@ -105,15 +108,14 @@ const VideoPlayer = ({ options }: { options: any }) => {
     (player: Player) => {
       playerRef.current = player
 
-      // Add title overlay with proper options
       console.log('Adding TitleOverlay with options:', {
-        title: options.title || 'Untitled Stream',
-        profilePicUrl: options.profilePicUrl || '',
+        title: options.title,
+        profilePicUrl: options.profilePicUrl,
       })
 
       player.addChild('TitleOverlay', {
-        title: options.title || 'Untitled Stream',
-        profilePicUrl: options.profilePicUrl || '',
+        title: options.title,
+        profilePicUrl: options.profilePicUrl,
       })
 
       if (options.sources?.length) {
@@ -168,10 +170,10 @@ const VideoPlayer = ({ options }: { options: any }) => {
       const modalComponent = player.getChild('VideoJSBridgeComponent')
 
       // Create a button in the control bar to toggle the modal
-      player.controlBar.addChild('button', {
-        text: 'Toggle Modal',
-        clickHandler: () => modalComponent?.toggleModal(),
-      })
+      // player.controlBar.addChild('button', {
+      //   text: 'Toggle Modal',
+      //   clickHandler: () => modalComponent?.toggleModal(),
+      // })
 
       player.on('waiting', () => {
         videojs.log('player is waiting')
@@ -195,49 +197,53 @@ const VideoPlayer = ({ options }: { options: any }) => {
       player.on('pause', handlePause)
 
       player.volume(volume)
-      let tech = player.tech({ IWillNotUseThisInPlugins: true })
-      if (tech) {
-        if (tech.vhs) {
-          const playerResponseHook = (request, error, response) => {
-            const bar = response.headers.foo
-            // console.debug('on response', error, response)
-            if (response.statusCode === 402) {
-              // console.debug('on response 402')
-              setL402((l402) => {
-                if (!l402) return null
-                if (Math.floor(Date.now() / 1000) > l402.validUntil) {
-                  return null
-                }
-                return l402
-              })
-              console.debug('SETTING OPEN paywall')
-              // setOpenPaywall(true)
-              modalComponent?.openModal()
+
+      // Move VHS setup to loadstart event
+      player.on('loadstart', () => {
+        let tech = player.tech({ IWillNotUseThisInPlugins: true })
+        console.debug('l402-hls: tech', tech)
+        if (tech) {
+          console.debug('l402-hls: if tech', tech)
+          if (tech.vhs) {
+            console.debug('l402-hls: if tech.vhs', tech.vhs)
+            const playerResponseHook = (request, error, response) => {
+              const bar = response.headers.foo
+              // console.debug('on response', error, response)
+              if (response.statusCode === 402) {
+                console.debug('l402-hls: on response 402')
+                setL402((l402) => {
+                  if (!l402) return null
+                  if (Math.floor(Date.now() / 1000) > l402.validUntil) {
+                    return null
+                  }
+                  return l402
+                })
+                console.debug('l402-hls: SETTING OPEN paywall')
+                // setOpenPaywall(true)
+                modalComponent?.openModal()
+              }
             }
+            console.debug('l402-hls: SETTING ON RESPONSE', tech.vhs)
+            tech.vhs.xhr.onResponse(playerResponseHook)
           }
-          console.debug('SETTING ON RESPONSE', tech.vhs)
-          tech.vhs.xhr.onResponse(playerResponseHook)
+          tech.on('loadedplaylist', () => {
+            // doesn't fire
+            console.debug('vhs loadedplaylist representations', tech.vhs?.representations())
+            // console.debug('tech.vhs.playlists.main', tech.vhs?.playlists?.main)
+          })
+          tech.on('loadedmetadata', () => {
+            console.debug('loadedmetadata')
+            // Fired after the first segment is downloaded
+            // for a playlist. This will not happen until playback
+            // if video.js's metadata setting is none
+          })
+          tech.on('mediachange', () => {
+            // console.debug('tech.vhs.playlists.main', tech.vhs?.playlists?.main)
+          })
         }
-        tech.on('loadedplaylist', () => {
-          // doesn't fire
-          console.debug('vhs loadedplaylist representations', tech.vhs?.representations())
-          // console.debug('tech.vhs.playlists.main', tech.vhs?.playlists?.main)
-        })
-        tech.on('loadedmetadata', () => {
-          console.debug('loadedmetadata')
-          // Fired after the first segment is downloaded
-          // for a playlist. This will not happen until playback
-          // if video.js's metadata setting is none
-        })
-        tech.on('mediachange', () => {
-          // console.debug('tech.vhs.playlists.main', tech.vhs?.playlists?.main)
-        })
-      }
+      })
     },
-    [volume],
-    // [volume, JSON.stringify(options.sources)],
-    // [volume, JSON.stringify(options)],
-    // [volume, JSON.stringify(options)],
+    [volume, JSON.stringify(options)],
   )
 
   return <VideoJS options={options} onReady={handlePlayerReady} l402={l402} />

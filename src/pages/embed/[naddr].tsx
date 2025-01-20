@@ -78,9 +78,8 @@ export default function EmbedPage() {
     fill: true,
     liveui: false,
     playsinline: true,
-    poster: stream?.image || undefined,
-    title: stream?.title || undefined,
-    profilePicUrl: channelProfile?.picture || undefined,
+    poster: stream?.image,
+    preload: 'none',
     html5: {
       vhs: {
         enableLowInitialPlaylist: true,
@@ -106,6 +105,8 @@ export default function EmbedPage() {
           },
         ]
       : [],
+    title: stream?.title,
+    profilePicUrl: channelProfile?.picture,
   }
 
   return (

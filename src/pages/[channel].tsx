@@ -131,6 +131,7 @@ export default function Channel() {
     // inactivityTimeout: 100,
     playsinline: true,
     poster: stream?.image || undefined,
+    preload: 'none',
     html5: {
       vhs: {
         enableLowInitialPlaylist: true,
