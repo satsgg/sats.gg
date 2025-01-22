@@ -60,7 +60,7 @@ export const DefaultLayout = ({ hideFollowedChannels = false, children }: Defaul
                 <Authenticate close={() => setModal('none')} />
               </InteractionModal>
             ),
-            goLive: <GoLiveModal close={() => setModal('none')} />,
+            goLive: <GoLiveModal />,
             none: null,
           }[modal]
         }

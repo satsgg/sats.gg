@@ -154,7 +154,8 @@ export const getServerSideProps: GetServerSideProps<ChannelProps> = async ({ que
     nostrClient.disconnectFromRelays(addressPointer.relays || DEFAULT_RELAYS)
 
     // Always return props with meta tags, even if stream data is null
-    const origin = process.env.NEXT_PUBLIC_SITE_URL || 'https://sats.gg'
+    // const origin = process.env.NEXT_PUBLIC_SITE_URL || 'https://sats.gg'
+    const origin = process.env.NEXT_PUBLIC_SITE_URL || 'https://satsgg-staging.up.railway.app'
     const parsedStream = streamData
       ? {
           title: streamData.tags.find((t) => t[0] === 'title')?.[1] || null,
@@ -187,7 +188,8 @@ export const getServerSideProps: GetServerSideProps<ChannelProps> = async ({ que
   } catch (error) {
     console.error('Error fetching stream data:', error)
     // Even on error, return props with default meta tags
-    const origin = process.env.NEXT_PUBLIC_SITE_URL || 'https://sats.gg'
+    // const origin = process.env.NEXT_PUBLIC_SITE_URL || 'https://sats.gg'
+    const origin = process.env.NEXT_PUBLIC_SITE_URL || 'https://satsgg-staging.up.railway.app'
     return {
       props: {
         naddr: channel,
