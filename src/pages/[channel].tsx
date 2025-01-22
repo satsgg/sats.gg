@@ -214,7 +214,9 @@ export default function Channel({ naddr, addressPointer, initialStreamData, meta
 
   const { query, isReady } = useRouter()
   const origin =
-    typeof window !== 'undefined' ? window.location.origin : process.env.NEXT_PUBLIC_SITE_URL || 'https://sats.gg'
+    typeof window !== 'undefined'
+      ? window.location.origin
+      : process.env.NEXT_PUBLIC_SITE_URL || 'https://satsgg-staging.up.railway.app'
 
   console.debug('Channel: addressPointer', addressPointer)
   useEffect(() => {
