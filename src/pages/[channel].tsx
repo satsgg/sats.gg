@@ -314,7 +314,7 @@ export default function Channel({ naddr, addressPointer, initialStreamData, meta
         />
         {/* )} */}
         <meta name="twitter:player:width" content="640" />
-        <meta name="twitter:player:height" content="480" />
+        <meta name="twitter:player:height" content="360" />
       </Head>
       <div
         id="centerColumnWrapper"
