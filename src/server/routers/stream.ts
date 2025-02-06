@@ -57,7 +57,7 @@ export const streamRouter = t.router({
         user: {
           connect: { id: ctx.user.id },
         },
-        duration: input.duration,
+        duration: input.duration * 60, // convert to seconds
         lightningAddress: input.lightningAddress || null,
         streamKey: crypto.randomUUID(),
         variants: {

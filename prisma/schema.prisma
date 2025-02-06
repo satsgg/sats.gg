@@ -41,7 +41,7 @@ model Stream {
   rtmpUrl              String?
   streamKey            String
   lightningAddress     String?
-  duration             Int
+  duration             Int // seconds
   viewerCount          Int              @default(0)
   viewerCountUpdatedAt DateTime         @default(now())
   // TODO: add nip 53 values or keep in localStorage?

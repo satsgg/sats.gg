@@ -40,6 +40,7 @@ const qualityOptions = [
 // - remove click away handler?
 // - refactor footer buttons, add loading state
 // - error handling and toasts
+// - use seconds instead of minutes for duration
 export default function GoLiveModal() {
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
