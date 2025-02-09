@@ -146,7 +146,7 @@ export const ShareDialog = ({
                     pubkey,
                     streamIdentifier,
                     relays,
-                  )}" width="100%" height="480" frameborder="0" allowfullscreen></iframe>`}
+                  )}" width="100%" frameborder="0" allowfullscreen></iframe>`}
                 />
                 <Button size="icon" variant="outline" onClick={handleCopyEmbed}>
                   {copiedEmbed ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
