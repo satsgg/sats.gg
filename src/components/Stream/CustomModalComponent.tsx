@@ -14,16 +14,14 @@ import { Lsat } from 'lsat-js'
 import { useToast } from '@/hooks/use-toast'
 import { ToastAction } from '@/components/ui/toast'
 import { SATS_PER_USD } from '@/utils/util'
+import useWebln from '~/hooks/useWebln'
 
 const quickAccessDurations = [
-  { label: 'stream', minutes: 1 },
+  { label: '2m', minutes: 2 },
   { label: '5m', minutes: 5 },
   { label: '10m', minutes: 10 },
   { label: '30m', minutes: 30 },
-  { label: '1h', minutes: 60 },
 ]
-
-// Simulated exchange rate (1 USD = 100,000 sats)
 
 const sleep = (milliseconds: number) => {
   return new Promise((resolve) => setTimeout(resolve, milliseconds))
@@ -57,13 +55,14 @@ const CustomModalComponent: React.FC<CustomModalComponentProps> = ({
 }) => {
   const [qualityLevels, setQualityLevels] = useState<QualityLevel[]>([])
   const [selectedQuality, setSelectedQuality] = useState<QualityLevel | null>(null)
-  const [selectedDuration, setSelectedDuration] = useState(60) // Default to 60 minutes
+  const [selectedDuration, setSelectedDuration] = useState(30) // Default to 30 minutes
   const [streamPayments, setStreamPayments] = useState(false)
   const [totalPrice, setTotalPrice] = useState(0)
   const [isCopied, setIsCopied] = useState(false)
   const [expirationTime, setExpirationTime] = useState(0)
   const [l402Challenge, setL402Challenge] = useState<Lsat | null>(null)
   const [isLoadingChallenge, setIsLoadingChallenge] = useState(false)
+  const { available: weblnAvailable, weblnPay } = useWebln()
   const { toast } = useToast()
 
   const handlePurchase = async () => {
@@ -271,15 +270,28 @@ const CustomModalComponent: React.FC<CustomModalComponentProps> = ({
                       <div className="flex items-center justify-between text-sm">
                         <span>{formatDuration(selectedDuration)}</span>
                         <div className="flex space-x-1">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={!weblnAvailable}
+                            onClick={() => {
+                              setStreamPayments(!streamPayments)
+                            }}
+                            className="px-2 py-1 text-xs"
+                          >
+                            <span
+                              className={`mr-1 inline-block h-2 w-2 rounded-full ${
+                                streamPayments ? 'bg-green-500' : 'bg-red-500'
+                              }`}
+                            ></span>
+                            Stream
+                          </Button>
                           {quickAccessDurations.map((duration) => (
                             <Button
                               key={duration.label}
                               variant="outline"
                               size="sm"
                               onClick={() => {
-                                if (duration.label === 'stream') {
-                                  setStreamPayments(true)
-                                }
                                 setSelectedDuration(duration.minutes)
                               }}
                               className="px-2 py-1 text-xs"
@@ -303,8 +315,10 @@ const CustomModalComponent: React.FC<CustomModalComponentProps> = ({
                       {isLoadingChallenge ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Purchase
+                          {streamPayments ? 'Stream' : 'Purchase'}
                         </>
+                      ) : streamPayments ? (
+                        'Stream'
                       ) : (
                         'Purchase'
                       )}
