@@ -7,6 +7,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Slider } from '@/components/ui/slider'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
+import { Select, SelectValue, SelectItem, SelectContent, SelectTrigger } from '@/components/ui/select'
 import { QRCodeSVG } from 'qrcode.react'
 import { ArrowLeft, Copy, Check, X, Loader2 } from 'lucide-react'
 import { Lsat } from 'lsat-js'
@@ -15,6 +16,7 @@ import { ToastAction } from '@/components/ui/toast'
 import { SATS_PER_USD } from '@/utils/util'
 
 const quickAccessDurations = [
+  { label: 'stream', minutes: 1 },
   { label: '5m', minutes: 5 },
   { label: '10m', minutes: 10 },
   { label: '30m', minutes: 30 },
@@ -56,6 +58,7 @@ const CustomModalComponent: React.FC<CustomModalComponentProps> = ({
   const [qualityLevels, setQualityLevels] = useState<QualityLevel[]>([])
   const [selectedQuality, setSelectedQuality] = useState<QualityLevel | null>(null)
   const [selectedDuration, setSelectedDuration] = useState(60) // Default to 60 minutes
+  const [streamPayments, setStreamPayments] = useState(false)
   const [totalPrice, setTotalPrice] = useState(0)
   const [isCopied, setIsCopied] = useState(false)
   const [expirationTime, setExpirationTime] = useState(0)
@@ -198,8 +201,9 @@ const CustomModalComponent: React.FC<CustomModalComponentProps> = ({
 
     const updateQualityLevels = () => {
       const levels = qualityLevels.levels_
-      const reversedLevels = [...levels].reverse()
-      setQualityLevels(reversedLevels)
+      const sortedLevels = [...levels].sort((a, b) => b.bitrate - a.bitrate)
+      setQualityLevels(sortedLevels)
+      setSelectedQuality(sortedLevels[0])
     }
 
     updateQualityLevels()
@@ -212,6 +216,10 @@ const CustomModalComponent: React.FC<CustomModalComponentProps> = ({
       qualityLevels.off('removequalitylevel', updateQualityLevels)
     }
   }, [vjsBridgeComponent])
+
+  const displayQuality = (quality: QualityLevel) => {
+    return `${quality.height}p, ${quality.price === 0 ? 'free' : quality.price + ' millisats/sec'}`
+  }
 
   if (!show) return null
   return (
@@ -229,32 +237,25 @@ const CustomModalComponent: React.FC<CustomModalComponentProps> = ({
                 <div className="space-y-4">
                   <div>
                     <Label className="mb-1 block text-sm font-medium">Quality</Label>
-                    <RadioGroup
-                      onValueChange={(value) => setSelectedQuality(qualityLevels[parseInt(value)]!)}
-                      className="grid grid-cols-3 gap-2"
-                    >
-                      {qualityLevels.map((level: QualityLevel, index) => (
-                        <Label
-                          key={level.id}
-                          className={`flex flex-col items-center justify-center rounded-lg border p-2 text-center transition-colors
-                            ${
-                              selectedQuality && selectedQuality.id === level.id
-                                ? 'bg-primary text-primary-foreground'
-                                : 'bg-background hover:bg-accent hover:text-accent-foreground'
-                            } 
-                            cursor-pointer`}
-                        >
-                          <RadioGroupItem value={`${index}`} id={`${level.id}`} className="sr-only" />
-                          <span className="text-sm font-medium">
-                            {level.height}p{level.frameRate ? ` ${level.frameRate}fps` : ''}
-                          </span>
-                          <span className="text-xs">
-                            {level.price ? `${msatsPerSecToSatsPerMin(level.price)} sats/min` : 'free'}
-                          </span>
-                        </Label>
-                      ))}
-                    </RadioGroup>
+                    <div className="grid gap-2">
+                      <Select
+                        onValueChange={(value) => setSelectedQuality(qualityLevels[parseInt(value)]!)}
+                        value={selectedQuality ? `${qualityLevels.indexOf(selectedQuality)}` : undefined}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select quality" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {qualityLevels.map((level: QualityLevel, index: number) => (
+                            <SelectItem key={index} value={`${index}`}>
+                              {displayQuality(level)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
+
                   <div>
                     <Label htmlFor="duration" className="mb-1 block text-sm font-medium">
                       Duration
@@ -275,7 +276,12 @@ const CustomModalComponent: React.FC<CustomModalComponentProps> = ({
                               key={duration.label}
                               variant="outline"
                               size="sm"
-                              onClick={() => setSelectedDuration(duration.minutes)}
+                              onClick={() => {
+                                if (duration.label === 'stream') {
+                                  setStreamPayments(true)
+                                }
+                                setSelectedDuration(duration.minutes)
+                              }}
                               className="px-2 py-1 text-xs"
                             >
                               {duration.label}
@@ -297,10 +303,10 @@ const CustomModalComponent: React.FC<CustomModalComponentProps> = ({
                       {isLoadingChallenge ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Generating...
+                          Purchase
                         </>
                       ) : (
-                        'Generate Invoice'
+                        'Purchase'
                       )}
                     </Button>
                   </div>
