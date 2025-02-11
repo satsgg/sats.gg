@@ -234,7 +234,7 @@ export const Chat = ({
     )
     if (!invoice) throw new Error('Failed to fetch zap invoice')
 
-    if (weblnAvailable && (await weblnPay(invoice))) {
+    if (weblnAvailable && (await weblnPay(invoice)).success) {
       console.debug('Invoice paid via WebLN!')
 
       // NOTE: for whatever reason have to add this delay

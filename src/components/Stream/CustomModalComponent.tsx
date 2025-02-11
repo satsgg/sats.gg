@@ -78,6 +78,32 @@ const CustomModalComponent: React.FC<CustomModalComponentProps> = ({
       let challengeHeader = res.headers.get('WWW-Authenticate')
       if (!challengeHeader) throw new Error('No challenge header')
       challenge = Lsat.fromHeader(challengeHeader)
+
+      // Try to pay with WebLN first if available
+      if (weblnAvailable) {
+        try {
+          let result = await weblnPay(challenge.invoice)
+          if (!result.success) {
+            setL402Challenge(challenge)
+            return
+          }
+
+          const l402 = challenge
+          if (!result.preimage) {
+            throw new Error('should be a preimage?')
+          }
+          l402.setPreimage(result.preimage)
+          console.debug('finished l402', l402)
+          paymentCallback(l402)
+          handleClose()
+          return
+        } catch (e) {
+          console.debug('WebLN payment failed or declined:', e)
+          // Continue to show QR code if WebLN payment fails
+        }
+      }
+
+      // If WebLN is not available or payment failed, show QR code
       setL402Challenge(challenge)
     } catch (e: any) {
       console.error('something else happened')
@@ -330,7 +356,9 @@ const CustomModalComponent: React.FC<CustomModalComponentProps> = ({
               <div className="space-y-4">
                 <h2 className="text-lg font-semibold">Scan QR Code to Pay</h2>
                 <div className="flex items-center space-x-4">
-                  <QRCodeSVG value={l402Challenge.invoice} size={150} />
+                  <a href={`lightning:${l402Challenge.invoice}`}>
+                    <QRCodeSVG value={l402Challenge.invoice} size={150} />
+                  </a>
                   <div className="flex-1 space-y-2">
                     <p className="text-sm text-gray-500">Use your preferred payment app to scan the QR code.</p>
                     <div className="flex items-center space-x-2">

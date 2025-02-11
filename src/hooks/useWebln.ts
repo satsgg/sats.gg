@@ -7,6 +7,10 @@ declare global {
   }
 }
 
+interface SendPaymentResponse {
+  preimage: string
+}
+
 const useWebln = () => {
   const [available, setAvailable] = useState(false)
   const [enabled, setEnabled] = useState<undefined | boolean>(undefined)
@@ -43,21 +47,35 @@ const useWebln = () => {
   }
 
   // TODO: Should throw
-  const weblnPay = async (invoice: string) => {
+  const weblnPay = async (invoice: string): Promise<{ success: boolean; preimage: string; error: any }> => {
     if (typeof enabled === 'undefined' && !(await enableWebln())) {
-      return false
+      return {
+        success: false,
+        preimage: '',
+        error: 'User disabled webln',
+      }
     }
 
     try {
-      await window.webln.sendPayment(invoice)
+      let response: SendPaymentResponse = await window.webln.sendPayment(invoice)
+      console.debug('WebLN payment response:', response)
+      return {
+        success: true,
+        preimage: response.preimage,
+        error: null,
+      }
     } catch (e: any) {
       // TODO: Set user preference here... if they declined to use ext to pay,
       // they most likely are using an external LN wallet to pay
       // want to just auto open the invoice then.
       // NOTE: Not seeing any debug logs anywhere in this hook...
-      return false
+      return {
+        success: false,
+        preimage: '',
+        error: e,
+      }
     }
-    return true
+    // return true
   }
 
   // window.webln: {
