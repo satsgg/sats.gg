@@ -395,7 +395,7 @@ export default function NewChat({
       <div className="flex items-center justify-center border-b p-3">
         <h2 className="text-lg font-semibold">Stream Chat</h2>
       </div>
-      <ScrollArea className="relative flex-grow px-3 py-1" ref={scrollAreaRef}>
+      <ScrollArea className="relative flex-grow" ref={scrollAreaRef}>
         {messages.map((message) => renderNote(message))}
         {selectedUserPubkey && (
           <ChatUserModal pubkey={selectedUserPubkey} modalPosition={modalPosition} closeUserModal={closeUserModal} />
