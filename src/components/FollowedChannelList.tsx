@@ -61,15 +61,17 @@ export const FollowedChannelList = ({
       >
         <div className={`flex items-center p-2 ${userCollapse ? 'justify-center' : 'justify-between'}`}>
           {!userCollapse && !autoCollapse && <h2 className="text-md font-semibold">Followed Channels</h2>}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-6 w-6"
-            onClick={() => setUserCollapse(!userCollapse)}
-            aria-label={userCollapse ? 'Expand followed channels' : 'Collapse followed channels'}
-          >
-            {userCollapse ? <ArrowRightFromLine className="h-4 w-4" /> : <ArrowLeftFromLine className="h-4 w-4" />}
-          </Button>
+          {!autoCollapse && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6"
+              onClick={() => setUserCollapse(!userCollapse)}
+              aria-label={userCollapse ? 'Expand followed channels' : 'Collapse followed channels'}
+            >
+              {userCollapse ? <ArrowRightFromLine className="h-4 w-4" /> : <ArrowLeftFromLine className="h-4 w-4" />}
+            </Button>
+          )}
         </div>
         <ScrollArea className="flex-grow">
           <div className={`${userCollapse ? 'px-1' : 'px-1'} pb-2`}>
