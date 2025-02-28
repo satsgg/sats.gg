@@ -111,7 +111,14 @@ const getChannelPubkey = (channel: string, isReady: boolean): nip19.AddressPoint
   return null
 }
 
-export const getServerSideProps: GetServerSideProps<ChannelProps> = async ({ query }) => {
+function isValidBotRequest(req) {
+  const userAgent = req.headers['user-agent']?.toLowerCase() || ''
+  const botPatterns = ['twitterbot', 'facebookexternalhit', 'linkedinbot', 'googlebot', 'discordbot', 'telegrambot']
+
+  return botPatterns.some((bot) => userAgent.includes(bot))
+}
+
+export const getServerSideProps: GetServerSideProps<ChannelProps> = async ({ query, req }) => {
   const { channel } = query
   console.log('SSR: Starting getServerSideProps for channel:', channel)
   if (typeof channel !== 'string') {
@@ -123,6 +130,29 @@ export const getServerSideProps: GetServerSideProps<ChannelProps> = async ({ que
     console.log('SSR: Invalid address pointer')
     return { notFound: true }
   }
+
+  const origin = process.env.NEXT_PUBLIC_SITE_URL || 'https://satsgg-staging.up.railway.app'
+
+  // For non-bot requests, return minimal props
+  // This should make the page load faster for regular users
+  if (!isValidBotRequest(req)) {
+    console.debug('not a bot request, returning minimal props for channel', channel)
+    return {
+      props: {
+        naddr: channel,
+        addressPointer,
+        initialStreamData: null,
+        metaTags: {
+          title: 'Live Stream - SATS.GG',
+          description: 'Watch live on sats.gg',
+          image: '',
+          playerUrl: `${origin}/embed/${channel}`,
+        },
+      },
+    }
+  }
+
+  console.debug('running getServerSideProps wss for channel', channel)
 
   try {
     nostrClient.connectToRelays(addressPointer.relays || DEFAULT_RELAYS)
@@ -154,8 +184,6 @@ export const getServerSideProps: GetServerSideProps<ChannelProps> = async ({ que
     nostrClient.disconnectFromRelays(addressPointer.relays || DEFAULT_RELAYS)
 
     // Always return props with meta tags, even if stream data is null
-    // const origin = process.env.NEXT_PUBLIC_SITE_URL || 'https://sats.gg'
-    const origin = process.env.NEXT_PUBLIC_SITE_URL || 'https://satsgg-staging.up.railway.app'
     const parsedStream = streamData
       ? {
           title: streamData.tags.find((t) => t[0] === 'title')?.[1] || null,
