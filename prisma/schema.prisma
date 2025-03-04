@@ -44,17 +44,31 @@ model Stream {
   duration             Int // seconds
   viewerCount          Int              @default(0)
   viewerCountUpdatedAt DateTime         @default(now())
-  // TODO: add nip 53 values or keep in localStorage?
   status               StreamStatus     @default(PENDING)
   variants             StreamVariant[]
   channelInvoices      ChannelInvoice[]
   streamInvoices       StreamInvoice[]
   // holdInvoicePayments  HoldInvoicePayment[]
+
+  // stream metadata
+  title String?
+  summary String?
+  description String?
+  image String? // thumbnail url
+  // non specific tags can just go here
+  t String[]
+  // status? 
+  participants String[] // just pubkeys for now
+  // specific tags can be values here instead of t string array
+  // category String
+  // language String
+  relays String[]
 }
 
 // TODO: figure these out
 // stream status vs creation status?
 // StreamStatus + ChannelStatus?
+// should have channel status for this and a separate stream status for planned | live | ended
 enum StreamStatus {
   PENDING
   PROVISIONING

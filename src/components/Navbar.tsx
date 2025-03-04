@@ -56,6 +56,7 @@ export const Navbar = ({ openAuthenticate, openGoLive }: HeaderProps) => {
         <ModeToggle />
 
         {/* Relays */}
+        {/* TODO: Add dialog to add/remove relays instead of going to settings? */}
         <Link href={'/settings/relays'}>
           <Button variant="outline" size="sm" className="text-primary">
             <Wifi className="mr-2 h-4 w-4" />

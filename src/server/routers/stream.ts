@@ -53,6 +53,8 @@ export const streamRouter = t.router({
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'Lightning address is required' })
       }
 
+      // TODO: add title, summary, description, image
+      // copy from previous (paid) stream if exists
       const data: Prisma.StreamCreateInput = {
         user: {
           connect: { id: ctx.user.id },
