@@ -16,8 +16,10 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Slider } from '@/components/ui/slider'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
+import { useToast } from '@/hooks/use-toast'
+import { ToastAction } from '@/components/ui/toast'
 import { QRCodeSVG } from 'qrcode.react'
-import { ArrowLeft, Video, Copy, Check } from 'lucide-react'
+import { ArrowLeft, Video, Copy, Check, Loader2 } from 'lucide-react'
 import { fmtNumber, formatUSD } from '~/utils/util'
 import { QualityName } from '~/server/routers/stream'
 
@@ -60,22 +62,25 @@ export default function GoLiveModal() {
   const [expirationTime, setExpirationTime] = useState(0)
   const [timeLeft, setTimeLeft] = useState(0)
   const [copied, setCopied] = useState(false)
+  const { toast } = useToast()
 
   const createStream = trpc.stream.createStream.useMutation({
     onSuccess: (data) => {
-      // close()
       console.debug('Stream invoice created', data)
-      // router.push({ pathname: '/dashboard', query: { streamId: data.streamId } })
       setStreamId(data.streamId)
       setInvoice(data.paymentRequest)
       setInvoiceId(data.invoiceId)
-      // setView('payment')
       setStep(3)
       setIsInvoiceLoading(false)
     },
     onError: (err) => {
       console.error('Failed to create stream', err)
-      // show error
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to generate invoice. Please try again.',
+        action: <ToastAction altText="Try again">Try again</ToastAction>,
+      })
       setIsInvoiceLoading(false)
     },
   })
@@ -379,7 +384,9 @@ export default function GoLiveModal() {
         {step === 3 && (
           <div className="grid gap-4 py-4">
             <div className="flex justify-center">
-              <QRCodeSVG value={invoice} level={'Q'} size={200} includeMargin />
+              <a href={`lightning:${invoice}`}>
+                <QRCodeSVG value={invoice} level={'Q'} size={200} includeMargin />
+              </a>
             </div>
             <div className="flex items-center space-x-2">
               <Input readOnly value={invoice} className="font-mono text-xs" />
@@ -398,11 +405,21 @@ export default function GoLiveModal() {
               Back
             </Button>
           )}
-          {/* <Button onClick={handleNext} disabled={step === 1 && selectedQualities.length === 0} size="sm">
-            {step === 1 ? 'Next' : 'Save Configuration'}
-          </Button> */}
-          <Button onClick={handleNext} disabled={step === 1 && selectedQualities.length === 0} size="sm">
-            {step === 3 ? 'Close' : 'Next'}
+          <Button
+            onClick={handleNext}
+            disabled={(step === 1 && selectedQualities.length === 0) || isInvoiceLoading}
+            size="sm"
+          >
+            {isInvoiceLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Next
+              </>
+            ) : step === 3 ? (
+              'Close'
+            ) : (
+              'Next'
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>
