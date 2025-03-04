@@ -14,7 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Video, Wifi, Settings, LogOut } from 'lucide-react'
+import { Video, Wifi, Settings, LogOut, LayoutDashboard } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import GoLiveModal from './GoLiveModal'
 // import { useTheme } from 'next-themes'
@@ -96,18 +96,24 @@ export const Navbar = ({ openAuthenticate, openGoLive }: HeaderProps) => {
                 </span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
+              <DropdownMenuItem asChild className="cursor-pointer">
                 <Link
                   href={`/${getVerifiedChannelLink(profile) || npub}`}
                   legacyBehavior={false}
-                  className="flex cursor-pointer items-center"
+                  className="flex items-center"
                 >
                   <Video className="mr-2 h-4 w-4" />
                   <span>My Channel</span>
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/settings/profile" legacyBehavior={false} className="flex cursor-pointer items-center">
+              <DropdownMenuItem asChild className="cursor-pointer">
+                <Link href="/dashboard" legacyBehavior={false} className="flex  items-center">
+                  <LayoutDashboard className="mr-2 h-4 w-4" />
+                  <span>Dashboard</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild className="cursor-pointer">
+                <Link href="/settings/profile" legacyBehavior={false} className="flex items-center">
                   <Settings className="mr-2 h-4 w-4" />
                   <span>Settings</span>
                 </Link>

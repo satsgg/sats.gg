@@ -64,6 +64,7 @@ export default function GoLiveModal() {
   const [copied, setCopied] = useState(false)
   const { toast } = useToast()
 
+  // TODO: add webln support
   const createStream = trpc.stream.createStream.useMutation({
     onSuccess: (data) => {
       console.debug('Stream invoice created', data)

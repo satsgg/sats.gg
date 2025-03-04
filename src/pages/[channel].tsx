@@ -234,6 +234,7 @@ export const getServerSideProps: GetServerSideProps<ChannelProps> = async ({ que
   }
 }
 
+// TODO: npub link to channel (not single naddr stream, show channel profile and all videos/streams)
 export default function Channel({ naddr, addressPointer, initialStreamData, metaTags }: ChannelProps) {
   // Return null during SSR pre-pass if required props are missing
   if (typeof window === 'undefined' && (!naddr || !addressPointer)) {
