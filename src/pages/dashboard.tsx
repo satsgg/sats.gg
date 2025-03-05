@@ -4,6 +4,7 @@ import useAuthStore from '~/hooks/useAuthStore'
 import { DashboardLayout } from '~/components/Dashboard/DashboardLayout'
 // import StreamCreationModal from '~/components/StreamCreationModal'
 import StreamCreationModal from '~/components/Dashboard/StreamCreationModal'
+import Settings from '~/components/Dashboard/Settings'
 import { trpc } from '~/utils/trpc'
 import { Button } from '~/components/ui/button'
 import { ChevronUp, ChevronDown, Bell, MessageSquare } from 'lucide-react'
@@ -19,6 +20,7 @@ const Dashboard = ({ isSidebarOpen }: { isSidebarOpen: boolean }) => {
   const router = useRouter()
   const [showModal, setShowModal] = useState(false)
   const [streamId, setStreamId] = useState<string>('')
+  const [currentView, setCurrentView] = useState('dashboard')
 
   const [user, pubkey, npub, view, logout] = useAuthStore((state) => [
     state.user,
@@ -106,53 +108,25 @@ const Dashboard = ({ isSidebarOpen }: { isSidebarOpen: boolean }) => {
   //   }
   // }, [streamData?.id])
 
-  if (!user) {
-    return <div>You must be logged in to view this page</div>
-  }
+  const renderContent = () => {
+    if (currentView === 'settings') {
+      return <Settings />
+    }
 
-  if (!streamData) {
-    return <div>No stream data</div>
-  }
+    if (currentView === 'relays') {
+      return <div>Relays View Coming Soon</div>
+    }
 
-  return (
-    <div className="flex w-full">
-      {/* Main content */}
-      {/* <div className="grid h-full grid-cols-1 md:grid-cols-2 lg:grid-cols-4"> */}
-      <div className="flex flex-1 overflow-hidden bg-background text-primary">
-        {/* Sidebar */}
-        {true && (
-          <div className="w-64 overflow-y-auto p-4">
-            <h2 className="mb-4 text-lg font-semibold">Menu</h2>
-            <ul>
-              <li className="mb-2">
-                <a href="#" className="hover:underline">
-                  Dashboard
-                </a>
-              </li>
-              <li className="mb-2">
-                <a href="#" className="hover:underline">
-                  Relays
-                </a>
-              </li>
-              <li className="mb-2">
-                <a href="#" className="hover:underline">
-                  Streams
-                </a>
-              </li>
-              <li className="mb-2">
-                <a href="#" className=" hover:underline">
-                  Settings
-                </a>
-              </li>
-            </ul>
-          </div>
-        )}
+    if (currentView === 'streams') {
+      return <div>Streams View Coming Soon</div>
+    }
 
-        {/* Video and Stream Info */}
+    // Default dashboard view
+    return (
+      <>
+        {/* Rest of dashboard view */}
         <div className="flex-1 overflow-y-auto p-4">
-          {/* <div className="aspect-w-16 aspect-h-9 mb-4 bg-gray-300"> */}
           <div className="mb-4 aspect-video bg-gray-300">
-            {/* Placeholder for video player */}
             <div className="flex h-full items-center justify-center text-gray-500">Thumbnail</div>
           </div>
           <h2 className="mb-2 text-2xl font-bold">Stream Title</h2>
@@ -162,23 +136,7 @@ const Dashboard = ({ isSidebarOpen }: { isSidebarOpen: boolean }) => {
           <Button variant="outline" onClick={() => publishStreamEvent('ended')}>
             Publish Ended
           </Button>
-          <span>d: {streamData.id}</span>
-          {/* <p className={`text-gray-600 ${isDescriptionExpanded ? '' : 'line-clamp-3'}`}>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et
-            dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
-            ea commodo consequat.
-          </p>
-          <Button variant="ghost" onClick={toggleDescription} className="mt-2">
-            {isDescriptionExpanded ? (
-              <>
-                Show Less <ChevronUp className="ml-2 h-4 w-4" />
-              </>
-            ) : (
-              <>
-                Show More <ChevronDown className="ml-2 h-4 w-4" />
-              </>
-            )}
-          </Button> */}
+          <span>d: {streamData?.id}</span>
         </div>
 
         {/* Notifications */}
@@ -200,12 +158,70 @@ const Dashboard = ({ isSidebarOpen }: { isSidebarOpen: boolean }) => {
           <NewChat
             channelPubkey={pubkey ?? ''}
             providerPubkey={''}
-            streamId={streamData?.id}
-            channelIdentifier={streamData?.id}
+            streamId={streamData?.id ?? ''}
+            channelIdentifier={streamData?.id ?? ''}
             channelProfile={profile}
           />
         </div>
+      </>
+    )
+  }
+
+  if (!user) {
+    return <div>You must be logged in to view this page</div>
+  }
+
+  if (!streamData) {
+    return <div>No stream data</div>
+  }
+
+  return (
+    <div className="flex w-full">
+      {/* Sidebar - Always visible */}
+      <div className="w-64 overflow-y-auto border-r p-4">
+        <h2 className="mb-4 text-lg font-semibold">Menu</h2>
+        <ul>
+          <li className="mb-2">
+            <Button
+              variant="ghost"
+              className={`w-full justify-start ${currentView === 'dashboard' ? 'bg-accent' : ''}`}
+              onClick={() => setCurrentView('dashboard')}
+            >
+              Dashboard
+            </Button>
+          </li>
+          <li className="mb-2">
+            <Button
+              variant="ghost"
+              className={`w-full justify-start ${currentView === 'relays' ? 'bg-accent' : ''}`}
+              onClick={() => setCurrentView('relays')}
+            >
+              Relays
+            </Button>
+          </li>
+          <li className="mb-2">
+            <Button
+              variant="ghost"
+              className={`w-full justify-start ${currentView === 'streams' ? 'bg-accent' : ''}`}
+              onClick={() => setCurrentView('streams')}
+            >
+              Streams
+            </Button>
+          </li>
+          <li className="mb-2">
+            <Button
+              variant="ghost"
+              className={`w-full justify-start ${currentView === 'settings' ? 'bg-accent' : ''}`}
+              onClick={() => setCurrentView('settings')}
+            >
+              Settings
+            </Button>
+          </li>
+        </ul>
       </div>
+
+      {/* Main Content Area */}
+      <div className="flex w-full flex-1 overflow-hidden bg-background text-primary">{renderContent()}</div>
 
       <StreamCreationModal streamId={streamId} isOpen={showModal} setIsOpen={() => setShowModal(false)} />
     </div>
