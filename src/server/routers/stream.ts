@@ -132,4 +132,38 @@ export const streamRouter = t.router({
         throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
       })
   }),
+
+  updateStreamSettings: t.procedure
+    .use(isAuthed)
+    .input(
+      z.object({
+        streamId: z.string(),
+        title: z.string(),
+        image: z.string(),
+        hashtags: z.array(z.string()),
+        participants: z.array(z.string()),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { streamId, title, image, hashtags, participants } = input
+
+      const stream = await prisma.stream.findUnique({ where: { id: streamId } })
+      if (!stream) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Stream not found' })
+      }
+
+      if (stream.userId !== ctx.user.id) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'You are not allowed to update this stream' })
+      }
+
+      return await prisma.stream
+        .update({
+          where: { id: streamId },
+          data: { title, image, t: hashtags, participants },
+        })
+        .catch((error) => {
+          console.debug('updateStreamSettings error', error)
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
+        })
+    }),
 })

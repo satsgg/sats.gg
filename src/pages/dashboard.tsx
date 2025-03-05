@@ -110,7 +110,15 @@ const Dashboard = ({ isSidebarOpen }: { isSidebarOpen: boolean }) => {
 
   const renderContent = () => {
     if (currentView === 'settings') {
-      return <Settings />
+      return (
+        <Settings
+          streamId={streamData?.id}
+          streamTitle={streamData?.title}
+          streamImage={streamData?.image}
+          streamHashtags={streamData?.t}
+          streamParticipants={streamData?.participants}
+        />
+      )
     }
 
     if (currentView === 'relays') {

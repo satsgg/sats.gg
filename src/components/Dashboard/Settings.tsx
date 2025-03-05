@@ -7,6 +7,7 @@ import { X, Loader2 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { trpc } from '~/utils/trpc'
 import { Avatar, AvatarImage, AvatarFallback } from '~/components/ui/avatar'
+import { useToast } from '@/hooks/use-toast'
 
 const MAX_HASHTAGS = 3
 const MAX_PARTICIPANTS = 10
@@ -20,10 +21,48 @@ const SettingsSchema = z.object({
 
 type SettingsFormData = z.infer<typeof SettingsSchema>
 
-export default function Settings() {
+export default function Settings({
+  streamId,
+  streamTitle,
+  streamImage,
+  streamHashtags,
+  streamParticipants,
+}: {
+  streamId?: string
+  streamTitle?: string | null
+  streamImage?: string | null
+  streamHashtags?: string[]
+  streamParticipants?: string[]
+}) {
   const [newHashtag, setNewHashtag] = useState('')
   const [newParticipant, setNewParticipant] = useState('')
   const [thumbnailPreview, setThumbnailPreview] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { toast } = useToast()
+  const utils = trpc.useContext()
+
+  const streamSettingsMutation = trpc.stream.updateStreamSettings.useMutation({
+    onSuccess: () => {
+      console.debug('Stream settings updated')
+      // Invalidate and refetch getCurrentStream query
+      utils.stream.getCurrentStream.invalidate()
+      toast({
+        variant: 'default',
+        title: 'Stream settings updated',
+        description: 'Stream settings updated successfully.',
+      })
+      setIsSubmitting(false)
+    },
+    onError: (error) => {
+      console.error('Error updating stream settings:', error)
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to update stream settings. Please try again.',
+      })
+      setIsSubmitting(false)
+    },
+  })
 
   const {
     register,
@@ -33,15 +72,16 @@ export default function Settings() {
     getValues,
     watch,
     reset,
-    formState: { errors, isSubmitting },
+    // formState: { errors, isSubmitting },
+    formState: { errors },
   } = useZodForm({
     mode: 'onSubmit',
     schema: SettingsSchema,
     defaultValues: {
-      title: '',
-      image: '',
-      hashtags: [],
-      participants: [],
+      title: streamTitle || '',
+      image: streamImage || '',
+      hashtags: streamHashtags || [],
+      participants: streamParticipants || [],
     },
   })
 
@@ -86,13 +126,27 @@ export default function Settings() {
   }
 
   const onSubmit = async (data: SettingsFormData) => {
+    if (!streamId) return
     try {
+      setIsSubmitting(true)
       console.log('Submitting settings:', data)
       // TODO: Add API call here
       // await mutateAsync(data)
+      await streamSettingsMutation.mutateAsync({
+        // TODO: get streamId from prop
+        streamId: streamId,
+        title: data.title,
+        image: data.image,
+        hashtags: data.hashtags,
+        participants: data.participants,
+      })
     } catch (error) {
       console.error('Error saving settings:', error)
     }
+  }
+
+  if (!streamId) {
+    return <div>Create a stream to update settings!</div>
   }
 
   return (

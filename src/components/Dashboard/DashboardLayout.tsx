@@ -3,16 +3,15 @@ import { ReactNode } from 'react'
 import { useEffect, useState } from 'react'
 import { Authenticate } from '~/components/Authenticate'
 import { Navbar } from '~/components/Dashboard/Navbar'
-import { FollowedChannelList } from '~/components/FollowedChannelList'
+// import { FollowedChannelList } from '~/components/FollowedChannelList'
 import { InteractionModal } from '~/components/InteractionModal'
 import { nostrClient } from '~/nostr/NostrClient'
 import useSettingsStore from '~/hooks/useSettingsStore'
-import { ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
 import useMediaQuery from '~/hooks/useMediaQuery'
 import useLayoutStore from '~/store/layoutStore'
 import useHasMounted from '~/hooks/useHasMounted'
 import useAuth from '~/hooks/useAuth'
+import { Toaster } from '@/components/ui/toaster'
 
 type DashboardLayoutProps = { hideFollowedChannels?: boolean; children: ReactNode }
 
@@ -84,7 +83,7 @@ export const DashboardLayout = ({ hideFollowedChannels = false, children }: Dash
 
       {content()}
 
-      <ToastContainer />
+      <Toaster />
     </>
   )
 }
