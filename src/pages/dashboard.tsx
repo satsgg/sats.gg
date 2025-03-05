@@ -15,6 +15,7 @@ import NewChat from '~/components/Chat/NewChat'
 import { createStreamEvent } from '~/utils/nostr'
 import { nostrClient } from '~/nostr/NostrClient'
 import { Event as NostrEvent, verifySignature, validateEvent } from 'nostr-tools'
+import VideoPlayer from '~/components/Stream/Player'
 
 const Dashboard = ({ isSidebarOpen }: { isSidebarOpen: boolean }) => {
   const router = useRouter()
@@ -129,15 +130,60 @@ const Dashboard = ({ isSidebarOpen }: { isSidebarOpen: boolean }) => {
       return <div>Streams View Coming Soon</div>
     }
 
+    const hlsUrl = streamData?.id ? `https://d1994e6vyyhuyl.cloudfront.net/${streamData.id}/stream.m3u8` : undefined
+
     // Default dashboard view
+    const videoJsOptions = {
+      autoplay: true,
+      controls: true,
+      responsive: true,
+      fill: true,
+      liveui: false,
+      // inactivityTimeout: 100,
+      playsinline: true,
+      poster: streamData?.image || undefined,
+      preload: 'none',
+      html5: {
+        vhs: {
+          enableLowInitialPlaylist: true,
+          // prevent playlist from being excluded when we get a errors on it (402...)
+          // need it to be smarter. Actual broken playlists won't get excluded now
+          playlistExclusionDuration: 0,
+          // allowSeeksWithinUnsafeLiveWindow: true,
+        },
+      },
+      sources: hlsUrl
+        ? [
+            {
+              src: hlsUrl,
+              type: 'application/x-mpegURL',
+              customTagParsers: [
+                {
+                  expression: /#EXT-X-PRICE:(\d+)/,
+                  customType: 'price',
+                  dataParser: (line: string) => {
+                    const match = /#EXT-X-PRICE:(\d+)/.exec(line)
+                    return match && match[1] ? parseInt(match[1], 10) : null
+                  },
+                  segment: true,
+                },
+              ],
+            },
+          ]
+        : [],
+      plugins: {},
+    }
     return (
       <>
         {/* Rest of dashboard view */}
         <div className="flex-1 overflow-y-auto p-4">
-          <div className="mb-4 aspect-video bg-gray-300">
-            <div className="flex h-full items-center justify-center text-gray-500">Thumbnail</div>
+          <div
+            id="streamWrapper"
+            className="relative aspect-video max-h-[calc(100vh-9rem)] sm:border-b sm:border-solid sm:border-gray-500"
+          >
+            <VideoPlayer options={videoJsOptions} />
           </div>
-          <h2 className="mb-2 text-2xl font-bold">Stream Title</h2>
+          <h2 className="mb-2 text-2xl font-bold">{streamData?.title}</h2>
           <Button variant="outline" onClick={() => publishStreamEvent('live')}>
             Publish Live
           </Button>
