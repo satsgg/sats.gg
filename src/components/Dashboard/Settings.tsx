@@ -167,7 +167,8 @@ export default function Settings({
   }
 
   return (
-    <div className="flex w-full flex-col px-8 pt-8">
+    <div className="flex w-full flex-col space-y-6 px-8 pt-8">
+      <h1 className="text-2xl font-bold">Stream Settings</h1>
       <form onSubmit={handleSubmit(onSubmit)} className="max-w-3xl space-y-4 ">
         <div>
           <Label htmlFor="title">Stream Title</Label>

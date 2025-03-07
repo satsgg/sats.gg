@@ -23,6 +23,7 @@ import { TooltipContent } from '~/components/ui/tooltip'
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar'
 import ParticipantPopupRow from '~/components/ParticipantPopupRow'
 import DashboardStreamBio from '~/components/Dashboard/DashboardStreamBio'
+import Relays from '~/components/Dashboard/Relays'
 
 const maxVisibleParticipants = 4
 
@@ -189,7 +190,7 @@ const Dashboard = ({ isSidebarOpen }: { isSidebarOpen: boolean }) => {
     }
 
     if (currentView === 'relays') {
-      return <div>Relays View Coming Soon</div>
+      return <Relays />
     }
 
     if (currentView === 'streams') {
@@ -298,10 +299,12 @@ const Dashboard = ({ isSidebarOpen }: { isSidebarOpen: boolean }) => {
     )
   }
 
+  // TODO: Fix flashing on refresh
   if (!user) {
     return <div>You must be logged in to view this page</div>
   }
 
+  // TODO: Point user to create a stream if they don't have one
   if (!streamData) {
     return <div>No stream data</div>
   }
