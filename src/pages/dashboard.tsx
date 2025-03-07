@@ -2,30 +2,65 @@ import { useRouter } from 'next/router'
 import { ReactElement, useEffect, useState } from 'react'
 import useAuthStore from '~/hooks/useAuthStore'
 import { DashboardLayout } from '~/components/Dashboard/DashboardLayout'
-// import StreamCreationModal from '~/components/StreamCreationModal'
 import StreamCreationModal from '~/components/Dashboard/StreamCreationModal'
 import Settings from '~/components/Dashboard/Settings'
 import { trpc } from '~/utils/trpc'
 import { Button } from '~/components/ui/button'
-import { ChevronUp, ChevronDown, Bell, MessageSquare, Badge } from 'lucide-react'
-import { ScrollArea } from '~/components/ui/scroll-area'
-import { useStream } from '~/hooks/useStream'
 import { useProfile } from '~/hooks/useProfile'
 import NewChat from '~/components/Chat/NewChat'
-import { createStreamEvent, displayName } from '~/utils/nostr'
-import { nostrClient } from '~/nostr/NostrClient'
-import { Event as NostrEvent, verifySignature, validateEvent } from 'nostr-tools'
+import { createStreamEvent } from '~/utils/nostr'
+import { Event as NostrEvent, verifySignature, validateEvent, UnsignedEvent } from 'nostr-tools'
 import VideoPlayer from '~/components/Stream/Player'
-import { TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip'
-import { Tooltip } from '~/components/ui/tooltip'
-import ParticipantAvatar from '~/components/ParticipantAvatar'
-import { TooltipContent } from '~/components/ui/tooltip'
-import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar'
-import ParticipantPopupRow from '~/components/ParticipantPopupRow'
 import DashboardStreamBio from '~/components/Dashboard/DashboardStreamBio'
 import Relays from '~/components/Dashboard/Relays'
+import Notifications from '~/components/Dashboard/Notifications'
+import { nostrClient } from '~/nostr/NostrClient'
+import useSettingsStore from '~/hooks/useSettingsStore'
 
-const maxVisibleParticipants = 4
+interface StreamNotification {
+  id: string
+  type: 'live_note_published' | 'ended_note_published'
+  title: string
+  message: string
+  read: boolean
+  relayResults?: {
+    success: number
+    total: number
+  }
+}
+
+export type StreamConfig = {
+  pubkey: string
+  d: string
+  title: string
+  summary: string
+  image?: string
+  t: string[]
+  streaming: string
+  recording?: string
+  starts?: string
+  ends?: string
+  prevStatus?: 'planned' | 'live' | 'ended'
+  status: 'planned' | 'live' | 'ended'
+  currentParticipants?: string
+  totalParticipants?: string
+  p: string[]
+  relays: string[]
+}
+
+export const DEFAULT_EVENT_CONFIG: StreamConfig = {
+  pubkey: '',
+  d: '',
+  title: '',
+  summary: '',
+  streaming: '',
+  status: 'planned',
+  prevStatus: 'planned',
+  currentParticipants: '0',
+  p: [],
+  t: [],
+  relays: [],
+}
 
 const Dashboard = ({ isSidebarOpen }: { isSidebarOpen: boolean }) => {
   const router = useRouter()
@@ -38,6 +73,9 @@ const Dashboard = ({ isSidebarOpen }: { isSidebarOpen: boolean }) => {
   const [expired, setExpired] = useState(true)
   const [streamStartedAt, setStreamStartedAt] = useState<number>(0)
   const [currentTime, setCurrentTime] = useState<number>(0)
+  const [notifications, setNotifications] = useState<StreamNotification[]>([])
+  const relays = useSettingsStore((state) => state.relays)
+  const [streamConfig, setStreamConfig] = useState<StreamConfig>(DEFAULT_EVENT_CONFIG)
 
   const [user, pubkey, npub, view, logout] = useAuthStore((state) => [
     state.user,
@@ -56,6 +94,28 @@ const Dashboard = ({ isSidebarOpen }: { isSidebarOpen: boolean }) => {
   })
 
   useEffect(() => {
+    if (streamData) {
+      const streamingUrl = `https://d1994e6vyyhuyl.cloudfront.net/${streamData.id}/stream.m3u8`
+      setStreamConfig((prev) => {
+        return {
+          ...prev,
+          d: streamData.id,
+          streaming: streamingUrl,
+          p: streamData.participants,
+          ends: streamData.expiresAt ? Math.floor(streamData.expiresAt?.getTime() / 1000).toString() : '',
+          currentParticipants: '0',
+          image: streamData.image ?? '',
+          title: streamData.title ?? '',
+          summary: streamData.summary ?? '',
+          participants: streamData.participants,
+          t: streamData.t,
+          // relays: streamData.relays,
+        }
+      })
+    }
+  }, [streamData])
+
+  useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(Date.now())
     }, 1000)
@@ -63,15 +123,40 @@ const Dashboard = ({ isSidebarOpen }: { isSidebarOpen: boolean }) => {
     return () => clearInterval(timer)
   }, [])
 
-  // const stream = useStream(pubkey ?? '', data?.id)
-  // console.debug('stream', stream)
-
-  const publishStreamEvent = async (status: 'live' | 'ended') => {
-    if (!streamData?.id) return
+  const publishStreamEvent = async (streamConfig: StreamConfig) => {
+    if (!streamConfig?.d) return
 
     const now = Math.floor(Date.now() / 1000)
-    const event = createStreamEvent(pubkey ?? '', streamData.id, now, status)
-    console.debug('kind 30311 event', status, event)
+    let event: UnsignedEvent = {
+      kind: 30311,
+      pubkey: pubkey ?? '',
+      created_at: now,
+      tags: [
+        ['d', streamConfig.d],
+        ['title', streamConfig.title ?? ''],
+        ['summary', streamConfig.summary ?? ''],
+        ['streaming', streamConfig.streaming],
+        ['image', streamConfig.image ?? ''],
+        ['status', streamConfig.status],
+        ['current_participants', streamConfig.currentParticipants ?? '0'],
+        ['starts', streamConfig.starts ?? ''],
+        // ['ends', (Math.floor(streamData.expiresAt?.getTime) ) / 1000).toString()],
+        // ['ends', streamData.expiresAt ? Math.floor(streamData.expiresAt?.getTime() / 1000).toString() : ''],
+        ['ends', streamConfig.ends ?? ''],
+        ['relays', streamConfig.relays.join(',')],
+      ],
+      content: '',
+    }
+
+    for (const participant of streamConfig.p) {
+      event.tags.push(['p', participant])
+    }
+
+    for (const hashtag of streamConfig.t) {
+      event.tags.push(['t', hashtag])
+    }
+
+    // console.debug('kind 30311 event', streamConfig.status, event)
     try {
       const signedEvent: NostrEvent | null = await window.nostr.signEvent(event)
       if (!signedEvent) throw new Error('Failed to sign message')
@@ -79,10 +164,44 @@ const Dashboard = ({ isSidebarOpen }: { isSidebarOpen: boolean }) => {
       if (!ok) throw new Error('Invalid event')
       let veryOk = verifySignature(signedEvent)
       if (!veryOk) throw new Error('Invalid signature')
-      console.debug('status', status, 'signed event', signedEvent)
-      // nostrClient.publish(signedEvent)
+      console.debug('status', streamConfig.status, 'signed event', signedEvent)
+
+      // Publish to relays and track results
+      const results = await nostrClient.publish(signedEvent)
+      // const successCount = results.filter((result) => result.status === 'fulfilled').length
+
+      // Create a detailed message about relay successes/failures
+      // const failedCount = results.length - successCount
+      // const message = `Successfully published to ${successCount} ${successCount === 1 ? 'relay' : 'relays'}${
+      //   failedCount > 0 ? `, failed on ${failedCount} ${failedCount === 1 ? 'relay' : 'relays'}` : ''
+      // }`
+
+      // setNotifications([
+      //   ...notifications,
+      //   {
+      //     id: signedEvent.id,
+      //     type: streamConfig.status === 'live' ? 'live_note_published' : 'ended_note_published',
+      //     title: streamConfig.status === 'live' ? 'Published live note' : 'Published ended note',
+      //     message,
+      //     read: false,
+      //     relayResults: {
+      //       success: successCount,
+      //       total: results.length,
+      //     },
+      //   },
+      // ])
     } catch (error) {
       console.error('Error publishing stream event', error)
+      // setNotifications([
+      //   ...notifications,
+      //   {
+      //     id: Math.random().toString(),
+      //     type: streamConfig.status === 'live' ? 'live_note_published' : 'ended_note_published',
+      //     title: 'Failed to publish note',
+      //     message: error instanceof Error ? error.message : 'Unknown error occurred',
+      //     read: false,
+      //   },
+      // ])
     }
   }
 
@@ -97,84 +216,79 @@ const Dashboard = ({ isSidebarOpen }: { isSidebarOpen: boolean }) => {
       }
     }
   }, [router.isReady, router.query])
-  // console.debug('streamData', streamData)
-
-  // useEffect(() => {
-  //   if (!streamData?.id || streamData.status !== 'READY') {
-  //     return
-  //   }
-
-  //   // TODO: Fix this to actual start value
-  //   const now = Math.floor(Date.now() / 1000)
-
-  //   const publishEvent = async (status: 'live' | 'ended') => {
-  //     console.debug('publishing kind 30311', status)
-  //     const event = createStreamEvent(pubkey ?? '', streamData.id, now, status)
-  //     console.debug('kind 30311 event', event)
-  //     try {
-  //       const signedEvent: NostrEvent | null = await window.nostr.signEvent(event)
-  //       if (!signedEvent) throw new Error('Failed to sign message')
-  //       let ok = validateEvent(signedEvent)
-  //       if (!ok) throw new Error('Invalid event')
-  //       let veryOk = verifySignature(signedEvent)
-  //       if (!veryOk) throw new Error('Invalid signature')
-  //       nostrClient.publish(signedEvent)
-  //     } catch (error) {
-  //       console.error('Error publishing stream event', error)
-  //     }
-  //   }
-
-  //   publishEvent('live') // Initial publish
-
-  //   const interval = setInterval(publishEvent, 30 * 1000)
-
-  //   return () => {
-  //     clearInterval(interval)
-  //     publishEvent('ended')
-  //   }
-  // }, [streamData?.id])
 
   useEffect(() => {
     if (!streamData?.expiresAt) return
     const expired = currentTime > streamData.expiresAt.getTime()
-    console.debug('streamData.expiresAt', streamData.expiresAt.getTime(), 'currentTime', currentTime)
-    console.debug('expired', expired)
     setExpired(expired)
-    if (isStreamLive && expired) {
-      // Publish ended event if stream was live and expired
-      publishStreamEvent('ended')
-      setIsStreamLive(false)
-    }
-  }, [streamData?.expiresAt, currentTime, isStreamLive])
+  }, [streamData?.expiresAt, currentTime])
 
+  // Set streamStartedAt when going live
   useEffect(() => {
     if (isStreamLive) {
       setStreamStartedAt(Date.now())
-      setExpired(false)
-      // Publish initial live event
-      publishStreamEvent('live')
-
-      // Set up interval to keep publishing live events
-      const interval = setInterval(() => {
-        if (!expired) {
-          publishStreamEvent('live')
-        }
-      }, 30 * 1000) // Every 30 seconds
-
-      return () => {
-        clearInterval(interval)
-        // Publish ended event when component unmounts or stream stops
-        if (!expired) {
-          publishStreamEvent('ended')
-        }
-      }
-    } else {
-      // If stream was manually stopped, publish ended event
-      if (!expired && streamStartedAt > 0) {
-        publishStreamEvent('ended')
-      }
     }
   }, [isStreamLive])
+
+  // Update streamConfig when relevant values change
+  useEffect(() => {
+    setStreamConfig((prev) => ({
+      ...prev,
+      starts: streamStartedAt ? Math.floor(streamStartedAt / 1000).toString() : prev.starts,
+      relays: relays,
+      // Ensure we have all required fields from streamData
+      d: streamData?.id ?? prev.d,
+      streaming: streamData?.id ? `https://d1994e6vyyhuyl.cloudfront.net/${streamData.id}/stream.m3u8` : prev.streaming,
+      title: streamData?.title ?? prev.title,
+      summary: streamData?.summary ?? prev.summary,
+      image: streamData?.image ?? prev.image,
+      ends: streamData?.expiresAt ? Math.floor(streamData.expiresAt.getTime() / 1000).toString() : prev.ends,
+      p: streamData?.participants ?? prev.p,
+      t: streamData?.t ?? prev.t,
+    }))
+  }, [streamStartedAt, JSON.stringify(relays), JSON.stringify(streamData)])
+
+  // Handle periodic publishing and status changes
+  useEffect(() => {
+    if (!streamConfig.d || !streamConfig.streaming) return // Don't run if we don't have required data
+
+    let publishInterval: NodeJS.Timeout | null = null
+
+    const publishNote = (status: 'live' | 'ended') => {
+      const noteConfig = {
+        ...streamConfig,
+        status,
+        prevStatus: streamConfig.status,
+      }
+      console.debug('publishing stream note', noteConfig)
+      publishStreamEvent(noteConfig)
+    }
+
+    if (isStreamLive && !expired) {
+      // Publish immediately when going live
+      publishNote('live')
+
+      // Set up interval for periodic publishing
+      publishInterval = setInterval(() => {
+        console.debug('interval publishing stream note')
+        publishNote('live')
+      }, 30 * 1000)
+    } else if ((!isStreamLive || expired) && streamStartedAt > 0) {
+      // Stream was live but now stopped or expired - publish final ended status
+      publishNote('ended')
+    }
+
+    // Update stream state if expired
+    if (expired) {
+      setIsStreamLive(false)
+    }
+
+    return () => {
+      if (publishInterval) {
+        clearInterval(publishInterval)
+      }
+    }
+  }, [isStreamLive, expired, streamStartedAt, streamConfig.d, streamConfig.streaming])
 
   const renderContent = () => {
     if (currentView === 'settings') {
@@ -252,27 +366,20 @@ const Dashboard = ({ isSidebarOpen }: { isSidebarOpen: boolean }) => {
           </div>
 
           <DashboardStreamBio
-            // streamStatus={streamStatus}
-            // setStreamStatus={setStreamStatus}
             isStreamLive={isStreamLive}
             setIsStreamLive={setIsStreamLive}
             participants={streamData?.participants ?? []}
             title={streamData?.title ?? ''}
             tags={streamData?.t ?? []}
             viewerCount={streamData?.viewerCount ?? 0}
-            // starts={streamData?.createdAt.getTime() ?? 0}
             streamStartedAt={streamStartedAt}
-            // ends={ends}
             expiresAt={streamData?.expiresAt?.getTime() ?? 0}
             expired={expired}
           />
-
-          <h2 className="mb-2 text-2xl font-bold">{streamData?.title}</h2>
-          <span>d: {streamData?.id}</span>
         </div>
 
         {/* Notifications */}
-        <div className="w-80 overflow-y-auto p-4">
+        {/* <div className="w-80 overflow-y-auto p-4">
           <h2 className="mb-4 flex items-center text-lg font-semibold">
             <Bell className="mr-2 h-5 w-5" /> Notifications
           </h2>
@@ -284,7 +391,9 @@ const Dashboard = ({ isSidebarOpen }: { isSidebarOpen: boolean }) => {
               </div>
             ))}
           </ScrollArea>
-        </div>
+        </div> */}
+
+        <Notifications notifications={notifications} setNotifications={setNotifications} />
 
         <div className="flex h-full w-full sm:w-80 md:shrink-0">
           <NewChat
@@ -299,7 +408,8 @@ const Dashboard = ({ isSidebarOpen }: { isSidebarOpen: boolean }) => {
     )
   }
 
-  // TODO: Fix flashing on refresh
+  // TODO: Fix flashing on refresh.. validate user and get their credentials on backend..
+  // did this on twelvecash by storing the jwt as a cookie
   if (!user) {
     return <div>You must be logged in to view this page</div>
   }

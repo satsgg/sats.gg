@@ -171,6 +171,8 @@ export default class RelayPool {
 
       ps.push(publishWithTimeout(1000))
     }
-    await Promise.allSettled(ps).then((results) => console.debug('publish results', results))
+    const results = await Promise.allSettled(ps)
+    console.debug('publish results', results)
+    return results
   }
 }
