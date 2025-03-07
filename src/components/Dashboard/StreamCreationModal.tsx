@@ -40,8 +40,8 @@ export default function StreamCreationModal({
 
   // console.debug('!!streamId', !!streamId)
   // console.debug('isOpen', isOpen)
-  console.debug('data', data)
-  console.debug('isChannelReady', isChannelReady)
+  // console.debug('data', data)
+  // console.debug('isChannelReady', isChannelReady)
   useEffect(() => {
     if (data?.status === StreamStatus.READY) {
       console.debug('setting isChannelReady to true')

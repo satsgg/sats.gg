@@ -4,7 +4,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { displayName } from '~/utils/nostr'
 import Link from 'next/link'
 
-export default function ParticipantAvatar({ pubkey }: { pubkey: string }) {
+export default function ParticipantAvatar({ pubkey, size = 'h-8 w-8' }: { pubkey: string; size?: string }) {
   const { isLoading, profile } = useProfile(pubkey)
 
   return (
@@ -12,7 +12,7 @@ export default function ParticipantAvatar({ pubkey }: { pubkey: string }) {
       <Tooltip>
         <TooltipTrigger asChild>
           <Link href={`/${pubkey}`} legacyBehavior={false}>
-            <Avatar className="inline-block h-8 w-8 rounded-full ring-2 ring-background">
+            <Avatar className={`inline-block rounded-full ring-2 ring-background ${size}`}>
               <AvatarImage src={profile?.picture} alt={'Participant'} />
               <AvatarFallback>U</AvatarFallback>
             </Avatar>

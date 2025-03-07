@@ -7,21 +7,36 @@ import StreamCreationModal from '~/components/Dashboard/StreamCreationModal'
 import Settings from '~/components/Dashboard/Settings'
 import { trpc } from '~/utils/trpc'
 import { Button } from '~/components/ui/button'
-import { ChevronUp, ChevronDown, Bell, MessageSquare } from 'lucide-react'
+import { ChevronUp, ChevronDown, Bell, MessageSquare, Badge } from 'lucide-react'
 import { ScrollArea } from '~/components/ui/scroll-area'
 import { useStream } from '~/hooks/useStream'
 import { useProfile } from '~/hooks/useProfile'
 import NewChat from '~/components/Chat/NewChat'
-import { createStreamEvent } from '~/utils/nostr'
+import { createStreamEvent, displayName } from '~/utils/nostr'
 import { nostrClient } from '~/nostr/NostrClient'
 import { Event as NostrEvent, verifySignature, validateEvent } from 'nostr-tools'
 import VideoPlayer from '~/components/Stream/Player'
+import { TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip'
+import { Tooltip } from '~/components/ui/tooltip'
+import ParticipantAvatar from '~/components/ParticipantAvatar'
+import { TooltipContent } from '~/components/ui/tooltip'
+import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar'
+import ParticipantPopupRow from '~/components/ParticipantPopupRow'
+import DashboardStreamBio from '~/components/Dashboard/DashboardStreamBio'
+
+const maxVisibleParticipants = 4
 
 const Dashboard = ({ isSidebarOpen }: { isSidebarOpen: boolean }) => {
   const router = useRouter()
   const [showModal, setShowModal] = useState(false)
   const [streamId, setStreamId] = useState<string>('')
   const [currentView, setCurrentView] = useState('dashboard')
+  // const [streamStatus, setStreamStatus] = useState<'live' | 'ended'>('ended')
+  const [isStreamLive, setIsStreamLive] = useState(false)
+  // const [ends, setEnds] = useState<number>(0) //milliseconds
+  const [expired, setExpired] = useState(true)
+  const [streamStartedAt, setStreamStartedAt] = useState<number>(0)
+  const [currentTime, setCurrentTime] = useState<number>(0)
 
   const [user, pubkey, npub, view, logout] = useAuthStore((state) => [
     state.user,
@@ -39,6 +54,14 @@ const Dashboard = ({ isSidebarOpen }: { isSidebarOpen: boolean }) => {
     enabled: !showModal,
   })
 
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(Date.now())
+    }, 1000)
+
+    return () => clearInterval(timer)
+  }, [])
+
   // const stream = useStream(pubkey ?? '', data?.id)
   // console.debug('stream', stream)
 
@@ -55,7 +78,8 @@ const Dashboard = ({ isSidebarOpen }: { isSidebarOpen: boolean }) => {
       if (!ok) throw new Error('Invalid event')
       let veryOk = verifySignature(signedEvent)
       if (!veryOk) throw new Error('Invalid signature')
-      nostrClient.publish(signedEvent)
+      console.debug('status', status, 'signed event', signedEvent)
+      // nostrClient.publish(signedEvent)
     } catch (error) {
       console.error('Error publishing stream event', error)
     }
@@ -72,7 +96,7 @@ const Dashboard = ({ isSidebarOpen }: { isSidebarOpen: boolean }) => {
       }
     }
   }, [router.isReady, router.query])
-  console.debug('streamData', streamData)
+  // console.debug('streamData', streamData)
 
   // useEffect(() => {
   //   if (!streamData?.id || streamData.status !== 'READY') {
@@ -109,6 +133,48 @@ const Dashboard = ({ isSidebarOpen }: { isSidebarOpen: boolean }) => {
   //   }
   // }, [streamData?.id])
 
+  useEffect(() => {
+    if (!streamData?.expiresAt) return
+    const expired = currentTime > streamData.expiresAt.getTime()
+    console.debug('streamData.expiresAt', streamData.expiresAt.getTime(), 'currentTime', currentTime)
+    console.debug('expired', expired)
+    setExpired(expired)
+    if (isStreamLive && expired) {
+      // Publish ended event if stream was live and expired
+      publishStreamEvent('ended')
+      setIsStreamLive(false)
+    }
+  }, [streamData?.expiresAt, currentTime, isStreamLive])
+
+  useEffect(() => {
+    if (isStreamLive) {
+      setStreamStartedAt(Date.now())
+      setExpired(false)
+      // Publish initial live event
+      publishStreamEvent('live')
+
+      // Set up interval to keep publishing live events
+      const interval = setInterval(() => {
+        if (!expired) {
+          publishStreamEvent('live')
+        }
+      }, 30 * 1000) // Every 30 seconds
+
+      return () => {
+        clearInterval(interval)
+        // Publish ended event when component unmounts or stream stops
+        if (!expired) {
+          publishStreamEvent('ended')
+        }
+      }
+    } else {
+      // If stream was manually stopped, publish ended event
+      if (!expired && streamStartedAt > 0) {
+        publishStreamEvent('ended')
+      }
+    }
+  }, [isStreamLive])
+
   const renderContent = () => {
     if (currentView === 'settings') {
       return (
@@ -134,7 +200,7 @@ const Dashboard = ({ isSidebarOpen }: { isSidebarOpen: boolean }) => {
 
     // Default dashboard view
     const videoJsOptions = {
-      autoplay: true,
+      autoplay: false,
       controls: true,
       responsive: true,
       fill: true,
@@ -176,20 +242,31 @@ const Dashboard = ({ isSidebarOpen }: { isSidebarOpen: boolean }) => {
     return (
       <>
         {/* Rest of dashboard view */}
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="w-full flex-1 overflow-y-auto">
           <div
             id="streamWrapper"
-            className="relative aspect-video max-h-[calc(100vh-9rem)] sm:border-b sm:border-solid sm:border-gray-500"
+            className="relative aspect-video max-h-[calc(100vh-9rem)] w-full sm:border-b sm:border-solid sm:border-gray-500"
           >
             <VideoPlayer options={videoJsOptions} />
           </div>
+
+          <DashboardStreamBio
+            // streamStatus={streamStatus}
+            // setStreamStatus={setStreamStatus}
+            isStreamLive={isStreamLive}
+            setIsStreamLive={setIsStreamLive}
+            participants={streamData?.participants ?? []}
+            title={streamData?.title ?? ''}
+            tags={streamData?.t ?? []}
+            viewerCount={streamData?.viewerCount ?? 0}
+            // starts={streamData?.createdAt.getTime() ?? 0}
+            streamStartedAt={streamStartedAt}
+            // ends={ends}
+            expiresAt={streamData?.expiresAt?.getTime() ?? 0}
+            expired={expired}
+          />
+
           <h2 className="mb-2 text-2xl font-bold">{streamData?.title}</h2>
-          <Button variant="outline" onClick={() => publishStreamEvent('live')}>
-            Publish Live
-          </Button>
-          <Button variant="outline" onClick={() => publishStreamEvent('ended')}>
-            Publish Ended
-          </Button>
           <span>d: {streamData?.id}</span>
         </div>
 

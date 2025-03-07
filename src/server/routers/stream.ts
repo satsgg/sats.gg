@@ -53,6 +53,14 @@ export const streamRouter = t.router({
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'Lightning address is required' })
       }
 
+      const latestStream = await prisma.stream
+        .findFirst({
+          where: { userId: ctx.user.id },
+          orderBy: { createdAt: 'desc' },
+        })
+        .catch((error) => {
+          console.info('No previous stream found', error)
+        })
       // TODO: add title, summary, description, image
       // copy from previous (paid) stream if exists
       const data: Prisma.StreamCreateInput = {
@@ -62,6 +70,13 @@ export const streamRouter = t.router({
         duration: input.duration * 60, // convert to seconds
         lightningAddress: input.lightningAddress || null,
         streamKey: crypto.randomUUID(),
+        title: latestStream?.title || '',
+        summary: latestStream?.summary || '',
+        description: latestStream?.description || '',
+        image: latestStream?.image || '',
+        t: latestStream?.t || [],
+        participants: latestStream?.participants || [],
+        relays: latestStream?.relays || [],
         variants: {
           create: input.qualities.map((q) => ({
             ...qualityNameMap[q.name],

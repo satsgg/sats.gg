@@ -8,6 +8,8 @@ import { useState, useEffect } from 'react'
 import { trpc } from '~/utils/trpc'
 import { Avatar, AvatarImage, AvatarFallback } from '~/components/ui/avatar'
 import { useToast } from '@/hooks/use-toast'
+import { nip19 } from 'nostr-tools'
+import ParticipantAvatar from '../ParticipantAvatar'
 
 const MAX_HASHTAGS = 3
 const MAX_PARTICIPANTS = 10
@@ -100,6 +102,7 @@ export default function Settings({
   const addHashtag = () => {
     if (!newHashtag) return
     if (currentHashtags.length >= MAX_HASHTAGS) return
+    // TODO: if npub, convert to hex
     setValue('hashtags', [...currentHashtags, newHashtag])
     setNewHashtag('')
   }
@@ -114,7 +117,21 @@ export default function Settings({
   const addParticipant = () => {
     if (!newParticipant) return
     if (currentParticipants.length >= MAX_PARTICIPANTS) return
-    setValue('participants', [...currentParticipants, newParticipant])
+
+    let newParticipantHex = newParticipant
+    if (newParticipant.startsWith('npub1')) {
+      let { type, data: nipData } = nip19.decode(newParticipant)
+      newParticipantHex = nipData as string
+    }
+
+    if (currentParticipants.includes(newParticipantHex)) {
+      setError('participants', {
+        type: 'unique',
+        message: 'Participant already exists',
+      })
+      return
+    }
+    setValue('participants', [...currentParticipants, newParticipantHex])
     setNewParticipant('')
   }
 
@@ -199,7 +216,7 @@ export default function Settings({
           <div className="flex flex-wrap gap-2 pt-2">
             {currentHashtags.map((tag, index) => (
               <div key={index} className="flex items-center gap-1 rounded-full bg-accent px-3 py-1 text-sm">
-                #{tag}
+                {tag}
                 <button
                   type="button"
                   onClick={() => removeHashtag(index)}
@@ -239,16 +256,27 @@ export default function Settings({
               Add
             </Button>
           </div>
-          <div className="flex flex-wrap gap-2 pt-2">
+          <div className="flex flex-wrap gap-2 px-2 pt-2">
             {currentParticipants.map((participant, index) => (
-              <div key={index} className="flex items-center gap-1 rounded-full bg-accent px-3 py-1 text-sm">
-                @{participant}
+              // <div key={index} className="flex items-center gap-1 rounded-full bg-accent px-3 py-1 text-sm">
+              //   @{participant}
+              //   <button
+              //     type="button"
+              //     onClick={() => removeParticipant(index)}
+              //     className="ml-1 rounded-full p-1 hover:bg-accent/50"
+              //   >
+              //     <X className="h-3 w-3" />
+              //   </button>
+              // </div>
+              // <ParticipantAvatar key={index} pubkey={participant} />
+              <div key={index} className="group relative">
+                <ParticipantAvatar pubkey={participant} size="h-10 w-10" />
                 <button
                   type="button"
                   onClick={() => removeParticipant(index)}
-                  className="ml-1 rounded-full p-1 hover:bg-accent/50"
+                  className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full border border-border bg-background opacity-0 transition-opacity hover:bg-accent group-hover:opacity-100"
                 >
-                  <X className="h-3 w-3" />
+                  <X className="h-2 w-2" />
                 </button>
               </div>
             ))}
