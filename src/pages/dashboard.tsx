@@ -91,7 +91,11 @@ const Dashboard = ({ isSidebarOpen }: { isSidebarOpen: boolean }) => {
   const { data: streamData, isLoading } = trpc.stream.getCurrentStream.useQuery(undefined, {
     refetchOnWindowFocus: true,
     refetchInterval: 15 * 1000,
-    enabled: !showModal,
+    // enabled: !showModal,
+    // enabled: true,
+    enabled: !!user,
+    staleTime: 0,
+    cacheTime: 0,
   })
 
   useEffect(() => {
@@ -411,15 +415,13 @@ const Dashboard = ({ isSidebarOpen }: { isSidebarOpen: boolean }) => {
     )
   }
 
-  // TODO: Fix flashing on refresh.. validate user and get their credentials on backend..
-  // did this on twelvecash by storing the jwt as a cookie
-  if (!user) {
-    return <div>You must be logged in to view this page</div>
-  }
-
   // TODO: Point user to create a stream if they don't have one
   if (!streamData) {
-    return <div>No stream data</div>
+    return (
+      <div className="flex h-full w-full items-center justify-center bg-background">
+        <p className="text-lg font-semibold">Create a stream to get started!</p>
+      </div>
+    )
   }
 
   return (

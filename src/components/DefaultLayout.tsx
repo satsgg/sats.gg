@@ -16,9 +16,7 @@ import useHasMounted from '~/hooks/useHasMounted'
 import useAuth from '~/hooks/useAuth'
 import GoLiveModal from './GoLiveModal'
 
-type DefaultLayoutProps = { hideFollowedChannels?: boolean; children: ReactNode }
-
-export const DefaultLayout = ({ hideFollowedChannels = false, children }: DefaultLayoutProps) => {
+export const DefaultLayout = ({ children }: { children: ReactNode }) => {
   const { init: initSettingsStore } = useSettingsStore()
   useAuth()
 
@@ -67,20 +65,18 @@ export const DefaultLayout = ({ hideFollowedChannels = false, children }: Defaul
       </div>
 
       <div id="contentContainer" className={`flex h-full overflow-hidden ${!isMounted ? 'invisible' : ''}`}>
-        {!hideFollowedChannels && (
-          <div
-            id="followContainer"
-            className={`${
-              autoCollapseLeftBar || leftBarUserClosed ? 'w-12' : 'w-60'
-            } hidden h-full shrink-0 flex-col sm:flex`}
-          >
-            <FollowedChannelList
-              autoCollapse={autoCollapseLeftBar}
-              userCollapse={leftBarUserClosed}
-              setUserCollapse={userCloseLeftBar}
-            />
-          </div>
-        )}
+        <div
+          id="followContainer"
+          className={`${
+            autoCollapseLeftBar || leftBarUserClosed ? 'w-12' : 'w-60'
+          } hidden h-full shrink-0 flex-col sm:flex`}
+        >
+          <FollowedChannelList
+            autoCollapse={autoCollapseLeftBar}
+            userCollapse={leftBarUserClosed}
+            setUserCollapse={userCloseLeftBar}
+          />
+        </div>
 
         <main className="flex h-full w-full min-w-0 flex-col sm:flex-row">{children}</main>
       </div>

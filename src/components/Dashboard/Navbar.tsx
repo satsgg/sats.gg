@@ -7,7 +7,7 @@ import { ModeToggle } from '@/components/ThemeModeToggle'
 import { Button } from '@/components/ui/button'
 import { Menu, Wifi } from 'lucide-react'
 
-export const Navbar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
+export const Navbar = () => {
   const relays = useSettingsStore((state) => state.relays)
   const [user, pubkey, npub, view, logout] = useAuthStore((state) => [
     state.user,
@@ -21,8 +21,6 @@ export const Navbar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
 
   return (
     <nav className="flex items-center justify-between bg-background px-4 py-3 shadow-sm">
-      {/* <nav className="flex items-center bg-background p-4 text-primary"> */}
-      {/* <Button variant="ghost" size="icon" onClick={toggleSidebar}> */}
       <div className="flex items-center">
         <Button variant="ghost" size="icon">
           <Menu className="h-6 w-6" />
