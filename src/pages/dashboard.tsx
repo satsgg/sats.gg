@@ -16,6 +16,7 @@ import Relays from '~/components/Dashboard/Relays'
 import Notifications from '~/components/Dashboard/Notifications'
 import { nostrClient } from '~/nostr/NostrClient'
 import useSettingsStore from '~/hooks/useSettingsStore'
+import DashboardStream from '~/components/Dashboard/DashboardStream'
 
 interface StreamNotification {
   id: string
@@ -307,8 +308,10 @@ const Dashboard = ({ isSidebarOpen }: { isSidebarOpen: boolean }) => {
       return <Relays />
     }
 
-    if (currentView === 'streams') {
-      return <div>Streams View Coming Soon</div>
+    if (currentView === 'stream') {
+      return (
+        <DashboardStream streamId={streamData?.id} streamKey={streamData?.streamKey} rtmpUrl={streamData?.rtmpUrl} />
+      )
     }
 
     const hlsUrl = streamData?.id ? `https://d1994e6vyyhuyl.cloudfront.net/${streamData.id}/stream.m3u8` : undefined
@@ -447,9 +450,9 @@ const Dashboard = ({ isSidebarOpen }: { isSidebarOpen: boolean }) => {
             <Button
               variant="ghost"
               className={`w-full justify-start ${currentView === 'streams' ? 'bg-accent' : ''}`}
-              onClick={() => setCurrentView('streams')}
+              onClick={() => setCurrentView('stream')}
             >
-              Streams
+              Stream
             </Button>
           </li>
           <li className="mb-2">

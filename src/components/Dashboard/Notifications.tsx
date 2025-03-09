@@ -21,11 +21,11 @@ export default function Notifications({
   setNotifications: (notifications: StreamNotification[]) => void
 }) {
   return (
-    <div className="w-80 overflow-y-auto p-4">
-      <h2 className="mb-4 flex items-center text-lg font-semibold">
+    <div className="w-80 overflow-y-auto border-l border-border">
+      <h2 className="flex items-center justify-center border-b border-border p-3 text-lg font-semibold">
         <Bell className="mr-2 h-5 w-5" /> Notifications
       </h2>
-      <ScrollArea className="h-[calc(100vh-8rem)]">
+      <ScrollArea className="h-[calc(100vh-8rem)] p-4">
         {/* {[...Array(10)].map((_, i) => ( */}
         {/* {notifications.map((notification) => (
           <div

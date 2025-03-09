@@ -23,7 +23,7 @@ export default function Relays() {
   }
 
   return (
-    <div className="max-w-3xl space-y-6 px-8 pt-8">
+    <div className="max-w-3xl space-y-6 px-6 pt-6">
       <h1 className="text-2xl font-bold">Relays</h1>
       <div>
         <h2 className="mb-2 text-lg font-semibold">Add Custom Relay</h2>
