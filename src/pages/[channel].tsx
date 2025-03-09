@@ -1,11 +1,7 @@
 import { useRouter } from 'next/router'
-import { Chat } from '~/components/Chat/Chat'
 import NewChat from '~/components/Chat/NewChat'
-import ChatSkeleton from '~/components/Chat/ChatSkeleton'
 import { nip19 } from 'nostr-tools'
-import StreamSkeleton from '~/components/Stream/StreamSkeleton'
 import { StreamBio } from '~/components/Stream/StreamBio'
-import { Spinner } from '~/components/Spinner'
 import { useProfile } from '~/hooks/useProfile'
 import { useEffect, useState } from 'react'
 import ZapInvoiceModule from '~/components/ZapInvoiceModule'
@@ -247,11 +243,6 @@ export default function Channel({ naddr, addressPointer, initialStreamData, meta
       ? window.location.origin
       : process.env.NEXT_PUBLIC_SITE_URL || 'https://satsgg-staging.up.railway.app'
 
-  console.debug('Channel: addressPointer', addressPointer)
-  useEffect(() => {
-    console.debug('Channel: initialStreamData', initialStreamData)
-  }, [initialStreamData])
-
   // Only initialize hooks if we have the required props
   const stream = addressPointer ? useStream(addressPointer.pubkey, addressPointer.identifier) : null
   const { profile: channelProfile, isLoading: channelProfileIsLoading } = useProfile(
@@ -385,7 +376,7 @@ export default function Channel({ naddr, addressPointer, initialStreamData, meta
       <div className="flex h-full w-full sm:w-80 md:shrink-0">
         {stream && (
           <NewChat
-            channelPubkey={addressPointer.pubkey}
+            channelPubkey={stream.pubkey}
             providerPubkey={stream.providerPubkey}
             streamId={stream.id}
             channelIdentifier={stream.d}

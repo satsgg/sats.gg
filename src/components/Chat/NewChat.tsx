@@ -94,7 +94,7 @@ export default function NewChat({
   const [showScrollButton, setShowScrollButton] = useState(false)
   const viewportRef = useRef<HTMLDivElement | null>(null)
 
-  useFetchZap('chat-zap', channelProfile?.pubkey, zapState.invoice, () => {
+  useFetchZap('chat-zap', channelPubkey, zapState.invoice, () => {
     setTimeout(() => {
       setFocus('message')
     }, 1)
