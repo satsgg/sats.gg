@@ -49,7 +49,8 @@ const StreamCard = ({
 
   if (isLoading) return <DummyStreamCard />
 
-  const streamLink = getVerifiedChannelLink(profile) || getStreamNaddr(providerPubkey || pubkey, d, relays)
+  // const streamLink = getVerifiedChannelLink(profile) || getStreamNaddr(providerPubkey || pubkey, d, relays)
+  const streamLink = getStreamNaddr(providerPubkey || pubkey, d, relays)
 
   return (
     <div className="overflow-hidden rounded-lg bg-background shadow-sm">

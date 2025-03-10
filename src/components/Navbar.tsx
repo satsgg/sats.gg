@@ -99,7 +99,8 @@ export const Navbar = ({ openAuthenticate, openGoLive }: HeaderProps) => {
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild className="cursor-pointer">
                 <Link
-                  href={`/${getVerifiedChannelLink(profile) || npub}`}
+                  // href={`/${getVerifiedChannelLink(profile) || npub}`}
+                  href={`/${npub}`}
                   legacyBehavior={false}
                   className="flex items-center"
                 >

@@ -25,10 +25,8 @@ export const FollowedChannelSingle = ({
   const [openPopoverId, setOpenPopoverId] = useState<string | null>(null)
 
   const streamLink =
-    getVerifiedChannelLink(profile) ||
-    (stream
-      ? getStreamNaddr(stream.providerPubkey || stream.pubkey, stream.d, stream.relays)
-      : nip19.npubEncode(pubkey))
+    // getVerifiedChannelLink(profile) ||
+    stream ? getStreamNaddr(stream.providerPubkey || stream.pubkey, stream.d, stream.relays) : nip19.npubEncode(pubkey)
 
   return (
     // <Popover key={profile?.name}>
