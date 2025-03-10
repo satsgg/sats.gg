@@ -127,7 +127,7 @@ export const getServerSideProps: GetServerSideProps<ChannelProps> = async ({ que
     return { notFound: true }
   }
 
-  const origin = process.env.NEXT_PUBLIC_SITE_URL || 'https://satsgg-staging.up.railway.app'
+  const origin = process.env.NEXT_PUBLIC_SITE_URL || 'https://sats.gg'
 
   // For non-bot requests, return minimal props
   // This should make the page load faster for regular users
@@ -212,8 +212,7 @@ export const getServerSideProps: GetServerSideProps<ChannelProps> = async ({ que
   } catch (error) {
     console.error('Error fetching stream data:', error)
     // Even on error, return props with default meta tags
-    // const origin = process.env.NEXT_PUBLIC_SITE_URL || 'https://sats.gg'
-    const origin = process.env.NEXT_PUBLIC_SITE_URL || 'https://satsgg-staging.up.railway.app'
+    const origin = process.env.NEXT_PUBLIC_SITE_URL || 'https://sats.gg'
     return {
       props: {
         naddr: channel,
@@ -239,9 +238,7 @@ export default function Channel({ naddr, addressPointer, initialStreamData, meta
 
   const { query, isReady } = useRouter()
   const origin =
-    typeof window !== 'undefined'
-      ? window.location.origin
-      : process.env.NEXT_PUBLIC_SITE_URL || 'https://satsgg-staging.up.railway.app'
+    typeof window !== 'undefined' ? window.location.origin : process.env.NEXT_PUBLIC_SITE_URL || 'https://sats.gg'
 
   // Only initialize hooks if we have the required props
   const stream = addressPointer ? useStream(addressPointer.pubkey, addressPointer.identifier) : null
