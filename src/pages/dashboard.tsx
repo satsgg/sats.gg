@@ -148,7 +148,7 @@ const Dashboard = ({ isSidebarOpen }: { isSidebarOpen: boolean }) => {
         // ['ends', (Math.floor(streamData.expiresAt?.getTime) ) / 1000).toString()],
         // ['ends', streamData.expiresAt ? Math.floor(streamData.expiresAt?.getTime() / 1000).toString() : ''],
         ['ends', streamConfig.ends ?? ''],
-        ['relays', streamConfig.relays.join(',')],
+        ['relays', ...streamConfig.relays],
       ],
       content: '',
     }
