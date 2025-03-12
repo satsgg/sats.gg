@@ -41,7 +41,7 @@ export const ShareDialog = ({
   const handleCopyEmbed = () => {
     if (!streamIdentifier) return
     const embedUrl = `${window.location.origin}/embed/${getStreamNaddr(pubkey, streamIdentifier, relays)}`
-    const embedCode = `<iframe src="${embedUrl}" width="100%" height="480" frameborder="0" allowfullscreen></iframe>`
+    const embedCode = `<iframe src="${embedUrl}" width="100%" frameborder="0" allowfullscreen></iframe>`
     navigator.clipboard.writeText(embedCode).then(() => {
       setCopiedEmbed(true)
       setTimeout(() => setCopiedEmbed(false), 2000)

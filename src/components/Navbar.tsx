@@ -17,6 +17,7 @@ import {
 import { Video, Wifi, Settings, LogOut, LayoutDashboard } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import GoLiveModal from './GoLiveModal'
+import { useRouter } from 'next/router'
 // import { useTheme } from 'next-themes'
 
 interface HeaderProps {
@@ -37,6 +38,7 @@ export const Navbar = ({ openAuthenticate, openGoLive }: HeaderProps) => {
   ])
   const { profile, isLoading } = useProfile(pubkey)
   const connectedRelays = useConnectedRelays()
+  const router = useRouter()
 
   const handleLogout = async () => {
     setShowAccountMenu(false)
@@ -74,7 +76,7 @@ export const Navbar = ({ openAuthenticate, openGoLive }: HeaderProps) => {
           </Button>
         )} */}
 
-        {view === 'authenticated' && <GoLiveModal />}
+        {view === 'authenticated' && router.pathname !== '/' && <GoLiveModal />}
 
         {view === 'authenticated' ? (
           <DropdownMenu>
@@ -100,7 +102,7 @@ export const Navbar = ({ openAuthenticate, openGoLive }: HeaderProps) => {
               <DropdownMenuItem asChild className="cursor-pointer">
                 <Link
                   // href={`/${getVerifiedChannelLink(profile) || npub}`}
-                  href={`/${npub}`}
+                  href={`/watch/${npub}`}
                   legacyBehavior={false}
                   className="flex items-center"
                 >

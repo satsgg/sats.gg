@@ -13,8 +13,8 @@ export default function LandingPage() {
   ]
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4 text-foreground">
-      <div className="w-full max-w-md space-y-8 text-center md:max-w-4xl">
+    <div className="flex min-h-screen w-full flex-col items-center justify-center bg-background p-4 text-foreground">
+      <div className="mx-auto w-full max-w-md space-y-8 text-center md:max-w-4xl">
         <div className="flex flex-col items-center gap-4">
           <Zap className="size-16 md:size-20 text-primary" />
           <h1 className="text-5xl font-bold md:text-7xl">sats.gg</h1>

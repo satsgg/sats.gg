@@ -15,10 +15,12 @@ import useLayoutStore from '~/store/layoutStore'
 import useHasMounted from '~/hooks/useHasMounted'
 import useAuth from '~/hooks/useAuth'
 import GoLiveModal from './GoLiveModal'
+import { useRouter } from 'next/router'
 
 export const DefaultLayout = ({ children }: { children: ReactNode }) => {
   const { init: initSettingsStore } = useSettingsStore()
   useAuth()
+  const router = useRouter()
 
   const { leftBarUserClosed, userCloseLeftBar } = useLayoutStore()
   const isMounted = useHasMounted()
@@ -65,18 +67,20 @@ export const DefaultLayout = ({ children }: { children: ReactNode }) => {
       </div>
 
       <div id="contentContainer" className={`flex h-full overflow-hidden ${!isMounted ? 'invisible' : ''}`}>
-        <div
-          id="followContainer"
-          className={`${
-            autoCollapseLeftBar || leftBarUserClosed ? 'w-12' : 'w-60'
-          } hidden h-full shrink-0 flex-col sm:flex`}
-        >
-          <FollowedChannelList
-            autoCollapse={autoCollapseLeftBar}
-            userCollapse={leftBarUserClosed}
-            setUserCollapse={userCloseLeftBar}
-          />
-        </div>
+        {router.pathname !== '/' && (
+          <div
+            id="followContainer"
+            className={`${
+              autoCollapseLeftBar || leftBarUserClosed ? 'w-12' : 'w-60'
+            } hidden h-full shrink-0 flex-col sm:flex`}
+          >
+            <FollowedChannelList
+              autoCollapse={autoCollapseLeftBar}
+              userCollapse={leftBarUserClosed}
+              setUserCollapse={userCloseLeftBar}
+            />
+          </div>
+        )}
 
         <main className="flex h-full w-full min-w-0 flex-col sm:flex-row">{children}</main>
       </div>
