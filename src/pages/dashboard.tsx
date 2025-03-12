@@ -77,6 +77,7 @@ const Dashboard = ({ isSidebarOpen }: { isSidebarOpen: boolean }) => {
   const [notifications, setNotifications] = useState<StreamNotification[]>([])
   const relays = useSettingsStore((state) => state.relays)
   const [streamConfig, setStreamConfig] = useState<StreamConfig>(DEFAULT_EVENT_CONFIG)
+  const [hlsUrl, setHlsUrl] = useState<string>('')
 
   const [user, pubkey, npub, view, logout] = useAuthStore((state) => [
     state.user,
@@ -97,6 +98,13 @@ const Dashboard = ({ isSidebarOpen }: { isSidebarOpen: boolean }) => {
     staleTime: 0,
     cacheTime: 0,
   })
+
+  useEffect(() => {
+    if (streamData?.id) {
+      const url = `https://d1994e6vyyhuyl.cloudfront.net/${streamData.id}/stream.m3u8`
+      setHlsUrl(url)
+    }
+  }, [streamData?.id])
 
   useEffect(() => {
     if (streamData) {
@@ -314,11 +322,12 @@ const Dashboard = ({ isSidebarOpen }: { isSidebarOpen: boolean }) => {
 
     if (currentView === 'stream') {
       return (
-        <DashboardStream streamId={streamData?.id} streamKey={streamData?.streamKey} rtmpUrl={streamData?.rtmpUrl} />
+        // <DashboardStream streamId={streamData?.id} streamKey={streamData?.streamKey} rtmpUrl={streamData?.rtmpUrl} />
+        <DashboardStream hlsUrl={hlsUrl} streamKey={streamData?.streamKey} rtmpUrl={streamData?.rtmpUrl} />
       )
     }
 
-    const hlsUrl = streamData?.id ? `https://d1994e6vyyhuyl.cloudfront.net/${streamData.id}/stream.m3u8` : undefined
+    // const hlsUrl = streamData?.id ? `https://d1994e6vyyhuyl.cloudfront.net/${streamData.id}/stream.m3u8` : undefined
 
     // Default dashboard view
     const videoJsOptions = {
@@ -382,6 +391,8 @@ const Dashboard = ({ isSidebarOpen }: { isSidebarOpen: boolean }) => {
             streamStartedAt={streamStartedAt}
             expiresAt={streamData?.expiresAt?.getTime() ?? 0}
             expired={expired}
+            hlsUrl={hlsUrl}
+            streamIdentifier={streamData?.id ?? ''}
           />
         </div>
 

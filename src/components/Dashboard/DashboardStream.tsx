@@ -7,26 +7,17 @@ import { useToast } from '@/hooks/use-toast'
 import { Copy, Eye, EyeOff } from 'lucide-react'
 
 export default function DashboardStream({
-  streamId,
+  hlsUrl,
   streamKey,
   rtmpUrl,
 }: {
-  streamId?: string
+  hlsUrl: string
   streamKey?: string
   rtmpUrl?: string | null
 }) {
   const [showStreamKey, setShowStreamKey] = useState(false)
-  const [hlsUrl, setHlsUrl] = useState('')
   const [fullRtmpUrl, setFullRtmpUrl] = useState('')
   const { toast } = useToast()
-  // console.debug('rtmpUrl', rtmpUrl)
-
-  useEffect(() => {
-    if (streamId) {
-      const hlsUrl = `https://d1994e6vyyhuyl.cloudfront.net/${streamId}/stream.m3u8`
-      setHlsUrl(hlsUrl)
-    }
-  }, [streamId])
 
   useEffect(() => {
     if (rtmpUrl) {
@@ -34,13 +25,6 @@ export default function DashboardStream({
       setFullRtmpUrl(fullRtmpUrl)
     }
   }, [rtmpUrl])
-
-  // These would typically come from your backend/database
-  // const streamSettings = {
-  //   hlsUrl: 'https://stream.sats.gg/hls/yourusername',
-  //   streamKey: 'live_123456789_abcdefghijklmnopqrstuvwxyz',
-  //   rtmpUrl: 'rtmp://ingest.sats.gg/live',
-  // }
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text)
@@ -51,9 +35,6 @@ export default function DashboardStream({
   }
 
   return (
-    // <div className="flex w-full flex-col space-y-6 px-8 pt-8">
-    //   <h1 className="text-2xl font-bold">Stream Settings</h1>
-    // </div>
     <div className="w-full max-w-2xl p-6">
       <div className="mb-6">
         <h1 className="text-2xl font-bold">Stream</h1>
@@ -75,6 +56,24 @@ export default function DashboardStream({
               <Copy className="h-4 w-4" />
             </Button>
           </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="rtmp-url">RTMP URL</Label>
+          <div className="flex items-center space-x-2">
+            <Input id="rtmp-url" value={fullRtmpUrl} readOnly className="font-mono" />
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => copyToClipboard(fullRtmpUrl, 'RTMP URL')}
+              title="Copy RTMP URL"
+            >
+              <Copy className="h-4 w-4" />
+            </Button>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Use this URL in your streaming software (OBS, Streamlabs, etc.)
+          </p>
         </div>
 
         <div className="space-y-2">
@@ -105,24 +104,6 @@ export default function DashboardStream({
             </Button>
           </div>
           <p className="text-sm text-muted-foreground">Keep your stream key private. Never share it with anyone.</p>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="rtmp-url">RTMP URL</Label>
-          <div className="flex items-center space-x-2">
-            <Input id="rtmp-url" value={fullRtmpUrl} readOnly className="font-mono" />
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => copyToClipboard(fullRtmpUrl, 'RTMP URL')}
-              title="Copy RTMP URL"
-            >
-              <Copy className="h-4 w-4" />
-            </Button>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Use this URL in your streaming software (OBS, Streamlabs, etc.)
-          </p>
         </div>
 
         <div className="pt-4">

@@ -46,6 +46,8 @@ export default function DashboardStreamBio({
   streamStartedAt,
   expiresAt,
   expired,
+  streamIdentifier,
+  hlsUrl,
 }: {
   // streamStatus: string
   // setStreamStatus: Function
@@ -59,6 +61,8 @@ export default function DashboardStreamBio({
   streamStartedAt: number
   expiresAt: number
   expired: boolean
+  streamIdentifier: string
+  hlsUrl: string
 }) {
   const [showShareDialog, setShowShareDialog] = useState(false)
   const [currentTime, setCurrentTime] = useState<number>(Date.now())
@@ -70,6 +74,7 @@ export default function DashboardStreamBio({
     state.logout,
   ])
   const { profile, isLoading: profileIsLoading } = useProfile(pubkey)
+  const relays = useSettingsStore((state) => state.relays)
 
   // Number(ends) * 1000 < currentTime
   // useEffect(() => {
@@ -199,15 +204,15 @@ export default function DashboardStreamBio({
         </div>
         {/* </div> */}
 
-        {/* <ShareDialog
-        open={showShareDialog}
-        onOpenChange={setShowShareDialog}
-        streamIdentifier={streamIdentifier}
-        streamTitle={title}
-        streamStreaming={streamStreaming}
-        pubkey={pubkey}
-        relays={relays}
-      /> */}
+        <ShareDialog
+          open={showShareDialog}
+          onOpenChange={setShowShareDialog}
+          streamIdentifier={streamIdentifier}
+          streamTitle={title}
+          streamStreaming={hlsUrl}
+          pubkey={pubkey ?? ''}
+          relays={relays}
+        />
       </div>
     </div>
   )
