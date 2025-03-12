@@ -31,7 +31,7 @@ export const ShareDialog = ({
 
   const handleCopyUrl = () => {
     if (!streamIdentifier) return
-    const url = `${window.location.origin}/${getStreamNaddr(pubkey, streamIdentifier, relays)}`
+    const url = `${window.location.origin}/watch/${getStreamNaddr(pubkey, streamIdentifier, relays)}`
     navigator.clipboard.writeText(url).then(() => {
       setCopiedUrl(true)
       setTimeout(() => setCopiedUrl(false), 2000)
@@ -57,10 +57,13 @@ export const ShareDialog = ({
   }
 
   const handleShareTwitter = () => {
+    if (!streamIdentifier) return
     const text = streamTitle ? `${streamTitle}\n` : ''
-    const url = window.location.href
+    // const url = window.location.href
+    const embedUrl = `${window.location.origin}/watch/${getStreamNaddr(pubkey, streamIdentifier, relays)}`
     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(
-      url,
+      // url,
+      embedUrl,
     )}`
     window.open(twitterUrl, '_blank')
   }
@@ -123,7 +126,7 @@ export const ShareDialog = ({
               <div className="flex items-center space-x-2">
                 <Input
                   readOnly
-                  value={`${window.location.origin}/${getStreamNaddr(pubkey, streamIdentifier, relays)}`}
+                  value={`${window.location.origin}/watch/${getStreamNaddr(pubkey, streamIdentifier, relays)}`}
                 />
                 <Button size="icon" variant="outline" onClick={handleCopyUrl}>
                   {copiedUrl ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}

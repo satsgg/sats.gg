@@ -11,7 +11,7 @@ export default function ParticipantAvatar({ pubkey, size = 'h-8 w-8' }: { pubkey
     <TooltipProvider delayDuration={0}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Link href={`/${pubkey}`} legacyBehavior={false}>
+          <Link href={`/watch/${pubkey}`} legacyBehavior={false}>
             <Avatar className={`inline-block rounded-full ring-2 ring-background ${size}`}>
               <AvatarImage src={profile?.picture} alt={'Participant'} />
               <AvatarFallback>U</AvatarFallback>

@@ -46,7 +46,7 @@ export const FollowedChannelSingle = ({
         <Button
           variant="ghost"
           className={`mb-1 w-full justify-start ${userCollapse ? 'px-1 py-1' : 'px-2 py-1.5'} h-10`}
-          onClick={() => router.push(`/${streamLink}`)}
+          onClick={() => router.push(`/watch/${streamLink}`)}
           onMouseEnter={() => userCollapse && setOpenPopoverId(pubkey)}
           onMouseLeave={() => userCollapse && setOpenPopoverId(null)}
         >

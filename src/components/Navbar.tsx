@@ -47,7 +47,7 @@ export const Navbar = ({ openAuthenticate, openGoLive }: HeaderProps) => {
 
   return (
     <nav className="flex items-center justify-between bg-background px-4 py-3 shadow-sm">
-      <Link href="/" className="">
+      <Link href="/watch" className="">
         <h1 className="cursor-pointer text-2xl font-bold text-primary hover:text-primary/80">
           {/* TODO: Something wrong here when refreshing on light mode */}
           {/* {theme === 'light' ? '💯' : '🤘'} SATS.GG */}

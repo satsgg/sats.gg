@@ -53,7 +53,7 @@ const StreamCard = ({
 
   return (
     <div className="overflow-hidden rounded-lg bg-background shadow-sm">
-      <Link href={`/${streamLink}`} legacyBehavior={false} className="group block">
+      <Link href={`/watch/${streamLink}`} legacyBehavior={false} className="group block">
         <div className="relative">
           <img
             src={image}
@@ -74,17 +74,17 @@ const StreamCard = ({
       </Link>
       <div className="py-4">
         <div className="flex items-start space-x-3 px-3">
-          <Link href={`/${streamLink}`} legacyBehavior={false}>
+          <Link href={`/watch/${streamLink}`} legacyBehavior={false}>
             <Avatar className="h-10 w-10 cursor-pointer transition-transform hover:scale-110">
               <AvatarImage src={profile?.picture} alt="User" />
               <AvatarFallback>U</AvatarFallback>
             </Avatar>
           </Link>
           <div className="min-w-0 flex-1">
-            <Link href={`/${streamLink}`} legacyBehavior={false} className="block">
+            <Link href={`/watch/${streamLink}`} legacyBehavior={false} className="block">
               <h3 className="truncate font-semibold leading-none transition-colors hover:text-primary-500">{title}</h3>
             </Link>
-            <Link href={`/${streamLink}`} legacyBehavior={false} className="block">
+            <Link href={`/watch/${streamLink}`} legacyBehavior={false} className="block">
               <p className="mt-1 truncate text-sm text-muted-foreground transition-colors hover:text-primary">
                 {!isLoading && displayName(pubkey, profile)}
               </p>
