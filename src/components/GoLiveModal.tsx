@@ -43,7 +43,7 @@ const qualityOptions = [
 // - refactor footer buttons, add loading state
 // - error handling and toasts
 // - use seconds instead of minutes for duration
-export default function GoLiveModal() {
+export default function GoLiveModal({ childButton }: { childButton: React.ReactNode }) {
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
   const [step, setStep] = useState(1)
@@ -226,12 +226,7 @@ export default function GoLiveModal() {
         if (!open) setStep(1)
       }}
     >
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="text-primary">
-          <Video className="mr-2 h-4 w-4" />
-          Go Live
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{childButton}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>

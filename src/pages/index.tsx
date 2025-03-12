@@ -1,6 +1,7 @@
-import { Twitter, Globe, Newspaper, Layout, Share2 } from 'lucide-react'
+import { Twitter, Globe, Newspaper, Layout, Share2, Zap } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
+import GoLiveModal from '~/components/GoLiveModal'
 
 export default function LandingPage() {
   const platforms = [
@@ -12,10 +13,12 @@ export default function LandingPage() {
   ]
 
   return (
-    <div className="flex min-h-screen w-full flex-col items-center justify-center bg-background p-4 text-foreground">
-      <div className="mx-auto w-full max-w-md space-y-8 text-center md:max-w-4xl">
+    // <div className="flex min-h-screen w-full flex-col items-center justify-center bg-background p-4 text-foreground">
+    <div className=" flex min-h-[calc(100vh-56px)] w-full flex-col items-center justify-center bg-background p-4 text-foreground">
+      <div className="mx-auto w-full max-w-md space-y-8 pt-[56px] text-center md:max-w-4xl">
         <div className="flex flex-col items-center gap-4">
           {/* <Zap className="size-16 md:size-20 text-primary" /> */}
+          <Zap className="h-16 w-16 text-primary md:h-20 md:w-20" />
           <h1 className="text-5xl font-bold md:text-7xl">SATS.GG</h1>
         </div>
 
@@ -24,11 +27,13 @@ export default function LandingPage() {
         </p>
 
         <div className="flex flex-col justify-center gap-4 pt-8 sm:flex-row">
-          <Link href="/stream">
-            <Button variant="default" size="lg">
-              Go Live
-            </Button>
-          </Link>
+          <GoLiveModal
+            childButton={
+              <Button variant="default" size="lg">
+                Go Live
+              </Button>
+            }
+          />
 
           <Link href="/watch">
             <Button variant="outline" size="lg">
@@ -37,6 +42,7 @@ export default function LandingPage() {
           </Link>
         </div>
 
+        {/* TODO: these overflow on mobile*/}
         <div className="space-y-6 pt-16">
           {/* <p className="text-sm text-muted-foreground">Monetized content available on your favorite platforms:</p> */}
           <p className="text-sm text-muted-foreground">Monetize your content on your favorite platforms.</p>
